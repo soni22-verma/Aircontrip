@@ -1,3 +1,4 @@
+import { Link } from "lucide-react";
 import React from "react";
 
 export default function Footer() {
@@ -28,22 +29,14 @@ export default function Footer() {
           <div>
             <h3 className="font-bold mb-2">Company</h3>
             <ul className="space-y-2 text-gray-900">
-              <li className="hover:underline cursor-pointer">About us</li>
-              <li className="hover:underline cursor-pointer">Careers</li>
-              <li className="hover:underline cursor-pointer">Press</li>
-              <li className="hover:underline cursor-pointer">Blog</li>
-              <li className="hover:underline cursor-pointer">PointsMAX</li>
+             <a href="about"><li className="hover:underline cursor-pointer">About us</li></a>
+            <a href="press"><li className="hover:underline cursor-pointer">Press</li></a>
+              <a href="blog"><li className="hover:underline cursor-pointer">Blog</li></a>
+              <a href="pointmax"><li className="hover:underline cursor-pointer">PointsMAX</li></a>
             </ul>
           </div>
 
-          {/* DESTINATIONS */}
-          <div>
-            <h3 className="font-bold mb-2">Destinations</h3>
-            <ul className="space-y-2 text-gray-900">
-              <li className="hover:underline cursor-pointer">Countries / Territories</li>
-              <li className="hover:underline cursor-pointer">All Flight Routes</li>
-            </ul>
-          </div>
+          
 
           {/* PARTNER */}
           <div>
