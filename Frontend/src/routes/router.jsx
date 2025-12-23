@@ -8,6 +8,10 @@ import HomeMobile from "../pages/home/HomeMobile";
 import Login from "../pages/Login";
 import Singup from "../pages/Singup";
 import Viewall from "../pages/Viewall"
+import FAQPage from "../pages/FAQPage";
+import PrivacyPolicy from "../pages/PrivacyPolicy";
+import HelpCenter from "../pages/HelpCenter";
+import AirContipTerms from "../pages/AirContipTerms";
 
 const router = createBrowserRouter([
   {
@@ -15,32 +19,49 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        path:"/",
+        path: "/",
         element: <Home />,
-        children:[
+        children: [
           {
-            path:"homeDestop",
-            element:<HomeDestop/>
+            path: "homeDestop",
+            element: <HomeDestop />
           },
           {
-            path:"homemobile",
-            element:<HomeMobile/>
+            path: "homemobile",
+            element: <HomeMobile />
           },
-          
+
+
         ]
       },
-     
+
       {
-        path:"login",
-        element:<Login/>
+        path: "login",
+        element: <Login />
       },
       {
-        path:"singup",
-        element:<Singup/>
+        path: "singup",
+        element: <Singup />
       },
       {
-        path:"viewall",
-        element:<Viewall/>
+        path: "viewall",
+        element: <Viewall />
+      },
+      {
+        path: "/faq",
+        element: <FAQPage />
+      },
+      {
+        path:"/privacy-policy",
+        element:<PrivacyPolicy/>
+      },
+      {
+        path:"/help-center",
+        element:<HelpCenter/>
+      },
+      {
+        path:"/air-contrip-terms",
+        element:<AirContipTerms/>
       }
     ],
   },
