@@ -77,10 +77,8 @@ const router = createBrowserRouter([
      {
       path:"pointmax",
       element:<Pointmax/>
-     }
-        path: "viewall",
-        element: <Viewall />
-      },
+     },
+       
       {
         path: "/faq",
         element: <FAQPage />
