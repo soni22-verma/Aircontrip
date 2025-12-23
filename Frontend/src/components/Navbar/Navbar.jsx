@@ -24,12 +24,12 @@ const Navbar = () => {
 
           <div className="flex items-center gap-2 cursor-pointer hover:text-blue-500">
             <BiSolidOffer size={25} />
-            <span className="font-semibold">Offers</span>
+           <Link to="offer"> <span className="font-semibold">Offers</span></Link>
           </div>
 
           <div className="flex items-center gap-2 cursor-pointer hover:text-blue-500">
             <BiSupport size={25} />
-            <span className="font-semibold">Customer Service</span>
+            <Link to="customer"><span className="font-semibold">Customer Service</span></Link>
           </div>
 
           <div className="flex items-center gap-2 cursor-pointer">

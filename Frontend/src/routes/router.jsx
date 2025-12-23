@@ -7,6 +7,13 @@ import HomeDestop from "../pages/home/HomeDestop";
 import HomeMobile from "../pages/home/HomeMobile";
 import Login from "../pages/Login";
 import Singup from "../pages/Singup";
+import Viewall from "../pages/Viewall";
+import Offer from "../pages/Offer";
+import Customer from "../pages/Customer";
+import About from "../pages/About";
+import Press from "../pages/Press";
+import Blog from "../pages/Blog";
+import Pointmax from "../pages/Pointmax"
 import Viewall from "../pages/Viewall"
 import FAQPage from "../pages/FAQPage";
 import PrivacyPolicy from "../pages/PrivacyPolicy";
@@ -44,6 +51,33 @@ const router = createBrowserRouter([
         element: <Singup />
       },
       {
+        path:"viewall",
+        element:<Viewall/>
+      },
+      {
+        path:"offer",
+        element:<Offer/>
+      },
+      {
+        path:"customer",
+        element:<Customer/>
+      },
+      {
+        path:"about",
+        element:<About/>
+      },
+     {
+      path:"press",
+      element:<Press/>
+     },
+     {
+      path:"blog",
+      element:<Blog/>
+     },
+     {
+      path:"pointmax",
+      element:<Pointmax/>
+     }
         path: "viewall",
         element: <Viewall />
       },

@@ -60,7 +60,7 @@ const Login = () => {
                 <h2 className="text-lg font-bold text-gray-800">
                   Already using AirconTrip?
                 </h2>
-                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold">A</span>
                 </div>
               </div>
@@ -76,7 +76,7 @@ const Login = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setemail(e.target.value)}
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -89,21 +89,21 @@ const Login = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500"
                     placeholder="Enter your password"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-linear-to-r from-blue-500 to-blue-700 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
+                  className="w-full bg-linear-to-r from-red-500 to-red-700 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
                 >
                   Login
                 </button>
               </form>
 
               <div className="text-center mt-6">
-                <a className="text-blue-600 text-sm hover:underline cursor-pointer">
+                <a className="text-red-600 text-sm hover:underline cursor-pointer">
                   Forgot your password?
                 </a>
               </div>

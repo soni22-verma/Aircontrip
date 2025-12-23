@@ -65,7 +65,7 @@ const Signup = () => {
                 <h2 className="text-lg font-bold text-gray-800">
                   Create your AirconTrip account
                 </h2>
-                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold">A</span>
                 </div>
               </div>
@@ -85,7 +85,7 @@ const Signup = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name"
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
                   />
                 </div>
 
@@ -98,7 +98,7 @@ const Signup = () => {
                     value={email}
                     onChange={(e) => setemail(e.target.value)}
                     placeholder="Enter your email"
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
                   />
                 </div>
 
@@ -111,7 +111,7 @@ const Signup = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="Enter phone number"
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
                   />
                 </div>
 
@@ -124,13 +124,13 @@ const Signup = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Create password"
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-linear-to-r from-blue-500 to-blue-700 text-white font-bold py-3 rounded-lg hover:opacity-90 transition"
+                  className="w-full bg-linear-to-r from-red-500 to-red-700 text-white font-bold py-3 rounded-lg hover:opacity-90 transition"
                 >
                   Create Account
                 </button>
@@ -142,7 +142,7 @@ const Signup = () => {
                   Already have an account?{" "}
                   <span
                     onClick={() => navigate("/login")}
-                    className="text-blue-600 font-semibold cursor-pointer hover:underline"
+                    className="text-red-600 font-semibold cursor-pointer hover:underline"
                   >
                     Login
                   </span>
