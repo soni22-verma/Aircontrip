@@ -76,11 +76,20 @@ const allHomes = [
     image:
       "https://pix8.agoda.net/hotelImages/231/23136142/23136142_21032513240095689087.jpg?ca=18&ce=1&s=800x",
   },
+  {
+     id:7,
+     city:"Goa",
+     name:"Good sharped & Sabs Apartments & Rooms",
+     location:"colva,goa",
+     price:"INR 5,000",
+     rating:"7.5",
+     image:"https://q-xx.bstatic.com/xdata/images/hotel/max500/767306095.jpg?k=f2f41d5f833f3ae296ea60cc9c4b286cd28fc3c5e6d173e2ab2df90b475054e8&o=&s=375x",
+  },
 
   /*====================Bangalore===================*/
 
   {
-    id:7,
+    id:8,
     city:"Bangalore",
     name:"Sliceinn Sylva ,Wilson Garden,Bangalore",
     location:"Kaemangala,Bnagalore",
@@ -89,7 +98,7 @@ const allHomes = [
     image:"https://pix8.agoda.net/hotelImages/72285127/0/7fd9c2b1048920c773ee1557c0af3942.jpg?ce=2&s=375x"
   },
   {
-    id:8,
+    id:9,
     city:"Bangalore",
     name:"BluO Studios,Bangalore",
     location:"Kaemangala,Bnagalore",
@@ -101,7 +110,7 @@ const allHomes = [
   /*=================Mumbai=====================*/
 
   {
-    id:9,
+    id:10,
     city:"Mumbai",
     name:"Powai,Mumbai",
     location:"OSI Apartments Powai",
@@ -110,7 +119,7 @@ const allHomes = [
     image:"https://q-xx.bstatic.com/xdata/images/hotel/max500/635225594.jpg?k=5a20e9fa7cf47f8a351a3e31b53a36170a02ebdb54c88e12c34c3fac4202efe5&o=&s=375x"
   },
    {
-    id:10,
+    id:11,
     city:"Mumbai",
     name:"Arnala Beach/Virar,Mumbai",
     location:"Lotus deluxe rooms",
@@ -120,7 +129,7 @@ const allHomes = [
   },
 
   {
-    id:11,
+    id:12,
     city:"Mumbai",
     name:"Mira Bhayanda,Mumbai",
     location:"the Myriad Bussiness Hotels and Resraurents",
@@ -130,7 +139,7 @@ const allHomes = [
   },
 
   {
-    id:12,
+    id:13,
     city:"Mumbai",
     name:"Khar,Mumbai",
     location:"The Oroin Premium Suites",
@@ -142,7 +151,7 @@ const allHomes = [
   /*=====================Hydrabad================*/
 
   {
-    id:13,
+    id:14,
     city:"Hyderabad",
     name:"Gachibowli,Hydrabad",
     location:"Priya Hydrabad",
@@ -151,7 +160,7 @@ const allHomes = [
     image:"https://pix8.agoda.net/hotelImages/68867887/0/319aefcc939785afc6069d8b23e8c64b.jpg?ce=2&s=375x"
   },
   {
-    id:14,
+    id:15,
     city:"Hyderabad",
     name:"Gachibowli,Hydrabad",
     location:"SID Royale",
@@ -160,7 +169,7 @@ const allHomes = [
     image:"https://pix8.agoda.net/hotelImages/63998273/-1/23beaef19044ff28e6dcb364e073245b.png?ce=0&s=375x"
   },
   {
-    id:15,
+    id:16,
     city:"Hyderabad",
     name:"Gachibowli,Hydrabad",
     location:"UNIQUE HOMESTAYS",
@@ -169,7 +178,7 @@ const allHomes = [
     image:"https://pix8.agoda.net/hotelImages/55330016/0/a011bd19ad77ab7ffc92293be88ab21c.jpg?ce=0&s=375x"
   },
   {
-    id:16,
+    id:17,
     city:"Hyderabad",
     name:"Gachibowli,Hydrabad",
     location:"Hitech Shiparamam Guest House",

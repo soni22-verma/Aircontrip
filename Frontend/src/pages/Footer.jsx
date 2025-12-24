@@ -1,4 +1,4 @@
-import { Link } from "lucide-react";
+
 import React from "react";
 
 export default function Footer() {
@@ -18,10 +18,9 @@ export default function Footer() {
               <li className="hover:underline cursor-pointer">Privacy policy</li>
               <li className="hover:underline cursor-pointer">Cookie policy</li>
               <li className="hover:underline cursor-pointer">Terms of use</li>
-              <li className="hover:underline cursor-pointer">Manage cookie settings</li>
-              <li className="hover:underline cursor-pointer">Digital Services Act (EU)</li>
-              <li className="hover:underline cursor-pointer">Content guidelines & reporting</li>
-              <li className="hover:underline cursor-pointer">Modern Slavery Statement</li>
+              <a href="digitalservice"><li className="hover:underline cursor-pointer">Digital Services Act (EU)</li></a>
+              <a href="guidlines"><li className="hover:underline cursor-pointer">Content guidelines & reporting</li></a>
+         <a href="statement"><li className="hover:underline cursor-pointer">Modern Slavery Statement</li></a>
             </ul>
           </div>
 
@@ -42,11 +41,11 @@ export default function Footer() {
           <div>
             <h3 className="font-bold mb-2">Partner with us</h3>
             <ul className="space-y-2 text-gray-900">
-              <li className="hover:underline cursor-pointer">YCS partner portal</li>
-              <li className="hover:underline cursor-pointer">Partner Hub</li>
-              <li className="hover:underline cursor-pointer">Advertise on Agoda</li>
-              <li className="hover:underline cursor-pointer">Affiliates</li>
-              <li className="hover:underline cursor-pointer">Agoda API Documentation</li>
+              <a href="partnerportal"><li className="hover:underline cursor-pointer">YCS partner portal</li></a>
+            <a href="partnerhub"> <li className="hover:underline cursor-pointer">Partner Hub</li></a>
+              <a href="Advertise"><li className="hover:underline cursor-pointer">Advertise on Agoda</li></a>
+              <a href="Affiliates"><li className="hover:underline cursor-pointer">Affiliates</li></a>
+             <a href="api"><li className="hover:underline cursor-pointer">Agoda API Documentation</li></a>
             </ul>
           </div>
 
@@ -54,7 +53,7 @@ export default function Footer() {
           <div>
             <h3 className="font-bold mb-2">Get the app</h3>
             <ul className="space-y-2 text-gray-900">
-              <li className="hover:underline cursor-pointer">iOS app</li>
+           <a href="ios"><li className="hover:underline cursor-pointer">iOS app</li></a>
               <li className="hover:underline cursor-pointer">Android app</li>
             </ul>
           </div>
