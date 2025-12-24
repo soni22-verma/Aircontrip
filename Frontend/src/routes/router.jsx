@@ -14,7 +14,7 @@ import About from "../pages/About";
 import Press from "../pages/Press";
 import Blog from "../pages/Blog";
 import Pointmax from "../pages/Pointmax"
-import Viewall from "../pages/Viewall"
+// import Viewall from "../pages/Viewall"
 import FAQPage from "../pages/FAQPage";
 import PrivacyPolicy from "../pages/PrivacyPolicy";
 import HelpCenter from "../pages/HelpCenter";
