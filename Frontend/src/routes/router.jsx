@@ -12,6 +12,12 @@ import Customer from "../pages/Customer";
 import About from "../pages/About";
 import Press from "../pages/Press";
 import Blog from "../pages/Blog";
+import Pointmax from "../pages/Pointmax"
+import Viewall from "../pages/Viewall"
+import FAQPage from "../pages/FAQPage";
+import PrivacyPolicy from "../pages/PrivacyPolicy";
+import HelpCenter from "../pages/HelpCenter";
+import AirContipTerms from "../pages/AirContipTerms";
 import Pointmax from "../pages/Pointmax";
 import PertnerPortal from "../pages/PertnerPortal";
 import Partnerhub from "../pages/Partnerhub";
@@ -31,28 +37,29 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        path:"/",
+        path: "/",
         element: <Home />,
-        children:[
+        children: [
           {
-            path:"homeDestop",
-            element:<HomeDestop/>
+            path: "homeDestop",
+            element: <HomeDestop />
           },
           {
-            path:"homemobile",
-            element:<HomeMobile/>
+            path: "homemobile",
+            element: <HomeMobile />
           },
-          
+
+
         ]
       },
-     
+
       {
-        path:"login",
-        element:<Login/>
+        path: "login",
+        element: <Login />
       },
       {
-        path:"singup",
-        element:<Singup/>
+        path: "singup",
+        element: <Singup />
       },
       {
         path:"viewall",
@@ -81,6 +88,24 @@ const router = createBrowserRouter([
      {
       path:"pointmax",
       element:<Pointmax/>
+     },
+       
+      {
+        path: "/faq",
+        element: <FAQPage />
+      },
+      {
+        path:"/privacy-policy",
+        element:<PrivacyPolicy/>
+      },
+      {
+        path:"/help-center",
+        element:<HelpCenter/>
+      },
+      {
+        path:"/air-contrip-terms",
+        element:<AirContipTerms/>
+      }
      },
      {
       path:"partnerportal",

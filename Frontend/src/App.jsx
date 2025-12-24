@@ -18,8 +18,11 @@ function App() {
     <>
       <Navbar />
 
+   {/* <main className="mt-10 md:h-19"> */}
+          <Outlet />
 
-      <Outlet />
+   {/* </main> */}
+
 
       {/* <Cards/> */}
       {/* <Passengers/> */}
