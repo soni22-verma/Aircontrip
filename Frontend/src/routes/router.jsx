@@ -12,9 +12,7 @@ import Customer from "../pages/Customer";
 import About from "../pages/About";
 import Press from "../pages/Press";
 import Blog from "../pages/Blog";
-import Pointmax from "../pages/Pointmax"
-import Viewall from "../pages/Viewall"
-import FAQPage from "../pages/FAQPage";
+import FAQPage from "../pages/FAQPage"
 import PrivacyPolicy from "../pages/PrivacyPolicy";
 import HelpCenter from "../pages/HelpCenter";
 import AirContipTerms from "../pages/AirContipTerms";
@@ -28,6 +26,7 @@ import IOS from "../pages/IOS";
 import Digitalservice from "../pages/Digitalservice";
 import Guidlines from "../pages/Guidlines";
 import Statement from "../pages/Statement"
+
 
 
 
@@ -106,7 +105,7 @@ const router = createBrowserRouter([
         path:"/air-contrip-terms",
         element:<AirContipTerms/>
       }
-     },
+     ,
      {
       path:"partnerportal",
       element:<PertnerPortal/>
@@ -146,8 +145,14 @@ const router = createBrowserRouter([
       element:<Statement/>
      },
      
+     
     ],
-  },
-]);
+  }
+]
+  )
+
+
+
+
 
 export default router;

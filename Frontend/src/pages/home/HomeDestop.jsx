@@ -34,7 +34,7 @@ const HomeDestop = () => {
 
   const [showReturn, setShowReturn] = useState(false);
 
-
+  const [search, setSearch] = useState(" ")
   const [flight, setFlight] = useState(false)
   const [hotel, setHotel] = useState(true)
 
@@ -64,6 +64,55 @@ const HomeDestop = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [stays, setStays] = useState(false)
   const [nightstay, setNightstay] = useState(true)
+  const [results, setResults] = useState([]);
+  const [searchs, setSearchs] = useState("");
+  const [result, setResult] = useState([]);
+
+  const [fromSearch, setFromSearch] = useState([])
+  const [fromResult, setFromResult] = useState([])
+  const [toResult, setToResult] = useState([])
+  const [toSearch, setToSearch] = useState([])
+
+  useEffect(() => {
+  if (search === "") {
+    setResults([]);
+    return;
+  }
+
+  const filtered = destinations.filter((item) =>
+    item.city.toLowerCase().includes(search.toLowerCase())
+  );
+
+  setResults(filtered);
+  }, [search]);
+
+  const destinations = [
+    { city: "Delhi", code: "DEL", country: "India" },
+    { city: "Mumbai", code: "BOM", country: "India" },
+    { city: "Goa", code: "GOI", country: "India" },
+    { city: "Dubai", code: "DXB", country: "UAE" },
+    { city: "London", code: "LHR", country: "UK" },
+  ];
+
+  const destinationsairport = [
+    { city: "Delhi", airport: "Indira Gandhi International Airport", code: "DEL" },
+    { city: "Mumbai", airport: "Chhatrapati Shivaji International Airport", code: "BOM" },
+    { city: "Goa", airport: "Dabolim Airport", code: "GOI" },
+    { city: "Dubai", airport: "Dubai International Airport", code: "DXB" },
+    { city: "London", airport: "Heathrow Airport", code: "LHR" },
+  ];
+
+  useEffect(() => {
+    if (!searchs.trim()) {
+      setResult([]);
+      return;
+    }
+
+    const filtereds = destinationsairport.filter((item) =>
+      item.city.toLowerCase().includes(searchs.toLowerCase())
+    );
+    setResult(filtereds);
+  }, [searchs]);
 
   const formatDate = (date) =>
     new Date(date).toLocaleDateString("en-IN", {
@@ -71,6 +120,59 @@ const HomeDestop = () => {
       month: "short",
       year: "numeric",
     });
+
+  const findFrom = [
+    { city: "Delhi", code: "DEL", country: "India" },
+    { city: "Mumbai", code: "BOM", country: "India" },
+    { city: "Goa", code: "GOI", country: "India" },
+    { city: "Dubai", code: "DXB", country: "UAE" },
+    { city: "London", code: "LHR", country: "UK" },
+    { city: "Banares", code: "BAN", contry: "India" },
+
+  ]
+
+  useEffect(() => {
+    if (fromSearch === "") {
+      setFromResult([]);
+      return;
+    }
+
+    const filtereded = findFrom.filter((item) => {
+      if (!fromSearch || typeof fromSearch !== "string") return false;
+
+      return item.city?.toLowerCase().includes(fromSearch.toLowerCase());
+    });
+
+    setFromResult(filtereded)
+  }, [toSearch])
+
+  
+  const findTo = [
+    { city: "Delhi", code: "DEL", country: "India" },
+    { city: "Mumbai", code: "BOM", country: "India" },
+    { city: "Goa", code: "GOI", country: "India" },
+    { city: "Dubai", code: "DXB", country: "UAE" },
+    { city: "London", code: "LHR", country: "UK" },
+    { city: "Banares", code: "BAN", contry: "India" },
+
+  ]
+
+  useEffect(() => {
+    if (toResult === "") {
+      setToResult([]);
+      return;
+    }
+
+    const filterededs = findTo.filter((item) => {
+      if (!toSearch || typeof toSearch !== "string") return false;
+
+      return item.city?.toLowerCase().includes(toSearch.toLowerCase());
+    });
+
+    setToResult(filterededs)
+  }, [toSearch])
+
+
 
   const handleSearch = () => {
     alert(`Departure: ${departure}\nPassenger: ${passenger}`);
@@ -134,10 +236,10 @@ const HomeDestop = () => {
     <>
       <div className={` w-full   h-fit-content`} >
         <div className='w-full' >
-        <img className='w-full h-[500px] absolute top-0 left-0 z-0' src="https://images5.alphacoders.com/372/372649.jpg" alt="" />
+          <img className='w-full h-[500px] absolute top-0 left-0 z-0' src="https://images5.alphacoders.com/372/372649.jpg" alt="" />
           <span className='h-30  block'></span>
 
-          
+
           {/* Headers  */}
 
           <div className="w-[50%] relative mx-auto bg-white shadow-lg rounded-xl p-4 flex flex-wrap justify-center items-center gap-6 z-30 ">
@@ -172,8 +274,8 @@ const HomeDestop = () => {
 
             <div className="w-px h-8 bg-gray-300" />
 
-           
-            
+
+
             {/* Flight + Hotel */}
             <button
               onClick={() => showSection("flighthotel")}
@@ -243,13 +345,33 @@ const HomeDestop = () => {
 
 
                     {/* SEARCH BAR */}
-                    <div className="w-full mb-6">
+                    <div className="w-full mb-6 relative">
                       <input
                         type="text"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
                         placeholder="🔍 Enter a destination or property"
                         className="border border-gray-300 shadow-sm rounded-lg px-4 py-3 w-full text-base"
                       />
+
+                      {results.length > 0 && (
+                        <div className="absolute left-0 right-0 bg-white shadow rounded mt-1 z-50">
+                          {results.map((item, index) => (
+                            <div
+                              key={index}
+                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => {
+                                setSearch(`${item.city} (${item.code})`);
+                                setResults([]);
+                              }}
+                            >
+                              {item.city} ({item.code})
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
+
 
                     {/* GRID AREA */}
                     <div className="grid grid-cols-3 gap-6">
@@ -437,16 +559,40 @@ const HomeDestop = () => {
                           </button>
                         </div>
 
-                        <div className="flex gap-4">
-                          <input
-                            placeholder="✈️ city or airport name"
-                            className="w-[36%] border p-3 rounded-lg"
-                          />
+                        <div className="flex gap-4 relative">
+                          {/* INPUT */}
+                          <div className="w-[36%] relative">
+                            <input
+                              value={searchs}
+                              onChange={(e) => setSearchs(e.target.value)}
+                              placeholder="✈️ city or airport name"
+                              className="w-full border p-3 rounded-lg"
+                            />
 
+                            {result.length > 0 && (
+                              <div className="absolute left-0 right-0 bg-white shadow rounded mt-1 z-50">
+                                {result.map((item, index) => (
+                                  <div
+                                    key={index}
+                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                    onClick={() => {
+                                      setSearchs(`${item.city} - ${item.airport} (${item.code})`);
+                                      setResult([]);
+                                    }}
+                                  >
+                                    <strong>{item.city}</strong> – {item.airport} ({item.code})
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* BUTTON */}
                           <button className="text-white bg-blue-400 hover:bg-blue-500 px-5 py-3 rounded-2xl">
                             Search
                           </button>
                         </div>
+
                       </div>
                     )}
 
@@ -495,9 +641,27 @@ const HomeDestop = () => {
                       <div className="w-full mb-6 flex items-center gap-8">
                         <input
                           type="text"
+                          value={fromSearch}
+                          onChange={(e) => setFromSearch(e.target.value)}
                           placeholder="✈️ Flying From"
                           className="border border-gray-400 shadow-sm rounded-lg px-4 py-4 w-1/2 text-base"
                         />
+
+                        {fromResult.length > 0 && (
+                          <div className='absolute bg-white shadow rounded mt-1'>
+                            {fromResult.map((item, index) => (
+                              <div key={index}
+                                className='px-4 py-2 hover:bg-gray-100 cursor-pointer'
+                                onClick={() => {
+                                  setFromSearch(`${item.city} (${item.code})`);
+                                  setFromResult([]);
+                                }}
+                              >
+                                {item.city}({item.code})
+                              </div>
+                            ))}
+                          </div>
+                        )}
 
                         <button
                           type="button"
@@ -521,9 +685,27 @@ const HomeDestop = () => {
 
                         <input
                           type="text"
+                          value={toSearch}
+                          onChange={(e) => setToSearch(e.target.value)}
                           placeholder="📍 Flying to"
                           className="border border-gray-400 shadow-sm rounded-lg px-4 py-4 w-1/2 text-base"
                         />
+
+                        {toResult.length > 0 && (
+                          <div className='absolute bg-white shadow rounded mt-1'>
+                            {toResult.map((item, index) => (
+                              <div key={index}
+                                className='px-4 py-2 hover:bg-gray-100 cursor-pointer'
+                                onClick={() => {
+                                  setToSearch(`${item.city} (${item.code})`);
+                                  setToResult([]);
+                                }}
+                              >
+                                {item.city}({item.code})
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div className="w-full max-w-md space-y-4">
                         {/* DATE BUTTON */}
@@ -648,12 +830,36 @@ const HomeDestop = () => {
                             </button>
                           </div>
 
-                          <div className="flex items-center gap-5">
-                            <input
-                              placeholder="✈️ city or airport name"
-                              className="w-2/3 border p-3 rounded-lg"
-                            />
 
+                          <div className="flex gap-4 relative">
+                            {/* INPUT */}
+                            <div className="w-[36%] relative">
+                              <input
+                                value={searchs}
+                                onChange={(e) => setSearchs(e.target.value)}
+                                placeholder="✈️ city or airport name"
+                                className="w-full border p-3 rounded-lg"
+                              />
+
+                              {result.length > 0 && (
+                                <div className="absolute left-0 right-0 bg-white shadow rounded mt-1 z-50">
+                                  {result.map((item, index) => (
+                                    <div
+                                      key={index}
+                                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                      onClick={() => {
+                                        setSearchs(`${item.city} - ${item.airport} (${item.code})`);
+                                        setResult([]);
+                                      }}
+                                    >
+                                      <strong>{item.city}</strong> – {item.airport} ({item.code})
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* BUTTON */}
                             <button className="text-white bg-blue-400 hover:bg-blue-500 px-5 py-3 rounded-2xl">
                               Search
                             </button>
@@ -895,10 +1101,10 @@ const HomeDestop = () => {
                 </motion.div>
               )}
 
-           
 
 
-             
+
+
 
               {flighthotel && (
                 <motion.div

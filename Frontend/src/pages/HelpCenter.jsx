@@ -693,58 +693,7 @@ const HelpCenter = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t mt-12">
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-rose-500 rounded-lg flex items-center justify-center">
-                  <Heart size={18} className="text-white" />
-                </div>
-                <span className="font-semibold text-gray-800">AirContrip</span>
-              </div>
-              <p className="text-gray-500 text-sm">
-                Making travel experiences memorable since 2024.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-medium text-gray-800 mb-3">Support</h4>
-              <ul className="space-y-2 text-gray-500 text-sm">
-                <li><a href="#" className="hover:text-gray-800">Help Center</a></li>
-                <li><a href="#" className="hover:text-gray-800">Contact us</a></li>
-                <li><a href="#" className="hover:text-gray-800">Safety information</a></li>
-                <li><a href="#" className="hover:text-gray-800">Report issue</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-medium text-gray-800 mb-3">Company</h4>
-              <ul className="space-y-2 text-gray-500 text-sm">
-                <li><a href="#" className="hover:text-gray-800">About us</a></li>
-                <li><a href="#" className="hover:text-gray-800">Careers</a></li>
-                <li><a href="#" className="hover:text-gray-800">Press</a></li>
-                <li><a href="#" className="hover:text-gray-800">Blog</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-medium text-gray-800 mb-3">Legal</h4>
-              <ul className="space-y-2 text-gray-500 text-sm">
-                <li><a href="#" className="hover:text-gray-800">Privacy policy</a></li>
-                <li><a href="#" className="hover:text-gray-800">Terms of service</a></li>
-                <li><a href="#" className="hover:text-gray-800">Cookie policy</a></li>
-                <li><a href="#" className="hover:text-gray-800">Accessibility</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-100 mt-8 pt-6 text-center text-gray-400 text-sm">
-            <p>© 2024 AirContrip. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      
 
       {/* Contact Form Modal */}
       {showContactForm && (

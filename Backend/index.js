@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { connectdb } from "./config/connectdb.js";
 import userRouter from "./routes/user.routes.js";
+import { handleError } from "./middleware/errorhandling.js";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/user", userRouter);
+app.use(handleError)
 
 const PORT = 2020;
 app.listen(PORT, () => {

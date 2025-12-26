@@ -79,10 +79,66 @@ export const handleLogin = async(req,res)=>{
     message:"Login Successfull",
     error:false,
     success:true,
-    token
+    token,
+    user
    })
     
   } catch (error) {
     console.log(error,"somthing went wrong")
   }
+}
+
+export const handleUserData = async(req,res,next)=>{
+  try {
+      const {userId} = req.body;
+      if(!userId){
+        return res.status(400).json({
+          message:"userId is not found",
+          error:true,
+          success:false
+        })
+      }
+      const user = await User.findById(userId)
+      if(!user){
+        return res.status(400).json({
+          message:"user not found",
+          error:true,
+          success:false
+        })
+      }
+
+      return res.status(200).json({
+        message:"this is user",
+        error:false,
+        success:true,
+        user
+      })
+  } catch (error) {
+    next(error)
+    
+  }
+}
+
+export const handleUpdatename = async(req,res)=>{
+   try {
+    const {userId,name,phone} =req.body;
+    console.log(userId , " this is user id")
+
+    if(!userId){
+      return res.status(400).json({
+        message:"userid is required",
+        error:true,
+        success:false
+      })
+    }
+ 
+    const user = await User.findByIdAndUpdate(userId,{
+       name:name,
+       phone:phone
+    } ,{new:true})
+      console.log(user,"this is user")
+    
+   } catch (error) {
+    console.log(error)
+   }
 }

@@ -13,11 +13,11 @@ export default function Footer() {
           <div>
             <h3 className="font-bold mb-2">Help</h3>
             <ul className="space-y-2 text-gray-900">
-              <li className="hover:underline cursor-pointer">Help center</li>
-              <li className="hover:underline cursor-pointer">FAQs</li>
-              <li className="hover:underline cursor-pointer">Privacy policy</li>
-              <li className="hover:underline cursor-pointer">Cookie policy</li>
-              <li className="hover:underline cursor-pointer">Terms of use</li>
+              <a href="/help-center"><li className="hover:underline cursor-pointer">Help center</li></a>
+            <a href="/faq"><li className="hover:underline cursor-pointer">FAQs</li></a>
+             <a href="/privacy-policy"><li className="hover:underline cursor-pointer">Privacy policy</li></a>
+            <a href="cookie"><li className="hover:underline cursor-pointer">Cookie policy</li></a>
+             <a href="term"><li className="hover:underline cursor-pointer">Terms of use</li></a>
               <a href="digitalservice"><li className="hover:underline cursor-pointer">Digital Services Act (EU)</li></a>
               <a href="guidlines"><li className="hover:underline cursor-pointer">Content guidelines & reporting</li></a>
          <a href="statement"><li className="hover:underline cursor-pointer">Modern Slavery Statement</li></a>

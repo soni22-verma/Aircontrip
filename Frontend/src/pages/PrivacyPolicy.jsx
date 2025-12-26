@@ -795,68 +795,7 @@ const PrivacyPolicy = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="p-2 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg">
-                  <Building className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <div className="font-bold text-gray-900">AirContrip</div>
-                  <div className="text-sm text-gray-500">Privacy Center</div>
-                </div>
-              </div>
-              <p className="text-gray-600 text-sm">
-                Committed to protecting your privacy and securing your data.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-blue-600">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-blue-600">Cookie Policy</a></li>
-                <li><a href="#" className="hover:text-blue-600">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-blue-600">Security Overview</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-blue-600">Help Center</a></li>
-                <li><a href="#" className="hover:text-blue-600">Contact Us</a></li>
-                <li><a href="#" className="hover:text-blue-600">Report a Concern</a></li>
-                <li><a href="#" className="hover:text-blue-600">FAQ</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Stay Updated</h4>
-              <p className="text-sm text-gray-600 mb-4">
-                Subscribe to receive privacy policy updates.
-              </p>
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                />
-                <button className="px-4 py-2 bg-gray-900 text-white rounded-r-lg hover:bg-gray-800 text-sm font-medium">
-                  Subscribe
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-200 mt-8 pt-8 text-center text-sm text-gray-500">
-            <p>© 2024 AirContrip. All rights reserved. Protecting privacy worldwide.</p>
-          </div>
-        </div>
-      </footer>
+     
 
       {/* Scroll to Top */}
       {showScrollTop && (

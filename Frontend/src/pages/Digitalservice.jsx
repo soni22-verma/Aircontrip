@@ -204,7 +204,7 @@ const DigitalServicesPage = () => {
   return (
     <div className="min-h-screen bg-linear-to-b from-blue-50 to-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-linear-to-r from-blue-600 via-blue-700 to-cyan-600 text-white">
+      <section className="relative overflow-hidden bg-linear-to-r from-blue-400 via-blue-500 to-cyan-500 text-white">
         <div className="absolute inset-0">
           <div className="absolute top-10 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
           <div className="absolute top-40 right-10 w-72 h-72 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>

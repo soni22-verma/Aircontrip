@@ -3,9 +3,12 @@ import React, { useState } from "react";
 import api from "../../services/endpoint";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/userSlice";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch()
   const [email, setemail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -13,7 +16,10 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post(api.user.login, { email, password });
+       dispatch(setUser(response.data.user))
+       console.log(response,"this is response")
       if (response.data.success) {
+        localStorage.setItem("Authorization" , response?.data?.token)
         toast.success("Login Successfully");
         navigate("/");
       }
@@ -67,7 +73,7 @@ const Login = () => {
 
               <p className="text-gray-600 mb-6">Login to your account</p>
 
-              <form onSubmit={handleFormSubmit} className="space-y-4">
+              <form onSubmit={(e)=>handleFormSubmit(e)} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Email
