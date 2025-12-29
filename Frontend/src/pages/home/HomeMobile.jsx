@@ -282,7 +282,7 @@ const HomeMobile = () => {
               {/* Hotels */}
               <button
                 onClick={() => showSection("hotel")}
-                className="  border border-black px-2 py-3 hover:bg-white  gap-2 font-bold text-white hover:text-indigo-600 text-sm   flex flex-col  items-center justify-center whitespace-nowrap   rounded-2xl"
+                className=" border border-black px-2 py-3  gap-2 font-bold text-white  text-sm   flex flex-col  items-center justify-center whitespace-nowrap   rounded-2xl"
               >
                 <FaHotel size={20} className='justify-center flex' /> Hotels
               </button>
@@ -290,7 +290,7 @@ const HomeMobile = () => {
               {/* Flights */}
               <button
                 onClick={() => showSection("flight")}
-                className=" border border-black px-2 py-3 hover:bg-white  gap-2 font-bold text-white hover:text-indigo-600 text-sm  flex flex-col  items-center justify-center whitespace-nowrap rounded-2xl"
+                className="border border-black px-2 py-3  gap-2 font-bold text-white  text-sm   flex flex-col  items-center justify-center whitespace-nowrap   rounded-2xl"
               >
                 <MdFlightTakeoff size={25} /> Flights
               </button>
@@ -298,7 +298,7 @@ const HomeMobile = () => {
               {/* Activities */}
               <button
                 onClick={() => showSection("activity")}
-                className=" border border-black px-2 py-3 hover:bg-white  gap-1 font-bold text-white hover:text-indigo-600 text-sm  flex flex-col  items-center justify-center whitespace-nowrap rounded-2xl"
+                className=" border border-black px-2 py-3  gap-2 font-bold text-white  text-sm   flex flex-col  items-center justify-center whitespace-nowrap   rounded-2xl"
               >
                 <LuSquareActivity size={25} /> Activities
               </button>
@@ -307,7 +307,7 @@ const HomeMobile = () => {
               {/* Flight + Hotel */}
               <button
                 onClick={() => showSection("flighthotel")}
-                className=" border border-black px-2 py-3 hover:bg-white  gap-2 font-bold text-white hover:text-indigo-600 text-sm  flex flex-col  items-center justify-center whitespace-nowrap rounded-2xl"
+                className=" border border-black px-2 py-3  gap-2 font-bold text-white  text-sm   flex flex-col  items-center justify-center whitespace-nowrap   rounded-2xl"
               >
                 <div className='flex-row flex'>
                   <FaHotel size={20} />

@@ -32,12 +32,12 @@ export default function Footer() {
               <li className="hover:underline">
                 <Link to="/privacy-policy">Privacy policy</Link>
                 </li>
-              <li className="hover:underline">
+              {/* <li className="hover:underline">
                 <Link to="/cookie">Cookie policy</Link>
-                </li>
-              <li className="hover:underline">
+                </li> */}
+              {/* <li className="hover:underline">
                 <Link to="/term">Terms of use</Link>
-                </li>
+                </li> */}
               <li className="hover:underline">
                 <Link to="/digitalservice" >Digital Services Act (EU)</Link>
                 </li>
@@ -58,7 +58,7 @@ export default function Footer() {
                 <Link to="/about" >About us</Link>
                 </li>
               <li className="hover:underline">
-                <a to="/press">Press</a>
+                <Link to="/press">Press</Link>
                 </li>
               <li className="hover:underline">
                 <Link to="/blog">Blog</Link>
@@ -73,9 +73,9 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold mb-3">Partner with us</h3>
             <ul className="space-y-2 text-gray-700">
-              <li className="hover:underline">
-                <a to="/partnerportal">YCS partner portal</a>
-                </li>
+              {/* <li className="hover:underline">
+                <Link to="/partnerportal">YCS partner portal</Link>
+                </li> */}
               <li className="hover:underline">
                 <Link to="/partnerhub">Partner Hub</Link>
                 </li>
