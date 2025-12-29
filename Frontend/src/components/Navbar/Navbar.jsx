@@ -105,18 +105,18 @@ const handleLogout = () => {
 
           <div className="flex items-center gap-3 text-gray-700 cursor-pointer">
             <BiSolidOffer size={16} />
-            <Link to="offer"> <span className="font-semibold">Offers</span></Link>
+            <Link to="offer"> <span className="font-semibold text-sm">Offers</span></Link>
           </div>
 
           <div className="flex items-center gap-3 text-gray-700 cursor-pointer">
             <BiSupport size={16} />
-            <Link to="customer"><span className="font-semibold">Customer Service</span></Link>
+            <Link to="customer"><span className="font-semibold text-sm">Customer Service</span></Link>
           </div>
         
 
           <div className="flex items-center gap-3 text-gray-700 cursor-pointer">
             <CgProfile size={16} />
-            <span className="font-semibold">
+            <span className="font-semibold text-sm">
               {
                isLoggedIn && user ? (
                <div>{user.name}</div>):(
@@ -131,7 +131,7 @@ const handleLogout = () => {
           
           <div onClick={handleLogout} className="flex items-center gap-3 text-gray-700 cursor-pointer">
             <AiOutlineLogout size={16}/>
-            <span className="font-semibold">Logout</span>
+            <span className="font-semibold text-sm">Logout</span>
           </div>
         </div>
       )}

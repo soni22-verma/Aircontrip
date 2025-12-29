@@ -85,7 +85,7 @@ export default function TopDestinationsSlider() {
   };
 
   return (
-    <div className="w-full px-6 py-10 relative">
+    <div className="w-full px-6 py-10 relative ">
       {/* Heading */}
     <h2
   className=" text-base sm:text-xl md:text-3xl lg:text-4xl font-bold mt-20 sm:mb-4 md:mb-6 leading-snug">
@@ -96,7 +96,7 @@ export default function TopDestinationsSlider() {
       {/* Left Button */}
       <button
         onClick={() => scroll("left")}
-        className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10
+        className="hidden md:flex absolute top-1/2 -translate-y-1/2 z-10
                    bg-white shadow-lg p-2 rounded-full hover:bg-gray-100"
       >
         <ChevronLeft />
