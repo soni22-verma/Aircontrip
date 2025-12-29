@@ -56,7 +56,7 @@ const handleLogout = () => {
       <div className="max-w-screen-2xl mx-auto flex items-center justify-between py-3 px-4">
 
 
-        <Link to="/"><img src="./logo.png" alt="logo" className="h-10 md:h-15 " /></Link>
+        <Link to="/"><img src="./logo.png" alt="logo" className="h-8 md:h-12 " /></Link>
 
         <button
           className="lg:hidden text-gray-700 text-3xl"
@@ -68,22 +68,19 @@ const handleLogout = () => {
         <div className="hidden lg:flex items-center gap-10 text-gray-700">
 
           <div className="flex items-center gap-2 cursor-pointer hover:text-blue-500">
-            <BiSolidOffer size={25} />
+            <BiSolidOffer size={22} />
             <Link to="offer"> <span className="font-semibold">Offers</span></Link>
           </div>
 
           <div className="flex items-center gap-2 cursor-pointer hover:text-blue-500">
-            <BiSupport size={25} />
+            <BiSupport size={20} />
             <Link to="customer"><span className="font-semibold">Customer Service</span></Link>
           </div>
 
-          <div onClick={handleLogout} className="flex items-center gap-2 cursor-pointer hover:text-blue-500">
-            <AiOutlineLogout size={25}/>
-            <span className="font-semibold">Logout</span>
-          </div>
+          
 
           <div className="flex items-center gap-2 cursor-pointer">
-            <CgProfile size={25} />
+            <CgProfile size={22} />
             <span className="font-semibold">
               {
                 isLoggedIn && user ? <div>{user.name}</div> :
@@ -95,6 +92,11 @@ const handleLogout = () => {
 
             </span>
           </div>
+          
+          <div onClick={handleLogout} className="flex items-center gap-2 cursor-pointer hover:text-blue-500">
+            <AiOutlineLogout size={22}/>
+            <span className="font-semibold">Logout</span>
+          </div>
         </div>
       </div>
 
@@ -102,21 +104,18 @@ const handleLogout = () => {
         <div className="lg:hidden bg-gray-100 w-full px-6 py-4 space-y-4 shadow-md">
 
           <div className="flex items-center gap-3 text-gray-700 cursor-pointer">
-            <BiSolidOffer size={20} />
-            <span className="font-semibold">Offers</span>
+            <BiSolidOffer size={16} />
+            <Link to="offer"> <span className="font-semibold">Offers</span></Link>
           </div>
 
           <div className="flex items-center gap-3 text-gray-700 cursor-pointer">
-            <BiSupport size={20} />
-            <span className="font-semibold">Customer Service</span>
+            <BiSupport size={16} />
+            <Link to="customer"><span className="font-semibold">Customer Service</span></Link>
           </div>
-          <div onClick={handleLogout} className="flex items-center gap-3 text-gray-700 cursor-pointer">
-            <AiOutlineLogout size={20}/>
-            <span className="font-semibold">Logout</span>
-          </div>
+        
 
           <div className="flex items-center gap-3 text-gray-700 cursor-pointer">
-            <CgProfile size={20} />
+            <CgProfile size={16} />
             <span className="font-semibold">
               {
                isLoggedIn && user ? (
@@ -129,7 +128,11 @@ const handleLogout = () => {
               }
              </span>
           </div>
-
+          
+          <div onClick={handleLogout} className="flex items-center gap-3 text-gray-700 cursor-pointer">
+            <AiOutlineLogout size={16}/>
+            <span className="font-semibold">Logout</span>
+          </div>
         </div>
       )}
     </nav>

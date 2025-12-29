@@ -3,22 +3,19 @@ import { FaHotel } from "react-icons/fa6";
 import { MdFlightTakeoff } from "react-icons/md";
 import { ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { MdHomeWork } from "react-icons/md";
-import { LuSquareActivity } from "react-icons/lu";
-import { MdOutlineAirportShuttle } from "react-icons/md";
 import { motion, AnimatePresence } from "framer-motion";
 import { MdHolidayVillage } from "react-icons/md";
 import { Calendar } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import {Link, useNavigate } from 'react-router-dom';
 
 
 const HomeDestop = () => {
+  
 
-  const [activeInput, setActiveInput] = useState(""); // "from" ya "to"
-  const fromRef = useRef(null);
-  const toRef = useRef(null);
-  const dateRef = useRef(null);
-  const depRef = useRef(null);
+
+
   const retRef = useRef(null);
   const [selectedDate, setSelectedDate] = useState('20 Dec 2025');
   const [selectedDay, setSelectedDay] = useState('Saturday');
@@ -31,14 +28,13 @@ const HomeDestop = () => {
   const [tripType, setTripType] = useState("oneway");
   const [openDep, setOpenDep] = useState(false);
   const [openRet, setOpenRet] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false)
 
-  const [showReturn, setShowReturn] = useState(false);
 
-  const [search, setSearch] = useState(" ")
   const [flight, setFlight] = useState(false)
   const [hotel, setHotel] = useState(true)
 
-  const [departure, setDeparture] = useState("");
+  const [departure, setDeparture] = useState(new Date());
   const [passenger, setPassenger] = useState("1 Passenger, Economy");
 
   const [checked, setChecked] = useState(false);
@@ -58,33 +54,32 @@ const HomeDestop = () => {
 
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const [departures, setDepartures] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [enabled, setEnabled] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [stays, setStays] = useState(false)
   const [nightstay, setNightstay] = useState(true)
+  const [rotated, setRotated] = useState(false);
+
+
+  const handleSwap = () => {
+    // rotate toggle
+    setRotated(prev => !prev);
+
+
+    const temp = fromSearch;
+    setFromSearch(toSearch);
+    setToSearch(temp);
+
+    // suggestions clear
+    setFromResult([]);
+    setToResult([]);
+  };
+
+
+  //Hotal ka first flight search
+  const [search, setSearch] = useState("")
   const [results, setResults] = useState([]);
-  const [searchs, setSearchs] = useState("");
-  const [result, setResult] = useState([]);
-
-  const [fromSearch, setFromSearch] = useState([])
-  const [fromResult, setFromResult] = useState([])
-  const [toResult, setToResult] = useState([])
-  const [toSearch, setToSearch] = useState([])
-
-  useEffect(() => {
-  if (search === "") {
-    setResults([]);
-    return;
-  }
-
-  const filtered = destinations.filter((item) =>
-    item.city.toLowerCase().includes(search.toLowerCase())
-  );
-
-  setResults(filtered);
-  }, [search]);
 
   const destinations = [
     { city: "Delhi", code: "DEL", country: "India" },
@@ -93,6 +88,23 @@ const HomeDestop = () => {
     { city: "Dubai", code: "DXB", country: "UAE" },
     { city: "London", code: "LHR", country: "UK" },
   ];
+  useEffect(() => {
+    if (search.trim() === "") {
+      setResults([]);
+      return;
+    }
+
+    const filtered = destinations.filter((item) =>
+      item.city.toLowerCase().includes(search.toLowerCase())
+    );
+
+    setResults(filtered);
+  }, [search]);
+
+  //Hotal ka second search button
+  const [searchs, setSearchs] = useState("");
+  const [result, setResult] = useState("");
+
 
   const destinationsairport = [
     { city: "Delhi", airport: "Indira Gandhi International Airport", code: "DEL" },
@@ -114,6 +126,7 @@ const HomeDestop = () => {
     setResult(filtereds);
   }, [searchs]);
 
+
   const formatDate = (date) =>
     new Date(date).toLocaleDateString("en-IN", {
       day: "numeric",
@@ -121,6 +134,10 @@ const HomeDestop = () => {
       year: "numeric",
     });
 
+  //flight ka first earch
+
+  const [fromSearch, setFromSearch] = useState("")
+  const [fromResult, setFromResult] = useState([])
   const findFrom = [
     { city: "Delhi", code: "DEL", country: "India" },
     { city: "Mumbai", code: "BOM", country: "India" },
@@ -132,21 +149,21 @@ const HomeDestop = () => {
   ]
 
   useEffect(() => {
-    if (fromSearch === "") {
+    if (!fromSearch || fromSearch.trim() === "") {
       setFromResult([]);
       return;
     }
 
-    const filtereded = findFrom.filter((item) => {
-      if (!fromSearch || typeof fromSearch !== "string") return false;
+    const filtered = findFrom.filter((item) =>
+      item.city.toLowerCase().includes(fromSearch.toLowerCase())
+    );
 
-      return item.city?.toLowerCase().includes(fromSearch.toLowerCase());
-    });
+    setFromResult(filtered);
+  }, [fromSearch]);
 
-    setFromResult(filtereded)
-  }, [toSearch])
-
-  
+  //flight ka second search input field
+  const [toResult, setToResult] = useState("")
+  const [toSearch, setToSearch] = useState("")
   const findTo = [
     { city: "Delhi", code: "DEL", country: "India" },
     { city: "Mumbai", code: "BOM", country: "India" },
@@ -158,21 +175,17 @@ const HomeDestop = () => {
   ]
 
   useEffect(() => {
-    if (toResult === "") {
+    if (!toSearch || toSearch.trim() === "") {
       setToResult([]);
       return;
     }
 
-    const filterededs = findTo.filter((item) => {
-      if (!toSearch || typeof toSearch !== "string") return false;
+    const filterto = findTo.filter((item) =>
+      item.city.toLowerCase().includes(fromSearch.toLowerCase())
+    );
 
-      return item.city?.toLowerCase().includes(toSearch.toLowerCase());
-    });
-
-    setToResult(filterededs)
-  }, [toSearch])
-
-
+    setToResult(filterto);
+  }, [toSearch]);
 
   const handleSearch = () => {
     alert(`Departure: ${departure}\nPassenger: ${passenger}`);
@@ -539,6 +552,7 @@ const HomeDestop = () => {
 
                     {/* ADD FLIGHT */}
                     {!addflight && (
+                      
                       <button
                         onClick={() => setAddflight(true)}
                         className="mt-6 text-blue-500 hover:bg-blue-200 rounded-2xl px-4 py-2 font-semibold"
@@ -638,35 +652,41 @@ const HomeDestop = () => {
                       </div>
 
                       {/* FROM → TO */}
-                      <div className="w-full mb-6 flex items-center gap-8">
-                        <input
-                          type="text"
-                          value={fromSearch}
-                          onChange={(e) => setFromSearch(e.target.value)}
-                          placeholder="✈️ Flying From"
-                          className="border border-gray-400 shadow-sm rounded-lg px-4 py-4 w-1/2 text-base"
-                        />
+                      <div className="w-full mb-6 flex items-center gap-8 relative">
+                        <div className="relative w-1/2">
+                          <input
+                            type="text"
+                            value={fromSearch}
+                            onChange={(e) => setFromSearch(e.target.value)}
+                            placeholder="✈️ Flying From"
+                            className="border border-gray-400 shadow-sm rounded-lg px-4 py-4 w-full text-base"
+                          />
 
-                        {fromResult.length > 0 && (
-                          <div className='absolute bg-white shadow rounded mt-1'>
-                            {fromResult.map((item, index) => (
-                              <div key={index}
-                                className='px-4 py-2 hover:bg-gray-100 cursor-pointer'
-                                onClick={() => {
-                                  setFromSearch(`${item.city} (${item.code})`);
-                                  setFromResult([]);
-                                }}
-                              >
-                                {item.city}({item.code})
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                          {fromResult.length > 0 && (
+                            <div className="absolute left-0 right-0 bg-white shadow rounded mt-1 z-50">
+                              {fromResult.map((item, index) => (
+                                <div
+                                  key={index}
+                                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                  onClick={() => {
+                                    setFromSearch(`${item.city} (${item.code})`);
+                                    setFromResult([]);
+                                  }}
+                                >
+                                  {item.city} ({item.code})
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+
 
                         <button
                           type="button"
-                          className="p-3 bg-blue-100 hover:bg-blue-200 rounded-full transition-all duration-300 hover:rotate-180"
-                          aria-label="Swap destinations"
+                          onClick={handleSwap}
+                          className={`p-3 bg-blue-100 hover:bg-blue-200 rounded-full transition-all duration-300 hover:rotate-180
+                            ${rotated ? "rotate-180" : "rotate-0"}`}
                         >
                           <svg
                             className="w-6 h-6 text-blue-600"
@@ -683,29 +703,34 @@ const HomeDestop = () => {
                           </svg>
                         </button>
 
-                        <input
-                          type="text"
-                          value={toSearch}
-                          onChange={(e) => setToSearch(e.target.value)}
-                          placeholder="📍 Flying to"
-                          className="border border-gray-400 shadow-sm rounded-lg px-4 py-4 w-1/2 text-base"
-                        />
+                        <div className="relative w-1/2">
+                          <input
+                            type="text"
+                            value={toSearch}
+                            onChange={(e) => setToSearch(e.target.value)}
+                            placeholder="✈️ Flying To"
+                            className="border border-gray-400 shadow-sm rounded-lg px-4 py-4 w-full text-base"
+                          />
 
-                        {toResult.length > 0 && (
-                          <div className='absolute bg-white shadow rounded mt-1'>
-                            {toResult.map((item, index) => (
-                              <div key={index}
-                                className='px-4 py-2 hover:bg-gray-100 cursor-pointer'
-                                onClick={() => {
-                                  setToSearch(`${item.city} (${item.code})`);
-                                  setToResult([]);
-                                }}
-                              >
-                                {item.city}({item.code})
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                          {toResult.length > 0 && (
+                            <div className="absolute left-0 top-full w-full bg-white shadow-lg rounded-md mt-1 z-50">
+                              {toResult.map((item, index) => (
+                                <div
+                                  key={index}
+                                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                  onClick={() => {
+                                    setToSearch(`${item.city} (${item.code})`);
+                                    setToResult([]);
+
+                                  }}
+                                >
+                                  {item.city} ({item.code})
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
                       </div>
                       <div className="w-full max-w-md space-y-4">
                         {/* DATE BUTTON */}
@@ -717,7 +742,9 @@ const HomeDestop = () => {
                           >
                             <Calendar size={20} />
                             <span className={departure ? "text-gray-800" : "text-gray-500"}>
-                              {departure ? departure.toLocaleDateString() : "Departure"}
+                              {departure
+                                ? new Date(departure).toLocaleDateString("en-IN")
+                                : "Departure"}
                             </span>
                           </button>
 
@@ -809,63 +836,20 @@ const HomeDestop = () => {
                       </div>
 
                       {/* ADD FLIGHT */}
-                      {!addflight && (
-                        <button
-                          onClick={() => setAddflight(true)}
-                          className="mt-6 text-blue-500 hover:bg-blue-200 rounded-2xl px-4 py-2 font-semibold"
-                        >
-                          + Add Flight
-                        </button>
-                      )}
-
-                      {addflight && (
-                        <div className="mt-6 bg-white p-4 rounded-xl">
-                          <div className="flex justify-between items-center mb-2">
-                            <h4 className="font-semibold text-base">Flight Search</h4>
-                            <button
-                              onClick={() => setAddflight(false)}
-                              className="text-blue-500 hover:bg-blue-200 rounded-2xl px-4 py-2 font-medium"
-                            >
-                              Remove
-                            </button>
-                          </div>
 
 
-                          <div className="flex gap-4 relative">
-                            {/* INPUT */}
-                            <div className="w-[36%] relative">
-                              <input
-                                value={searchs}
-                                onChange={(e) => setSearchs(e.target.value)}
-                                placeholder="✈️ city or airport name"
-                                className="w-full border p-3 rounded-lg"
-                              />
 
-                              {result.length > 0 && (
-                                <div className="absolute left-0 right-0 bg-white shadow rounded mt-1 z-50">
-                                  {result.map((item, index) => (
-                                    <div
-                                      key={index}
-                                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                      onClick={() => {
-                                        setSearchs(`${item.city} - ${item.airport} (${item.code})`);
-                                        setResult([]);
-                                      }}
-                                    >
-                                      <strong>{item.city}</strong> – {item.airport} ({item.code})
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
+                    <Link to="flightdetails">
 
-                            {/* BUTTON */}
-                            <button className="text-white bg-blue-400 hover:bg-blue-500 px-5 py-3 rounded-2xl">
-                              Search
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                    <button
+                        
+                        className="mt-6 text-blue-500 hover:bg-blue-200 rounded-2xl px-4 py-2 font-semibold"
+                      >
+                        + Add Flight
+                      </button>
+                    </Link>
+
+
 
                     </div>
                   </div>
@@ -889,11 +873,32 @@ const HomeDestop = () => {
 
                     {/* SEARCH */}
                     <div className="w-full mt-8 flex gap-4 px-4 pt-8">
-                      <input
-                        type="text"
-                        placeholder="🔍 Enter a Destination or Property"
-                        className="border border-gray-300 shadow-sm rounded-lg px-4 py-4 w-1/2 text-base"
-                      />
+                      <div className="w-[60%] mb-6 relative">
+                        <input
+                          type="text"
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          placeholder="🔍 Enter a destination or property"
+                          className="border border-gray-300 shadow-sm rounded-lg px-4 py-3 w-full text-base"
+                        />
+
+                        {results.length > 0 && (
+                          <div className="absolute left-0 right-0 bg-white shadow rounded mt-1 z-50">
+                            {results.map((item, index) => (
+                              <div
+                                key={index}
+                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onClick={() => {
+                                  setSearch(`${item.city} (${item.code})`);
+                                  setResults([]);
+                                }}
+                              >
+                                {item.city} ({item.code})
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* GRID AREA */}
@@ -1085,11 +1090,31 @@ const HomeDestop = () => {
                         </div>
 
                         <div className="flex gap-4">
-                          <input
-                            placeholder="✈️ city or airport name"
-                            className="w-[60%] border p-3 rounded-lg"
-                          />
+                          <div className="w-[36%] relative">
+                            <input
+                              value={searchs}
+                              onChange={(e) => setSearchs(e.target.value)}
+                              placeholder="✈️ city or airport name"
+                              className="w-full border p-3 rounded-lg"
+                            />
 
+                            {result.length > 0 && (
+                              <div className="absolute left-0 right-0 bg-white shadow rounded mt-1 z-50">
+                                {result.map((item, index) => (
+                                  <div
+                                    key={index}
+                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                    onClick={() => {
+                                      setSearchs(`${item.city} - ${item.airport} (${item.code})`);
+                                      setResult([]);
+                                    }}
+                                  >
+                                    <strong>{item.city}</strong> – {item.airport} ({item.code})
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                           <button className="text-white bg-blue-400 hover:bg-blue-500 px-5 py-3 rounded-2xl">
                             Search
                           </button>
@@ -1147,38 +1172,81 @@ const HomeDestop = () => {
                     <div className="w-full border border-gray-500 rounded-2xl p-4
                       flex items-center gap-4 bg-gray-100">
 
-                      <div className="flex flex-1 items-center gap-3 border border-gray-400
-                        shadow-lg rounded-xl px-4 py-3 bg-white">
-                        ✈️
-                        <div className="flex flex-col w-full">
-                          <span className="text-xs text-gray-500">City or airport</span>
-                          <input
-                            value={from}
-                            onChange={(e) => setFrom(e.target.value)}
-                            placeholder="Flying from"
-                            className="font-medium focus:outline-none"
-                          />
-                        </div>
-                      </div>
+                      <div className="relative w-1/2">
+                        <input
+                          type="text"
+                          value={fromSearch}
+                          onChange={(e) => setFromSearch(e.target.value)}
+                          placeholder="✈️ Flying From"
+                          className="border border-gray-400 shadow-sm rounded-lg px-4 py-4 w-full text-base"
+                        />
 
-                      <button className="p-3 bg-blue-100 hover:bg-blue-200 rounded-full
-                           transition-all duration-300 hover:rotate-180">
-                        🔁
+                        {fromResult.length > 0 && (
+                          <div className="absolute left-0 right-0 bg-white shadow rounded mt-1 z-50">
+                            {fromResult.map((item, index) => (
+                              <div
+                                key={index}
+                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onClick={() => {
+                                  setFromSearch(`${item.city} (${item.code})`);
+                                  setFromResult([]);
+                                }}
+                              >
+                                {item.city} ({item.code})
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleSwap}
+                        className={`p-3 bg-blue-100 hover:bg-blue-200 rounded-full transition-all duration-300 hover:rotate-180
+                            ${rotated ? "rotate-180" : "rotate-0"}`}
+                      >
+                        <svg
+                          className="w-6 h-6 text-blue-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                          />
+                        </svg>
                       </button>
+                      <div className="relative w-1/2">
+                        <input
+                          type="text"
+                          value={toSearch}
+                          onChange={(e) => setToSearch(e.target.value)}
+                          placeholder="✈️ Flying From"
+                          className="border border-gray-400 shadow-sm rounded-lg px-4 py-4 w-full text-base"
+                          onFocus={() => setShowSuggestions(true)} // show suggestions on focus
+                        />
 
-                      <div className="flex flex-1 items-center gap-3 border border-gray-400
-                        shadow-lg rounded-xl px-4 py-3 bg-white">
-                        📍
-                        <div className="flex flex-col w-full">
-                          <span className="text-xs text-gray-500">City or airport</span>
-                          <input
-                            value={to}
-                            onChange={(e) => setTo(e.target.value)}
-                            placeholder="Flying to"
-                            className="font-medium focus:outline-none"
-                          />
-                        </div>
+                        {showSuggestions && toResult.length > 0 && (
+                          <div className="absolute left-0 top-full w-full bg-white shadow-lg rounded-md mt-1 z-50">
+                            {toResult.map((item, index) => (
+                              <div
+                                key={index}
+                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onClick={() => {
+                                  setToSearch(`${item.city} (${item.code})`);
+                                  setToResult([]); // clear results to hide suggestions
+                                  setShowSuggestions(false); // optional, extra safety
+                                }}
+                              >
+                                {item.city} ({item.code})
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
+
 
                       {/* <button
           onClick={handleSearch}
@@ -1261,20 +1329,43 @@ const HomeDestop = () => {
                         </span>
                       </div>
 
-                      <div className="flex gap-4">
+                      <div className="flex w-full relative gap-4">
                         <input
-                          disabled={!enabled}
-                          placeholder="Enter destination or property"
-                          className="flex-1 rounded-xl p-4 border
-                       focus:outline-none disabled:bg-gray-200"
+                          readOnly={!enabled}
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          placeholder="🔍 Enter destination or property"
+                          className={`flex-1 rounded-xl p-4 border focus:outline-none
+      ${!enabled ? "bg-gray-200  cursor-not-allowed" : ""}
+    `}
                         />
+                        {results.length > 0 && (
+                          <div className="absolute left-0 right-0 w-[30%] bg-white shadow rounded mt-15 z-20">
+                            {results.map((item, index) => (
+                              <div
+                                key={index}
+                                className="px-4 py-2  hover:bg-gray-100 cursor-pointer"
+                                onClick={() => {
+                                  setSearch(`${item.city} (${item.code})`);
+                                  setResults([]);
+                                }}
+                              >
+                                {item.city} ({item.code})
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+
                         <input
                           type="date"
-                          disabled={!enabled}
-                          className="flex-1 rounded-xl p-4 border
-                       focus:outline-none disabled:bg-gray-200"
+                          readOnly={!enabled}
+                          className={`flex-1 rounded-xl p-4 border focus:outline-none
+      ${!enabled ? "bg-gray-200 cursor-not-allowed" : ""}
+    `}
                         />
                       </div>
+
                     </div>
 
                     {/* FINAL SEARCH BUTTON */}

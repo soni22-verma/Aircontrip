@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaHotel } from "react-icons/fa6";
 import { MdFlightTakeoff } from "react-icons/md";
 import { LuSquareActivity } from "react-icons/lu";
@@ -32,6 +32,32 @@ const HomeMobile = () => {
 
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [travelClass, setTravelClass] = useState('Economy');
+
+  //hotal k liye input box with suggestion only static
+  const[search,setSearch]=useState("")
+  const[result,setResult]=useState([])
+
+ const destinations = [
+    { city: "Delhi", code: "DEL", country: "India" },
+    { city: "Mumbai", code: "BOM", country: "India" },
+    { city: "Goa", code: "GOI", country: "India" },
+    { city: "Dubai", code: "DXB", country: "UAE" },
+    { city: "London", code: "LHR", country: "UK" },
+  ];
+
+  useEffect(()=>{
+    if(search.trim() === ""){
+      setResult([]);
+      return;
+      }
+
+      const filtered = destinations.filter((item) =>
+       item.city.toLowerCase().includes(search.toLowerCase())
+      )
+      setResult(filtered)
+  },[search])
+
+  
 
 
 

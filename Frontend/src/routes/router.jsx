@@ -1,5 +1,5 @@
 import React from "react";
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "../App";
 import Home from "../pages/home/Home";
 import HomeDestop from "../pages/home/HomeDestop";
@@ -12,9 +12,6 @@ import Customer from "../pages/Customer";
 import About from "../pages/About";
 import Press from "../pages/Press";
 import Blog from "../pages/Blog";
-import Pointmax from "../pages/Pointmax"
-// import Viewall from "../pages/Viewall"
-import FAQPage from "../pages/FAQPage";
 import FAQPage from "../pages/FAQPage"
 import PrivacyPolicy from "../pages/PrivacyPolicy";
 import HelpCenter from "../pages/HelpCenter";
@@ -29,15 +26,14 @@ import IOS from "../pages/IOS";
 import Digitalservice from "../pages/Digitalservice";
 import Guidlines from "../pages/Guidlines";
 import Statement from "../pages/Statement"
-
-
-
+import Flightdetails from "../pages/Flightdetails"
 
 const router = createBrowserRouter([
   {
     path: "",
     element: <App />,
     children: [
+
       {
         path: "/",
         element: <Home />,
@@ -64,95 +60,101 @@ const router = createBrowserRouter([
         element: <Singup />
       },
       {
-        path:"viewall",
-        element:<Viewall/>
+        path: "viewall",
+        element: <Viewall />
       },
       {
-        path:"offer",
-        element:<Offer/>
+        path: "offer",
+        element: <Offer />
       },
       {
-        path:"customer",
-        element:<Customer/>
+        path: "customer",
+        element: <Customer />
       },
       {
-        path:"about",
-        element:<About/>
+        path: "about",
+        element: <About />
       },
-     {
-      path:"press",
-      element:<Press/>
-     },
-     {
-      path:"blog",
-      element:<Blog/>
-     },
-     {
-      path:"pointmax",
-      element:<Pointmax/>
-     },
-       
+      {
+        path: "press",
+        element: <Press />
+      },
+      {
+        path: "blog",
+        element: <Blog />
+      },
+      {
+        path: "pointmax",
+        element: <Pointmax />
+      },
+
       {
         path: "/faq",
         element: <FAQPage />
       },
       {
-        path:"/privacy-policy",
-        element:<PrivacyPolicy/>
+        path: "/privacy-policy",
+        element: <PrivacyPolicy />
       },
       {
-        path:"/help-center",
-        element:<HelpCenter/>
+        path: "/help-center",
+        element: <HelpCenter />
       },
       {
-        path:"/air-contrip-terms",
-        element:<AirContipTerms/>
+        path: "/air-contrip-terms",
+        element: <AirContipTerms />
       }
-     ,
-     {
-      path:"partnerportal",
-      element:<PertnerPortal/>
+      ,
+      {
+        path: "partnerportal",
+        element: <PertnerPortal />
 
-     },
-     {
-      path:"partnerhub",
-      element:<Partnerhub/>
+      },
+      {
+        path: "partnerhub",
+        element: <Partnerhub />
 
-     },
-     {
-      path:"Advertise",
-      element:<Advertise/>
-     },
-     {
-      path:"Affiliates",
-      element:<Affiliates/>
-     },
-     {
-      path:"api",
-      element:<API/>
-     },
-     {
-      path:"ios",
-      element:<IOS/>
-     },
-     {
-      path:"digitalservice",
-      element:<Digitalservice/>
-     },
-     {
-      path:"guidlines",
-      element:<Guidlines/>
-     },
-     {
-      path:"statement",
-      element:<Statement/>
-     },
-     
-     
+      },
+      {
+        path: "Advertise",
+        element: <Advertise />
+      },
+      {
+        path: "Affiliates",
+        element: <Affiliates />
+      },
+      {
+        path: "api",
+        element: <API />
+      },
+      {
+        path: "ios",
+        element: <IOS />
+      },
+      {
+        path: "digitalservice",
+        element: <Digitalservice />
+      },
+      {
+        path: "guidlines",
+        element: <Guidlines />
+      },
+      {
+        path: "statement",
+        element: <Statement />
+      },
+      {
+        path: "flightdetails",
+        element:<Flightdetails />
+     }
+
+
     ],
+
   }
 ]
-  )
+)
+
 
 
 
