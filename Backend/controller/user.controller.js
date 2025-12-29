@@ -40,53 +40,59 @@ export const handleSignup = async (req, res) => {
   }
 };
 
-export const handleLogin = async(req,res)=>{
+export const handleLogin = async (req, res) => {
   try {
+    let { email, password } = req.body;
+    console.log(req.body);
 
-    const{email,password}= req.body;
-    console.log(req.body)
-
-    if(!email || !password){
+    if (!email || !password) {
       return res.status(400).json({
-        message:"fill required field",
-        error:true,
-        success:false
+        message: "fill required field",
+        error: true,
+        success: false,
       });
     }
 
-    const user = await User.findOne({email})
-   if(!user){
-    return res.status(400).json({
-      message:"user not registered",
-      error:true,
-      success:false
-    })
-   }
+    email = email.toLowerCase().trim();
 
-   const  match = await  bcrypt.compareSync(password, user.password); 
+    const user = await User.findOne({ email });
 
-   if(!match){
-    return res.status(400).json({
-      message:"email and password is not matched",
-      error:true,
-      success:false
-    })
-   }
+    if (!user) {
+      return res.status(400).json({
+        message: "email and password is not matched",
+        error: true,
+        success: false,
+      });
+    }
 
-  const token = jwt.sign({userId :user._id }, "fghjkl" )
-     
-   return res.status(200).json({
-    message:"Login Successfull",
-    error:false,
-    success:true,
-    token,
-    user
-   })
-    
+    const match = await bcrypt.compare(password, user.password);
+
+    if (!match) {
+      return res.status(400).json({
+        message: "email and password is not matched",
+        error: true,
+        success: false,
+      });
+    }
+
+    const token = jwt.sign({ userId: user._id }, "fghjkl");
+
+    return res.status(200).json({
+      message: "Login Successful",
+      error: false,
+      success: true,
+      token,
+      user,
+    });
   } catch (error) {
-    console.log(error,"somthing went wrong")
+    console.log(error, "something went wrong");
+    res.status(500).json({
+      message: "server error",
+      success: false,
+    });
   }
-}
+};
+
 
 export const handleUserData = async(req,res,next)=>{
   try {

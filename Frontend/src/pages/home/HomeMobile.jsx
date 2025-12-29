@@ -494,7 +494,7 @@ const HomeMobile = () => {
                   {/* Search Button */}
                   <button
                     onClick={handleSearch}
-                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-blue-800 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                    className="w-full bg-linear-to-r from-blue-600 to-blue-700 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-blue-800 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
                   >
                     <Search className="w-5 h-5" />
                     SEARCH
