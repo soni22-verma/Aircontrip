@@ -4,7 +4,8 @@ const api = {
   user: {
     register:BASE_URL+"/user/signup",
     login:BASE_URL+"/user/login",
-    userdata:BASE_URL+"/user/user-data"
+    userdata:BASE_URL+"/user/user-data",
+    userprofile:BASE_URL+"/user/user-profile"
 
   },
 }

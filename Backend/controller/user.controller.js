@@ -16,6 +16,15 @@ export const handleSignup = async (req, res) => {
       });
     }
 
+    const user = await User.findOne({email})
+    if(user?.email){
+      return res.status(400).json({
+        message:"user already registered",
+        error:true,
+        success:false
+      })
+    }
+
     const hashpassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
@@ -56,17 +65,17 @@ export const handleLogin = async (req, res) => {
     email = email.toLowerCase().trim();
 
     const user = await User.findOne({ email });
-
+    
     if (!user) {
       return res.status(400).json({
-        message: "email and password is not matched",
+        message: "user not registered",
         error: true,
         success: false,
       });
     }
 
     const match = await bcrypt.compare(password, user.password);
-
+ 
     if (!match) {
       return res.status(400).json({
         message: "email and password is not matched",
@@ -148,3 +157,31 @@ export const handleUpdatename = async(req,res)=>{
     console.log(error)
    }
 }
+
+export const handlegetProfile = async(req,res)=>{
+   try {
+    const user= await User.findById(req.userId).select("name email");
+    console.log("REQ USER ID:", req.userId);
+
+    if(!user){
+      return res.status(400).json({
+        message:"user not found",
+        error:true,
+        success:false
+      })
+    }
+
+    return res.status(200).json({
+      success:true,
+      user,
+    });
+    
+   } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message:"server error",
+      error:true,
+      success:false
+    });
+   }
+};

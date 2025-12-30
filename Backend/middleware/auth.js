@@ -1,24 +1,15 @@
-import  jwt  from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 
 export const auth = (req, res, next) => {
-    try {
-        const headers = req.headers
-        const token = headers.authorization
+  try {
+    const token = req.headers.authorization;
+    if (!token) return res.status(401).json({ message: "Please login", success: false });
 
-         if(!token){
-        return res.status(404).json({
-            message:"please login",
-            error:true,
-            success:false,
-
-        })
-        }
-        const data = jwt.decode(token , "fghjkl")
-        
-        req.body = {...req.body , userId : data.userId}
-        next()
-       
-    } catch (error) {
-        next(error)
-    }
-}
+    const decoded = jwt.verify(token, "fghjkl");
+    req.userId = decoded.userId;
+    next();
+  } catch (error) {
+    console.log("Auth error:", error.message);
+    return res.status(401).json({ message: "Invalid token", success: false });
+  }
+};

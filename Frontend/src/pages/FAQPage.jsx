@@ -35,7 +35,7 @@ import {
   CheckCircle,
   AlertCircle,
   Download,
-  Printer,
+ 
   Copy,
   Volume2,
   Mic,
@@ -601,44 +601,8 @@ const FAQPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-blue-50/30">
-      {/* Header */}
-      {/* <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-lg border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-3 group cursor-pointer">
-              <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg blur opacity-25 group-hover:opacity-75 transition-opacity"></div>
-                <div className="relative p-2 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg">
-                  <Home className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">AirContrip</h1>
-                <p className="text-xs text-gray-500 font-medium">Help Center</p>
-              </div>
-            </div>
-            
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors font-medium flex items-center">
-                <BookOpen className="w-4 h-4 mr-2" />
-                Guides
-              </a>
-              <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors font-medium flex items-center">
-                <Users className="w-4 h-4 mr-2" />
-                Community
-              </a>
-              <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors font-medium flex items-center">
-                <Video className="w-4 h-4 mr-2" />
-                Tutorials
-              </a>
-              <button className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 font-medium">
-                Sign In
-              </button>
-            </nav>
-          </div>
-        </div>
-      </header> */}
+    <div className="min-h-screen bg-linear-to-b from-gray-50 via-white to-blue-50/30">
+   
 
       <main className="container mx-auto px-6 py-12 max-w-7xl mt-19">
         {/* Search Section */}
@@ -658,7 +622,7 @@ const FAQPage = () => {
                 activeCategory === category.id ? 'scale-105 shadow-xl' : 'shadow-lg hover:shadow-xl'
               }`}
             >
-              <div className={`absolute inset-0 bg-gradient-to-r ${category.color} ${
+              <div className={`absolute inset-0 bg-linear-to-r ${category.color} ${
                 activeCategory === category.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
               } transition-opacity duration-300`}></div>
               
@@ -670,7 +634,7 @@ const FAQPage = () => {
                 <div className={`p-2 rounded-lg mr-3 ${
                   activeCategory === category.id 
                     ? 'bg-white/20' 
-                    : `bg-gradient-to-r ${category.color.replace('500', '100').replace('600', '200')}`
+                    : `bg-linear-to-r ${category.color.replace('500', '100').replace('600', '200')}`
                 }`}>
                   <div className={
                     activeCategory === category.id ? 'text-white' : 
@@ -742,11 +706,11 @@ const FAQPage = () => {
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-8">
             {/* Premium Support Card */}
-            <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-8 text-white shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-8 text-white shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-blue-500/20 to-cyan-500/20 rounded-full -translate-y-16 translate-x-16"></div>
               <div className="relative">
                 <div className="flex items-start mb-6">
-                  <div className="p-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl mr-4">
+                  <div className="p-3 bg-linear-to-r from-blue-500 to-cyan-500 rounded-xl mr-4">
                     <Shield className="w-8 h-8" />
                   </div>
                   <div>
@@ -772,7 +736,7 @@ const FAQPage = () => {
                     <span>Phone callback within 5 minutes</span>
                   </div>
                 </div>
-                <button className="w-full mt-8 py-3.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 shadow-lg hover:shadow-xl">
+                <button className="w-full mt-8 py-3.5 bg-linear-to-r from-blue-500 to-cyan-500 text-white font-bold rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 shadow-lg hover:shadow-xl">
                   Upgrade to Premium
                 </button>
               </div>
@@ -803,7 +767,7 @@ const FAQPage = () => {
             </div>
 
             {/* Live Support Status */}
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+            <div className="bg-linear-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-gray-900">Live Support Status</h3>
                 <div className="flex items-center">
@@ -896,11 +860,11 @@ const FAQPage = () => {
         </div>
 
         {/* Premium Features Section */}
-        <div className="mt-20 bg-gradient-to-r from-blue-50 via-white to-cyan-50 rounded-3xl p-12 border border-blue-200 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-full -translate-y-32 translate-x-32"></div>
+        <div className="mt-20 bg-linear-to-r from-blue-50 via-white to-cyan-50 rounded-3xl p-12 border border-blue-200 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-linear-to-br from-blue-500/10 to-cyan-500/10 rounded-full -translate-y-32 translate-x-32"></div>
           <div className="relative">
             <div className="text-center mb-10">
-              <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl mb-6">
+              <div className="inline-flex items-center justify-center p-3 bg-linear-to-r from-blue-600 to-cyan-600 rounded-xl mb-6">
                 <Award className="w-8 h-8 text-white" />
               </div>
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Get Expert Help Instantly</h2>
@@ -931,7 +895,7 @@ const FAQPage = () => {
                 }
               ].map((feature, index) => (
                 <div key={index} className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300">
-                  <div className="inline-flex p-3 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-xl mb-6">
+                  <div className="inline-flex p-3 bg-linear-to-r from-blue-100 to-cyan-100 rounded-xl mb-6">
                     <div className="text-blue-600">{feature.icon}</div>
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-3">{feature.title}</h3>
@@ -949,7 +913,7 @@ const FAQPage = () => {
             </div>
             
             <div className="text-center mt-10">
-              <button className="px-10 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105">
+              <button className="px-10 py-4 bg-linear-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105">
                 Explore Premium Features
               </button>
             </div>
@@ -957,18 +921,8 @@ const FAQPage = () => {
         </div>
       </main>
 
-      {/* Floating Action Buttons */}
-      <div className="fixed bottom-8 right-8 flex flex-col space-y-3 z-50">
-        <button className="p-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group">
-          <HelpCircle className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-        </button>
-        <button className="p-4 bg-white text-blue-600 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group">
-          <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
-        </button>
-        <button className="p-4 bg-gray-800 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group">
-          <Printer className="w-6 h-6 group-hover:scale-110 transition-transform" />
-        </button>
-      </div>
+    
+      
 
       {/* Custom CSS */}
       <style jsx>{`

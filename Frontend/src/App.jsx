@@ -7,6 +7,8 @@ import Navbar from './components/Navbar/Navbar';
 import Mobilebottom from './components/Navbar/Mobilebottom';
 import { ToastContainer } from 'react-toastify';
 import Footer from "./pages/Footer";
+import { AnimatePresence,motion } from "framer-motion";
+import ScrollToTop from "./components/ScrolltoTop";
 
 
 
@@ -15,11 +17,14 @@ function App() {
 
   return (
     <>
-      <Navbar />
-      <Outlet />
+       <Navbar />
+      
+        <Outlet />
+       <ScrollToTop />
       <ToastContainer />
       <Mobilebottom/>
       <Footer />
+   
 
 
 

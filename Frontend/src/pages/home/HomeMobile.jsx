@@ -267,10 +267,7 @@ const HomeMobile = () => {
   return (
     <>
       {passenger ?
-        
-         
-
-          <div className=" h-fit-content pt-10 bg-cover " style={{backgroundImage : "url(https://wallpapercave.com/wp/wp2555218.jpg)"}}>
+          <div className=" h-fit-content pt-10 bg-cover" style={{backgroundImage : "url(https://wallpapercave.com/wp/wp2555218.jpg)"}}>
             <div className="flex flex-nowrap justify-center items-center overflow-x-auto gap-3 scrollbar-hide">
 
               {/* Hotels */}
