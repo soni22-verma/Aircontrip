@@ -161,8 +161,7 @@ export const handleUpdatename = async(req,res)=>{
 export const handlegetProfile = async(req,res)=>{
    try {
     const user= await User.findById(req.userId).select("name email");
-    console.log("REQ USER ID:", req.userId);
-
+   
     if(!user){
       return res.status(400).json({
         message:"user not found",

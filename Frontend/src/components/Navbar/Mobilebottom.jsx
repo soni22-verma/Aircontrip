@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { AiFillHome } from "react-icons/ai";
 import { RiCustomerServiceFill } from "react-icons/ri";
-import { CgProfile } from "react-icons/cg";
-import { LuLogOut } from "react-icons/lu";
 import { FaUserLarge } from "react-icons/fa6";
+import { LuLogOut } from "react-icons/lu";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 import api from "../../../services/endpoint";
@@ -67,16 +66,16 @@ const Mobilebottom = () => {
         </NavLink>
 
         {isLoggedIn && (
-          <button onClick={handleLogout} className="flex flex-col items-center text-gray-900">
+          <div onClick={handleLogout} className="flex flex-col items-center text-gray-700">
             <LuLogOut size={20} />
             <span className="text-sm">Logout</span>
-          </button>
+          </div>
         )}
 
-        <button onClick={() => setisOpen(true)} className="flex flex-col items-center text-gray-900">
-          <CgProfile size={20} />
+        <div onClick={() => setisOpen(true)} className="flex flex-col items-center text-gray-700">
+          <FaUserLarge  size={20} />
           <span className="text-sm">Profile</span>
-        </button>
+        </div>
 
         {/* Profile Drawer */}
         <div
@@ -86,7 +85,7 @@ const Mobilebottom = () => {
         >
           <div className="p-4 pt-10">
             <h2 className="text-xl font-bold flex gap-3">
-              <FaUserLarge size={20} /> Your Profile
+              <FaUserLarge  size={20} /> Your Profile
             </h2>
             <p className="mt-4">
               <b>Name:</b>{user.name}

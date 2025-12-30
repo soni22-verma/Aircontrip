@@ -7,7 +7,8 @@ import { MdHelpOutline } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import { logoutUser } from "../../store/userSlice";
 import { useDispatch, useSelector } from "react-redux";
-import api from "../../../services/endpoint";
+
+
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -29,25 +30,33 @@ const Navbar = () => {
   return (
     <nav className="w-full bg-gray-100 shadow-sm fixed top-0 left-0 z-50">
       <div className="max-w-screen-2xl mx-auto px-4">
-       
+
         <div className="flex items-center justify-between py-5">
 
-       
+
           <Link to="/">
             <img src="./logo.png" alt="logo" className="h-8 md:h-12" />
           </Link>
 
-          
-          <div className="lg:hidden flex gap-2">
-            <Link to="/help-center" className="text-gray-700 hover:text-blue-500">
+
+          <div className="lg:hidden flex gap-6 items-center">
+            <Link
+              to="/help-center"
+              className="flex flex-row items-center text-gray-700 hover:text-blue-500"
+            >
               <MdHelpOutline size={26} />
+              <span className="text-sm font-semibold">Help</span>
             </Link>
-            <Link to="offer">
-              <BiSolidOffer size={26} className="text-gray-700 hover:text-blue-500"/>
+            <Link
+              to="/offer"
+              className="flex flex-row items-center text-gray-700 hover:text-blue-500"
+            >
+              <BiSolidOffer size={26} />
+              <span className="text-sm font-semibold">Offer</span>
             </Link>
           </div>
 
-          
+
           <div className="hidden lg:flex items-center gap-10 text-gray-700">
 
             <Link to="/offer" className="flex items-center gap-2 hover:text-blue-500">
