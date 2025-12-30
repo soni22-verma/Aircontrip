@@ -31,46 +31,46 @@ const destinations = [
       "https://images.unsplash.com/photo-1570168007204-dfb528c6958f",
   },
   {
-    id:5,
-    title:"Hyderabad",
-    count:"2,735 accommodations",
-    image:"https://pix6.agoda.net/geo/city/8801/1_8801_02.jpg?ca=6&ce=1&s=375x&ar=1x1"
-
-  },
-   {
-    id:6,
-    title:"Chennie",
-    count:"2,832 accommodations",
-    image:"https://pix6.agoda.net/geo/city/17269/1_17269_02.jpg?ca=6&ce=1&s=375x&ar=1x1"
-
-  },
-   {
-    id:7,
-    title:"Hyderabad",
-    count:"2,735 accommodations",
-    image:"https://pix6.agoda.net/geo/city/8845/017f7c5548e391397f2be20f88df0b2c.jpg?ce=0&s=375x&ar=1x1"
-
-  },
-   {
-    id:8,
-    title:"Varanasi",
-    count:"2,000 accommodations",
-    image:"https://pix6.agoda.net/geo/city/3005/1_3005_02.jpg?ca=6&ce=1&s=375x&ar=1x1"
+    id: 5,
+    title: "Hyderabad",
+    count: "2,735 accommodations",
+    image: "https://pix6.agoda.net/geo/city/8801/1_8801_02.jpg?ca=6&ce=1&s=375x&ar=1x1"
 
   },
   {
-    id:9,
-    title:"Pune",
-    count:"2,494 accommodations",
-    image:"https://pix6.agoda.net/geo/city/16854/0abc435fa78c2ca6fb4cb5ec86af89d0.jpg?ce=0&s=375x&ar=1x1"
+    id: 6,
+    title: "Chennie",
+    count: "2,832 accommodations",
+    image: "https://pix6.agoda.net/geo/city/17269/1_17269_02.jpg?ca=6&ce=1&s=375x&ar=1x1"
+
   },
-   {
-    id:10,
-    title:"Kochi",
-    count:"2,165 accommodations",
-    image:"https://pix6.agoda.net/geo/city/12722/1_12722_02.jpg?ca=6&ce=1&s=375x&ar=1x1"
+  {
+    id: 7,
+    title: "Hyderabad",
+    count: "2,735 accommodations",
+    image: "https://pix6.agoda.net/geo/city/8845/017f7c5548e391397f2be20f88df0b2c.jpg?ce=0&s=375x&ar=1x1"
+
   },
-   
+  {
+    id: 8,
+    title: "Varanasi",
+    count: "2,000 accommodations",
+    image: "https://pix6.agoda.net/geo/city/3005/1_3005_02.jpg?ca=6&ce=1&s=375x&ar=1x1"
+
+  },
+  {
+    id: 9,
+    title: "Pune",
+    count: "2,494 accommodations",
+    image: "https://pix6.agoda.net/geo/city/16854/0abc435fa78c2ca6fb4cb5ec86af89d0.jpg?ce=0&s=375x&ar=1x1"
+  },
+  {
+    id: 10,
+    title: "Kochi",
+    count: "2,165 accommodations",
+    image: "https://pix6.agoda.net/geo/city/12722/1_12722_02.jpg?ca=6&ce=1&s=375x&ar=1x1"
+  },
+
 ];
 
 export default function TopDestinationsSlider() {
@@ -86,8 +86,8 @@ export default function TopDestinationsSlider() {
 
   return (
     <div className="w-full px-4 sm:px-6 md:px-10 py-6 relative">
-  {/* Heading */}
- <h2 className="
+      {/* Heading */}
+      <h2 className="
   text-[16px]       
   sm:text-[18px]    
   md:text-3xl       
@@ -99,23 +99,18 @@ export default function TopDestinationsSlider() {
   lg:mt-20        
   mb-4
   md:mb-6
-  min-[540px]:mt-65
-  min-[412px]:mt-20
-  min-[344px]:mt-20
-  min-[375px]:mt-73
-  min-[390px]:mt-35
-  min-[360px]:mt-60
   leading-tight
   sm:leading-snug
   text-center
   md:text-left
   px-4
-">
-  Top destinations in India
+">  
+
+        Top destinations in India
 </h2>
 
 
-  {/* Left Button */}
+  {/* Left Button */ }
   <button
     onClick={() => scroll("left")}
     className="hidden md:flex absolute top-1/2 -translate-y-1/2 left-2 z-10
@@ -124,7 +119,7 @@ export default function TopDestinationsSlider() {
     <ChevronLeft />
   </button>
 
-  {/* Slider */}
+  {/* Slider */ }
   <div
     ref={sliderRef}
     className="flex gap-4 sm:gap-6 overflow-x-auto scrollbar-hide scroll-smooth py-4"
@@ -154,7 +149,7 @@ export default function TopDestinationsSlider() {
     ))}
   </div>
 
-  {/* Right Button */}
+  {/* Right Button */ }
   <button
     onClick={() => scroll("right")}
     className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10
@@ -162,7 +157,7 @@ export default function TopDestinationsSlider() {
   >
     <ChevronRight />
   </button>
-</div>
+</div >
 
   );
 }

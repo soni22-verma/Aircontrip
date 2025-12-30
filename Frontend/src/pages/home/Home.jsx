@@ -20,21 +20,21 @@ const Home = () => {
 
   return (
     <div className="mt-18">
-  {isMobile ? <HomeMobile /> : <HomeDestop />}
+      {isMobile ? <HomeMobile /> : <HomeDestop />}
 
-  {/* CENTER WRAPPER */}
-  <div className="flex justify-center">
-    <div className="w-full max-w-[1200px] px-4">
-      <Cards />
-      <Cards1 />
-      <Cards2 />
-      <Cards3 />
-      <Cards4 />
-      <Banner />
-      <Cards5 />
+      {/* CENTER WRAPPER */}
+      <div className="flex justify-center">
+        <div className="w-full max-w-[1200px] px-4">
+          <Cards />
+          <Cards1 />
+          <Cards2 />
+          <Cards3 />
+          <Cards4 />
+          <Banner />
+          <Cards5 />
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
   );
 };

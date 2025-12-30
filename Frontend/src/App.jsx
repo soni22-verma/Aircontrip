@@ -4,6 +4,7 @@ import './App.css';
 
 import { Outlet } from "react-router-dom";
 import Navbar from './components/Navbar/Navbar';
+import Mobilebottom from './components/Navbar/Mobilebottom';
 import { ToastContainer } from 'react-toastify';
 import Footer from "./pages/Footer";
 
@@ -17,7 +18,9 @@ function App() {
       <Navbar />
       <Outlet />
       <ToastContainer />
+      <Mobilebottom/>
       <Footer />
+
 
 
 

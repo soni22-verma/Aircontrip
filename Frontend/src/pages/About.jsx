@@ -168,7 +168,7 @@ const DestinationsExplorer = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-linear-to-b from-blue-50 to-white">
       {/* Hero Section with Parallax Effect */}
       <div className="relative h-[70vh] overflow-hidden">
         <div 
@@ -177,7 +177,7 @@ const DestinationsExplorer = () => {
             backgroundImage: 'url(https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=2000)',
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-teal-800/50"></div>
+          <div className="absolute inset-0 bg-linear-to-r from-blue-900/70 to-teal-800/50"></div>
         </div>
         
         <div className="relative h-full flex items-center">
@@ -205,7 +205,7 @@ const DestinationsExplorer = () => {
                       />
                     </div>
                   </div>
-                  <button className="bg-gradient-to-r from-blue-600 to-teal-500 text-white px-8 py-3 rounded-xl font-bold hover:from-blue-700 hover:to-teal-600 transition-all duration-300 flex items-center justify-center gap-2">
+                  <button className="bg-linear-to-r from-blue-600 to-teal-500 text-white px-8 py-3 rounded-xl font-bold hover:from-blue-700 hover:to-teal-600 transition-all duration-300 flex items-center justify-center gap-2">
                     <Search className="w-5 h-5" />
                     Explore Now
                   </button>
@@ -244,7 +244,7 @@ const DestinationsExplorer = () => {
                 onClick={() => setSelectedCategory(category.id)}
                 className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 ${
                   selectedCategory === category.id
-                    ? 'bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow-lg'
+                    ? 'bg-linear-to-r from-blue-600 to-teal-500 text-white shadow-lg'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -279,7 +279,7 @@ const DestinationsExplorer = () => {
           </div>
 
           {/* Trending Banner */}
-          <div className="mb-8 bg-gradient-to-r from-orange-500 to-pink-500 rounded-2xl p-6 text-white">
+          <div className="mb-8 bg-linear-to-r from-orange-500 to-pink-500 rounded-2xl p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-2">
@@ -313,7 +313,7 @@ const DestinationsExplorer = () => {
                   {/* Overlay Badges */}
                   <div className="absolute top-4 left-4">
                     {destination.isTrending && (
-                      <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                      <span className="bg-linear-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
                         TRENDING
                       </span>
                     )}
@@ -337,7 +337,7 @@ const DestinationsExplorer = () => {
                   {/* Discount Badge */}
                   {destination.discount > 0 && (
                     <div className="absolute bottom-4 left-4">
-                      <span className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-3 py-1 rounded-lg text-sm font-bold">
+                      <span className="bg-linear-to-r from-green-500 to-teal-500 text-white px-3 py-1 rounded-lg text-sm font-bold">
                         -{destination.discount}% OFF
                       </span>
                     </div>
@@ -394,7 +394,7 @@ const DestinationsExplorer = () => {
                   </div>
                   
                   {/* Action Button */}
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-teal-500 text-white py-3 rounded-xl font-bold hover:from-blue-700 hover:to-teal-600 transition-all duration-300 flex items-center justify-center gap-2 group/btn">
+                  <button className="w-full bg-linear-to-r from-blue-600 to-teal-500 text-white py-3 rounded-xl font-bold hover:from-blue-700 hover:to-teal-600 transition-all duration-300 flex items-center justify-center gap-2 group/btn">
                     <span>Book Now</span>
                     <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                   </button>
@@ -405,7 +405,7 @@ const DestinationsExplorer = () => {
         </div>
 
         {/* Interactive Map Section */}
-        <div className="bg-gradient-to-r from-blue-900 to-teal-900 rounded-2xl overflow-hidden mb-12">
+        <div className="bg-linear-to-r from-blue-900 to-teal-900 rounded-2xl overflow-hidden mb-12">
           <div className="p-8 text-white">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -418,7 +418,7 @@ const DestinationsExplorer = () => {
             </div>
             
             {/* Map Visualization */}
-            <div className="relative h-64 bg-gradient-to-br from-blue-800 to-teal-800 rounded-xl overflow-hidden">
+            <div className="relative h-64 bg-linear-to-br from-blue-800 to-teal-800 rounded-xl overflow-hidden">
               {/* Simplified Map Dots */}
               <div className="absolute inset-0 flex items-center justify-center">
                 {[
@@ -431,7 +431,7 @@ const DestinationsExplorer = () => {
                 ].map((dot, idx) => (
                   <div
                     key={idx}
-                    className={`absolute ${dot.size} bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse`}
+                    className={`absolute ${dot.size} bg-linear-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse`}
                     style={{ top: dot.top, left: dot.left }}
                   />
                 ))}
@@ -481,7 +481,7 @@ const DestinationsExplorer = () => {
         </div>
 
         {/* Newsletter Section */}
-        <div className="bg-gradient-to-r from-purple-600 to-pink-500 rounded-2xl p-8 text-center text-white mb-12">
+        <div className="bg-linear-to-r from-purple-600 to-pink-500 rounded-2xl p-8 text-center text-white mb-12">
           <div className="max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold mb-4">
               Never Miss a Deal

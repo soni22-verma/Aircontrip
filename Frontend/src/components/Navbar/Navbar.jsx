@@ -121,8 +121,8 @@ const handleLogout = () => {
                isLoggedIn && user ? (
                <div>{user.name}</div>):(
                 <>
-                 <a href="login">Log in</a> /
-              <a href="singup">Sign up</a>
+                 <Link to="login">Log in</Link> /
+              <Link to="singup">Sign up</Link>
               </>
                )
               }

@@ -5,12 +5,15 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/userSlice";
+import { FaEye } from "react-icons/fa6";
+import { FaEyeSlash } from "react-icons/fa6";
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch()
   const [email, setemail] = useState("");
   const [password, setPassword] = useState("");
+  const[showpassword,setShowpassword] = useState(false);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -88,31 +91,51 @@ const Login = () => {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500"
-                    placeholder="Enter your password"
-                  />
-                </div>
+                <div className="relative w-full">
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Password
+  </label>
+
+  <input
+    value={password}
+    type={showpassword ? "text" : "password"}
+    onChange={(e) => setPassword(e.target.value)}
+    placeholder="Enter your password"
+    className="w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none
+    "
+  />
+
+  <button
+    type="button"
+    onClick={() => setShowpassword(!showpassword)}
+    className=" absolute right-4 top-[60%] -translate-y-1/2 text-gray-500 hover:text-gray-700 cursor-pointer
+    "
+  >
+    {showpassword ? <FaEye /> : <FaEyeSlash />}
+  </button>
+</div>
+
 
                 <button
                   type="submit"
+              
                   className="w-full bg-linear-to-r from-red-500 to-red-700 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
                 >
+                
                   Login
                 </button>
               </form>
 
               <div className="text-center mt-6">
-                <a className="text-red-600 text-sm hover:underline cursor-pointer">
-                  Forgot your password?
+                <a className="text-black text-sm hover:underline cursor-pointer">
+                  Forgot your password?{" "}
                 </a>
+               <span
+                    onClick={() => navigate("/singup")}
+                    className="text-red-600 font-semibold cursor-pointer hover:underline"
+                  >
+                    signin
+                  </span>
               </div>
             </div>
           </div>
