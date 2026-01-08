@@ -1,3 +1,4 @@
+
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const api = {
 
@@ -5,9 +6,18 @@ const api = {
     register:BASE_URL+"/user/signup",
     login:BASE_URL+"/user/login",
     userdata:BASE_URL+"/user/user-data",
-    userprofile:BASE_URL+"/user/user-profile"
-
+    userprofile:BASE_URL+"/user/user-profile",
+   bookingticket:BASE_URL+"/user/booking-ticket",
+   destopProfile:BASE_URL+"/user/destop-profile",
+   updateprofile:BASE_URL+"/user/update-profile"
   },
+   image: {
+    uploadImage: BASE_URL + "/user/upload-image",
+  },
+  booking:{
+    ticketbooking:BASE_URL+"/booking/ticket-booking"
+  }
+
 }
 export default api
 

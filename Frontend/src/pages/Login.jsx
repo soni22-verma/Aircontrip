@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import api from "../../services/endpoint";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/userSlice";
 import { FaEye } from "react-icons/fa6";
@@ -23,14 +23,17 @@ const Login = () => {
        console.log(response,"this is response")
       if (response.data.success) {
         localStorage.setItem("Authorization" , response?.data?.token)
-        toast.success("Login Successfully");
+        toast?.success("Login Successfully");
         localStorage.setItem("token", response.data.token);
         navigate("/");
       }
     } catch (error) {
       console.log(error);
     }
+     
   };
+
+ 
 
   return (
     <div
@@ -70,7 +73,7 @@ const Login = () => {
                 <h2 className="text-lg font-bold text-gray-800">
                   Already using AirconTrip?
                 </h2>
-                <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold">A</span>
                 </div>
               </div>
@@ -86,7 +89,7 @@ const Login = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setemail(e.target.value)}
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -101,7 +104,7 @@ const Login = () => {
     type={showpassword ? "text" : "password"}
     onChange={(e) => setPassword(e.target.value)}
     placeholder="Enter your password"
-    className="w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none
+    className="w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none
     "
   />
 
@@ -118,8 +121,8 @@ const Login = () => {
 
                 <button
                   type="submit"
-              
-                  className="w-full bg-linear-to-r from-red-500 to-red-700 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
+                 
+                  className="w-full bg-linear-to-r from-blue-500 to-blue-700 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
                 >
                 
                   Login
@@ -132,9 +135,9 @@ const Login = () => {
                 </a>
                <span
                     onClick={() => navigate("/singup")}
-                    className="text-red-600 font-semibold cursor-pointer hover:underline"
+                    className="text-blue-600 font-semibold cursor-pointer hover:underline"
                   >
-                    signin
+                    signup
                   </span>
               </div>
             </div>

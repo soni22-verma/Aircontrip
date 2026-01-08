@@ -27,6 +27,9 @@ import Digitalservice from "../pages/Digitalservice";
 import Guidlines from "../pages/Guidlines";
 import Statement from "../pages/Statement"
 import Flightdetails from "../pages/Flightdetails"
+import Loyalty from "../pages/Loyalty"
+import Profile from "../components/Navbar/Profile";
+import Travellerdetails from "../components/Navbar/Profile/Travellerdetails";
 
 const router = createBrowserRouter([
   {
@@ -58,6 +61,10 @@ const router = createBrowserRouter([
       {
         path: "singup",
         element: <Singup />
+      },
+      {
+        path:"profile",
+        element:<Profile/>
       },
       {
         path: "viewall",
@@ -146,8 +153,15 @@ const router = createBrowserRouter([
       {
         path: "flightdetails",
         element:<Flightdetails />
-     }
-
+     },
+     {
+      path:"loyalty",
+      element:<Loyalty/>
+     },
+    {
+      path:"travellerdetails",
+      element:<Travellerdetails/>
+    }
 
     ],
 

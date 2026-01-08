@@ -4,6 +4,7 @@ import cors from "cors";
 import { connectdb } from "./config/connectdb.js";
 import userRouter from "./routes/user.routes.js";
 import { handleError } from "./middleware/errorhandling.js";
+import bookingRouter from "./routes/booking.routes.js";
 
 dotenv.config();
 
@@ -14,12 +15,10 @@ connectdb();
 app.use(cors());
 app.use(express.json());
 
-app.get("/ping", (req, res) => {
-  res.send("pong");
-});
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/user", userRouter);
+app.use("/booking",bookingRouter);
 app.use(handleError)
 
 const PORT = 2020;

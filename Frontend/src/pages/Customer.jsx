@@ -193,7 +193,7 @@ const MigoHelpPage = () => {
           {/* Right Column - Support Options */}
           <div>
             {/* Recent Booking Help */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 mb-8 border border-blue-100">
+            <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 mb-8 border border-blue-100">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">Need help with your recent booking?</h2>
               <p className="text-gray-600 mb-6">
                 Access your booking details and get assistance with modifications, cancellations, or other queries.
@@ -232,7 +232,7 @@ const MigoHelpPage = () => {
                   Access your account to manage bookings, view history, and get personalized support.
                 </p>
                 <a href="singup">
-                <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700">
+                <button className="w-full bg-linear-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700">
                   Sign In to Your Account
                 </button>
                 </a>
