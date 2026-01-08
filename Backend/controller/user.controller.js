@@ -28,6 +28,8 @@ export const handleSignup = async (req, res) => {
       })
     }
 
+    
+
     const hashpassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
@@ -64,6 +66,15 @@ export const handleLogin = async (req, res) => {
         success: false,
       });
     }
+    
+         const isMatch = bcrypt.compareSync(password,user.password)
+         if(!isMatch){
+          res.status(400).json({
+            message:"email and password is not matched",
+            error:true,
+            success:false
+          })
+         }
 
     email = email.toLowerCase().trim();
 

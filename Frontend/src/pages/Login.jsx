@@ -29,6 +29,7 @@ const Login = () => {
       }
     } catch (error) {
       console.log(error);
+      toast?.error("email and password is not matched")
     }
      
   };

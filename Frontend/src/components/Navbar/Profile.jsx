@@ -356,7 +356,9 @@ const Profile = () => {
       if (res.data.success) {
         console.log(res?.data?.booking)
         toast?.success("your Ticket is Confirmed,thankyou😊");
-        navigate("travellerdetails")
+        navigate("/profile/travellerdetails",{
+          state: {booking: res.data.booking}
+        })
       }
 
     } catch (error) {
@@ -518,6 +520,7 @@ const Profile = () => {
                                       setBookingdata({ ...bookingData, title: e.target.value })
                                     }
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                                   <option>Select</option>
                                     <option>Mr</option>
                                     <option>Mrs</option>
                                     <option>Ms</option>
@@ -669,6 +672,7 @@ const Profile = () => {
                                       setBookingdata({ ...bookingData, seatPreference: e.target.value })
                                     }
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                                      <option>Select</option>
                                     <option>Window Seat</option>
                                     <option>Aisle Seat</option>
                                     <option>Middle Seat</option>
@@ -822,15 +826,15 @@ const Profile = () => {
                             {/* Action Buttons */}
                             <div className="space-y-4">
 
-                              <a href="travellerdetails">
+                              <Link to="/profile/travellerdetails">
                                 <button
                                 onClick={handleTicketBooking}
                                 className="w-full py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
                                 <GiConfirmed className="inline mr-2" />
                                 Confirm Ticket
                               </button>
-                              </a>
-                              <button className="w-full py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
+                              </Link>
+                              <button className="w-full mt-4 py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
                                 <FaCreditCard className="inline mr-2" />
                                 Proceed to Payment
                               </button>
