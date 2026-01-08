@@ -67,6 +67,16 @@ export const handleLogin = async (req, res) => {
       });
     }
     
+    email = email.toLowerCase().trim();
+     const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "user not registered",
+        error: true,
+        success: false,
+      });
+    }
          const isMatch = bcrypt.compareSync(password,user.password)
          if(!isMatch){
           res.status(400).json({
@@ -76,17 +86,8 @@ export const handleLogin = async (req, res) => {
           })
          }
 
-    email = email.toLowerCase().trim();
 
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({
-        message: "user not registered",
-        error: true,
-        success: false,
-      });
-    }
+   
 
     const match = await bcrypt.compare(password, user.password);
 
