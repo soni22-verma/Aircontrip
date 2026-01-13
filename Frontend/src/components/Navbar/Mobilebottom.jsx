@@ -315,7 +315,10 @@ const Mobilebottom = () => {
   }
   const today = new Date().toISOString().split("T")[0];
 
-
+  const handleBookingHistoryClick = () => {
+    console.log("Navigating to /allbookingdetails");
+    navigate('/allbookingdetails');
+  };
 
   const activeClass = "text-blue-600";
   const inactiveClass = "text-gray-900";
@@ -1103,16 +1106,13 @@ const Mobilebottom = () => {
 
             {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-3 mb-6">
-              <a href="allbookingdetails">
-                <button className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100">
-                {/* <FaHistory className="text-2xl text-blue-600 mb-2" /> */}
+              <button
+                onClick={handleBookingHistoryClick}
+                className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100"
+              >
                 <span className="text-sm font-medium">Booking History</span>
               </button>
-              </a>
-              <button className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100">
-                <FaCalendarCheck className="text-2xl text-green-600 mb-2" />
-                <span className="text-sm font-medium">Check-in</span>
-              </button>
+             
             </div>
 
             {/* User Details */}
