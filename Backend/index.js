@@ -5,6 +5,7 @@ import { connectdb } from "./config/connectdb.js";
 import userRouter from "./routes/user.routes.js";
 import { handleError } from "./middleware/errorhandling.js";
 import bookingRouter from "./routes/booking.routes.js";
+import contactRouter from "./routes/contact.routes.js";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/user", userRouter);
 app.use("/booking",bookingRouter);
+app.use("/contact",contactRouter)
 app.use(handleError)
 
 const PORT = 2020;

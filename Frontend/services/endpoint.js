@@ -18,6 +18,9 @@ const api = {
     ticketbooking:BASE_URL+"/booking/ticket-booking",
     bookingdetails:BASE_URL+"/booking/all-booking-details",
     userDetails:BASE_URL+"/booking/get-user-details"
+  },
+  contact:{
+    contactus:BASE_URL+ "/contact/contact-us",
   }
 
 }

@@ -412,7 +412,7 @@ const Mobilebottom = () => {
   };
 
   return (
-    <div className="pt-16 min-h-screen overflow-y-scroll block md:hidden">
+    <div className="pt-1 overflow-y-scroll block md:hidden">
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-md md:hidden">
         <div className="flex justify-around items-center py-2">
           <NavLink to="/" className={({ isActive }) => `flex flex-col items-center ${isActive ? activeClass : inactiveClass}`}>

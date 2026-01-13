@@ -26,11 +26,12 @@ import IOS from "../pages/IOS";
 import Digitalservice from "../pages/Digitalservice";
 import Guidlines from "../pages/Guidlines";
 import Statement from "../pages/Statement"
-import Flightdetails from "../pages/Flightdetails"
-import Loyalty from "../pages/Loyalty"
+import Flightdetails from "../pages/Flightdetails";
+import Loyalty from "../pages/Loyalty";
+import Contactus from '../pages/Contactus';
 import Profile from "../components/Navbar/Profile";
 import Travellerdetails from "../components/Navbar/Travellerdetails";
-import AllbookingDetails from "../components/Navbar/AllbookingDetails"
+import AllbookingDetails from "../components/Navbar/AllbookingDetails";
 
 const router = createBrowserRouter([
   {
@@ -166,6 +167,10 @@ const router = createBrowserRouter([
     {
       path:"allbookingdetails",
       element:<AllbookingDetails/>
+    },
+    {
+      path:"contact",
+      element:<Contactus/>
     }
 
     ],
