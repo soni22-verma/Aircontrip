@@ -1,5 +1,5 @@
 import express from "express";
-import {handleBooking, handleDestopProfile, handleEditProfile, handlegetProfile ,handleImageUpload,handleLogin,handleSignup,handleUpdatename,handleUserData,
+import { handleBooking, handleDestopProfile, handleEditProfile, handlegetProfile ,handleImageUpload,handleLogin,handleSignup,handleUpdatename,handleUserData,
 } from "../controller/user.controller.js";
 
 import { auth } from "../middleware/auth.js";

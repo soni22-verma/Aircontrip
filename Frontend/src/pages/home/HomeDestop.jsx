@@ -304,10 +304,6 @@ const HomeDestop = () => {
           <div
             className="mx-auto relative -top-10  w-[90%] lg:w-[70%] z-10">
 
-
-
-
-
             <AnimatePresence mode='wait'>
               {hotel && (
                 <motion.div
@@ -614,9 +610,6 @@ const HomeDestop = () => {
                 </motion.div>
               )}
 
-
-
-
               {flight && (
                 <motion.div
                   key="flight"
@@ -855,10 +848,6 @@ const HomeDestop = () => {
                   </div>
                 </motion.div>
               )}
-
-
-
-
 
 
               {bus && (
@@ -1125,11 +1114,6 @@ const HomeDestop = () => {
                   </div>
                 </motion.div>
               )}
-
-
-
-
-
 
               {flighthotel && (
                 <motion.div

@@ -19,6 +19,8 @@ import {
   FaCheckCircle,
   FaCreditCard,
   FaShieldAlt,
+  FaCalendarCheck,
+  FaClock,
 } from "react-icons/fa";
 import { GiConfirmed } from "react-icons/gi";
 import { Link, useNavigate } from "react-router-dom";
@@ -59,7 +61,45 @@ const Profile = () => {
     seatPreference: "",
     mealPreference: "",
     specialrequest: "",
+    bookedon: new Date().toLocaleDateString("en-CA")
+
   })
+
+  const [flight, setFlight] = useState(null)
+  useEffect(() => {
+    const storedFlight = localStorage.getItem("selectedFlight");
+    if (storedFlight) {
+      try {
+        const flightData = JSON.parse(storedFlight);
+        console.log("Loaded flight from localStorage:", flightData);
+        setFlight(flightData);
+      } catch (error) {
+        console.error("Error parsing flight data:", error);
+      }
+    }
+  }, []);
+
+  const formatFlightPrice = (price) => {
+    if (!price) return '0';
+    return new Intl.NumberFormat('en-IN').format(price);
+  };
+
+  const getCityName = (code) => {
+    const cities = [
+      { code: 'DEL', name: 'Delhi' },
+      { code: 'BOM', name: 'Mumbai' },
+      { code: 'BLR', name: 'Bengaluru' },
+      { code: 'HYD', name: 'Hyderabad' },
+      { code: 'CCU', name: 'Kolkata' },
+      { code: 'MAA', name: 'Chennai' },
+      { code: 'AMD', name: 'Ahmedabad' },
+      { code: 'PNQ', name: 'Pune' },
+      { code: 'HBD', name: 'Hydrabad' }
+    ];
+
+    const city = cities.find(c => c.code === code);
+    return city ? city.name : code;
+  };
 
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("user"));
@@ -122,7 +162,8 @@ const Profile = () => {
           passengers: 2,
           total: "$1,450",
           status: "Confirmed",
-          airline: "AirContrip Airlines"
+          airline: "AirContrip Airlines",
+          baseFare: 34677,
         },
         {
           id: 2,
@@ -133,7 +174,8 @@ const Profile = () => {
           passengers: 1,
           total: "$890",
           status: "Completed",
-          airline: "SkyJet Airways"
+          airline: "SkyJet Airways",
+          baseFare: 674875
         },
         {
           id: 3,
@@ -144,7 +186,8 @@ const Profile = () => {
           passengers: 4,
           total: "$3,200",
           status: "Completed",
-          airline: "Emirates"
+          airline: "Emirates",
+          baseFare: 67643
         }
       ]);
     }
@@ -324,7 +367,12 @@ const Profile = () => {
   }
 
   const handleTicketBooking = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
+
+    if (!flight) {
+      toast.error("Please select a flight first!");
+      return;
+    }
 
     try {
       const token = localStorage.getItem("Authorization")
@@ -346,28 +394,50 @@ const Profile = () => {
           seatPreference: bookingData.seatPreference,
           mealPreference: bookingData.mealPreference,
           specialrequest: bookingData.specialrequest,
+
+          flightId: flight.id,
+          airline: flight.airline,
+          flightNumber: flight.flightNo,
+          from: flight.from,
+          to: flight.to,
+          departureTime: flight.departure,
+          arrivalTime: flight.arrival,
+          journeyDate: flight.date,
+          flightClass: flight.class,
+          totalPrice: flight.price,
+          duration: flight.duration,
+          bookedon: bookingData.bookedon
         },
 
       );
+
+      console.log(bookingData.book, " hvlsdvjsdkvjsdfv")
 
       console.log(res, "ticket Booking response")
       console.log(res.data, "booking data")
 
       if (res.data.success) {
         console.log(res?.data?.booking)
-        toast?.success("your Ticket is Confirmed,thankyou😊");
-        navigate("/profile/travellerdetails",{
-          state: {booking: res.data.booking}
+        toast?.success("Your Ticket is Confirmed, thank you! 😊");
+
+        localStorage.removeItem("selectedFlight");
+
+        navigate("/profile/travellerdetails", {
+          state: {
+            booking: res.data.booking,
+            flightDetails: flight,
+            email: res.data.booking.email,
+          }
         })
       }
 
     } catch (error) {
       console.log(error, "this is error")
-
+      toast.error(error?.response?.data?.message || "Booking failed");
     }
-
-
   }
+
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-cyan-50 pt-30">
@@ -454,10 +524,12 @@ const Profile = () => {
             <div className="bg-white rounded-2xl shadow-xl p-6">
               <h3 className="font-bold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
-                <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-blue-50 rounded-lg transition-colors">
-                  <FaPlane className="text-blue-600" />
-                  <span>View Upcoming Flights</span>
-                </button>
+                <a href="/allbookingdetails">
+                  <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-blue-50 rounded-lg transition-colors">
+                    <FaPlane className="text-blue-600" />
+                    <span>View All Booking</span>
+                  </button>
+                </a>
 
                 <button
                   onClick={() => setShowBookingForm(true)}
@@ -520,7 +592,7 @@ const Profile = () => {
                                       setBookingdata({ ...bookingData, title: e.target.value })
                                     }
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
-                                   <option>Select</option>
+                                    <option>Select</option>
                                     <option>Mr</option>
                                     <option>Mrs</option>
                                     <option>Ms</option>
@@ -562,6 +634,37 @@ const Profile = () => {
                                     <FaCalendarAlt className="absolute left-4 top-3.5 text-gray-400" />
                                   </div>
                                 </div>
+
+                                {/* Booked On Field - NEW */}
+
+                                <div className="space-y-2">
+                                  <label className="block text-sm font-semibold text-gray-700 flex items-center">
+                                    <FaCalendarCheck className="mr-2 text-green-600" />
+                                    Booking Date
+                                  </label>
+
+                                  <div className="relative">
+                                    <input
+                                      type="date"
+                                      name="bookedon"
+                                      min={today}
+                                      value={bookingData.bookedon}
+                                      onChange={(e) =>
+                                        setBookingdata({
+                                          ...bookingData,
+                                          bookedon: e.target.value,
+                                        })
+                                      }
+                                      className="w-full px-4 py-3 pl-12 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                    />
+                                  </div>
+
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    Default: Current date
+                                  </p>
+                                </div>
+
+
                               </div>
 
                               {/* Contact Info */}
@@ -624,6 +727,7 @@ const Profile = () => {
                                   <label className="block text-sm font-semibold text-gray-700">Passport Expiry</label>
                                   <div className="relative">
                                     <input type="date"
+                                      min={today}
                                       name="passportExpiry"
                                       value={bookingData.passportExpiry}
                                       onChange={(e) =>
@@ -636,13 +740,26 @@ const Profile = () => {
 
                                 <div className="space-y-2">
                                   <label className="block text-sm font-semibold text-gray-700">Nationality</label>
-                                  <input type="text"
+                                  <select
                                     name="nationality"
-                                    value={bookingData.nationality}
+                                    value={bookingData.nationality || "select"} // Default value yahan set karo
                                     onChange={(e) =>
                                       setBookingdata({ ...bookingData, nationality: e.target.value })
                                     }
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Indian" />
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                  >
+                                    <option value="select">select</option>
+                                    <option value="Indian">Indian</option>
+                                    <option value="American">American</option>
+                                    <option value="British">British</option>
+                                    <option value="Canadian">Canadian</option>
+                                    <option value="Australian">Australian</option>
+                                    <option value="German">German</option>
+                                    <option value="French">French</option>
+                                    <option value="Japanese">Japanese</option>
+                                    <option value="Chinese">Chinese</option>
+                                    <option value="Singaporean">Singaporean</option>
+                                  </select>
                                 </div>
 
                                 <div className="space-y-2">
@@ -672,7 +789,7 @@ const Profile = () => {
                                       setBookingdata({ ...bookingData, seatPreference: e.target.value })
                                     }
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
-                                      <option>Select</option>
+                                    <option>Select</option>
                                     <option>Window Seat</option>
                                     <option>Aisle Seat</option>
                                     <option>Middle Seat</option>
@@ -686,7 +803,7 @@ const Profile = () => {
                                   </label>
 
                                   <select
-                                 name="mealPreference"
+                                    name="mealPreference"
                                     value={bookingData.mealPreference}
                                     onChange={(e) =>
                                       setBookingdata({ ...bookingData, mealPreference: e.target.value })
@@ -722,79 +839,124 @@ const Profile = () => {
                           <div className="col-span-4 space-y-6">
 
                             {/* Flight Summary Card */}
-                            <div className="bg-linear-to-br from-blue-50 to-purple-50 rounded-2xl border border-blue-100 p-6">
-                              <div className="flex items-center justify-between mb-6">
-                                <div>
-                                  <h3 className="font-bold text-gray-900 text-lg">Flight Details</h3>
-                                  <p className="text-gray-600 text-sm">DEL → BOM</p>
-                                </div>
-                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                  <FaPlane className="text-blue-600 transform -rotate-45" />
-                                </div>
-                              </div>
-
-                              <div className="space-y-4">
-                                <div className="flex justify-between">
-                                  <span className="text-gray-600">Airline</span>
-                                  <span className="font-medium">AirContrip</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-gray-600">Date</span>
-                                  <span className="font-medium">15 Mar 2024</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-gray-600">Time</span>
-                                  <span className="font-medium">08:30 - 11:15</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-gray-600">Class</span>
-                                  <span className="font-medium">Economy</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-gray-600">Passengers</span>
-                                  <span className="font-medium">1 Adult</span>
-                                </div>
-                              </div>
-
-                              <div className="border-t border-blue-200 mt-6 pt-6">
-                                <div className="flex justify-between items-center">
+                            {/* Flight Summary Card */}
+                            {flight && (
+                              <div className="bg-linear-to-br from-blue-50 to-purple-50 rounded-2xl border border-blue-100 p-6">
+                                <div className="flex items-center justify-between mb-6">
                                   <div>
-                                    <div className="text-gray-600 text-sm">Total Amount</div>
-                                    <div className="text-3xl font-bold text-blue-600">₹4,899</div>
+                                    <h3 className="font-bold text-gray-900 text-lg">Selected Flight</h3>
+                                    <p className="text-gray-600 text-sm">
+                                      {getCityName(flight.from)} → {getCityName(flight.to)}
+                                    </p>
                                   </div>
-                                  <div className="text-green-600 text-sm font-medium">
-                                    <FaCheckCircle className="inline mr-1" />
-                                    Free cancellation
+                                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <FaPlane className="text-blue-600 transform -rotate-45" />
+                                  </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Airline</span>
+                                    <span className="font-medium">{flight.airline}</span>
+                                  </div>
+
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Flight No.</span>
+                                    <span className="font-medium">{flight.flightNo}</span>
+                                  </div>
+
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Date</span>
+                                    <span className="font-medium">{flight.date}</span>
+                                  </div>
+
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Time</span>
+                                    <span className="font-medium">
+                                      {flight.departure} - {flight.arrival}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Duration</span>
+                                    <span className="font-medium">{flight.duration}</span>
+                                  </div>
+
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Class</span>
+                                    <span className="font-medium">{flight.class}</span>
+                                  </div>
+
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Passengers</span>
+                                    <span className="font-medium">1 Adult</span>
+                                  </div>
+
+                                  {/* Show Booking Date in Summary */}
+                                  <div className="flex justify-between pt-4 border-t border-blue-200">
+                                    <span className="text-gray-600">Booking Dat</span>
+                                    <span className="font-medium text-blue-600">
+                                      {bookingData.bookedon ?
+                                        new Date(bookingData.bookedon).toLocaleDateString('en-IN', {
+                                          day: 'numeric',
+                                          month: 'short',
+                                          year: 'numeric'
+                                        }) :
+                                        'Today'}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div className="border-t border-blue-200 mt-6 pt-6">
+                                  <div className="flex justify-between items-center">
+                                    <div>
+                                      <div className="text-gray-600 text-sm">Flight Fare</div>
+                                      <div className="text-3xl font-bold text-blue-600">
+                                        ₹{formatFlightPrice(flight.price)}
+                                      </div>
+                                    </div>
+                                    <div className="text-green-600 text-sm font-medium">
+                                      <FaCheckCircle className="inline mr-1" />
+                                      {flight.refundable ? 'Refundable' : 'Non-refundable'}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
+                            )}
+
 
                             {/* Price Breakdown */}
-                            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                              <h4 className="font-bold text-gray-900 mb-4">Price Breakdown</h4>
+                            {/* Price Breakdown */}
+                            {flight && (
+                              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                                <h4 className="font-bold text-gray-900 mb-4">Price Breakdown</h4>
 
-                              <div className="space-y-3">
-                                <div className="flex justify-between">
-                                  <span className="text-gray-600">Base Fare</span>
-                                  <span>₹3,500</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-gray-600">Taxes & Fees</span>
-                                  <span>₹1,150</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-gray-600">Service Charge</span>
-                                  <span>₹249</span>
-                                </div>
-                                <div className="border-t pt-3">
-                                  <div className="flex justify-between font-bold">
-                                    <span>Total Payable</span>
-                                    <span className="text-blue-600">₹4,899</span>
+                                <div className="space-y-3">
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Base Fare</span>
+                                    <span>₹{formatFlightPrice(flight.price * 0.7)}</span>
+                                  </div>
+
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Taxes & Fees</span>
+                                    <span>₹{formatFlightPrice(flight.price * 0.2)}</span>
+                                  </div>
+
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Service Charge</span>
+                                    <span>₹{formatFlightPrice(flight.price * 0.1)}</span>
+                                  </div>
+
+                                  <div className="border-t pt-3">
+                                    <div className="flex justify-between font-bold">
+                                      <span>Total Payable</span>
+                                      <span className="text-blue-600">₹{formatFlightPrice(flight.price)}</span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
+                            )}
+
 
                             {/* Loyalty Points */}
                             <div className="bg-linear-to-r from-yellow-50 to-orange-50 rounded-2xl border border-yellow-100 p-6">
@@ -828,11 +990,11 @@ const Profile = () => {
 
                               <Link to="/profile/travellerdetails">
                                 <button
-                                onClick={handleTicketBooking}
-                                className="w-full py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
-                                <GiConfirmed className="inline mr-2" />
-                                Confirm Ticket
-                              </button>
+                                  onClick={handleTicketBooking}
+                                  className="w-full py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
+                                  <GiConfirmed className="inline mr-2" />
+                                  Confirm Ticket
+                                </button>
                               </Link>
                               <button className="w-full mt-4 py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
                                 <FaCreditCard className="inline mr-2" />
@@ -860,6 +1022,7 @@ const Profile = () => {
                     </div>
                   </div>
                 )}
+
 
                 <a href="loyalty">
                   <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-blue-50 rounded-lg transition-colors">
@@ -936,6 +1099,7 @@ const Profile = () => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                       required={!isProfileSaved}
                     />
+
                   </div>
 
                   <div className="space-y-2">

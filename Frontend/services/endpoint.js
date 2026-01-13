@@ -15,7 +15,9 @@ const api = {
     uploadImage: BASE_URL + "/user/upload-image",
   },
   booking:{
-    ticketbooking:BASE_URL+"/booking/ticket-booking"
+    ticketbooking:BASE_URL+"/booking/ticket-booking",
+    bookingdetails:BASE_URL+"/booking/all-booking-details",
+    userDetails:BASE_URL+"/booking/get-user-details"
   }
 
 }

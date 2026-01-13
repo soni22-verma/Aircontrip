@@ -7,18 +7,21 @@ import { HiTicket } from "react-icons/hi2";
 import { MdOutlineFlightTakeoff, MdOutlineFlightLand } from "react-icons/md";
 // import { TbSeat } from "react-icons/tb";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate, NavLink, useNavigate } from "react-router-dom";
+import { Link, Navigate, NavLink, useLocation, useNavigate } from "react-router-dom";
 import api from "../../../services/endpoint";
 import axios from "axios";
 import { logoutUser, setUser } from "../../store/userSlice";
 import swal from "sweetalert"
 import { toast } from "react-toastify";
+import { FaCalendarAlt, FaCheckCircle, FaCreditCard, FaEnvelope, FaPassport, FaPhone, FaShieldAlt, FaStar, FaTimes, FaUser } from "react-icons/fa";
+import { GiConfirmed } from "react-icons/gi";
 
 const Mobilebottom = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
   const [showBooking, setShowBooking] = useState(false);
-  
+
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [bookingTab, setBookingTab] = useState('current'); // 'current', 'upcoming', 'past'
 
@@ -26,11 +29,6 @@ const Mobilebottom = () => {
   const [profilePic, setProfilePic] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const { user, isLoggedIn } = useSelector((state) => state.user);
-  const [error, setError] = useState("")
-  const [booking, setBooking] = useState("")
-
-
-
   const [passengerData, setPassengerData] = useState({
     name: '',
     email: '',
@@ -43,13 +41,7 @@ const Mobilebottom = () => {
     specialRequests: ''
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setPassengerData({
-      ...passengerData,
-      [name]: value
-    });
-  };
+
 
 
 
@@ -137,6 +129,23 @@ const Mobilebottom = () => {
     ]
   };
 
+
+  const [flight, setFlight] = useState(null)
+  useEffect(() => {
+    const storedFlight = localStorage.getItem("selectedFlight");
+    if (storedFlight) {
+      try {
+        const flightData = JSON.parse(storedFlight);
+        console.log("Loaded flight from localStorage:", flightData);
+        setFlight(flightData);
+      } catch (error) {
+        console.error("Error parsing flight data:", error);
+      }
+    }
+  }, []);
+
+
+
   const userStats = {
     totalBookings: 12,
     totalSpent: "₹56,800",
@@ -152,53 +161,13 @@ const Mobilebottom = () => {
     }
   }, []);
 
-  const handleBooking = async (e) => {
 
-    if (!isLoggedIn) {
-      navigate("/login")
-      return
+
+  useEffect(() => {
+    if (location.state?.openProfile) {
+      setIsOpen(true);
     }
-
-    e.preventDefault();
-
-    try {
-      const res = await axios.post(api.user.bookingticket, {
-        name: passengerData.name,
-        email: passengerData.email,
-        phone: passengerData.phone,
-        gender: passengerData.gender,
-        age: passengerData.age
-      })
-      console.log("response", res.data);
-      if (res.data.success) {
-        localStorage.setItem(
-          "bookingDetails",
-          JSON.stringify(passengerData)
-        );
-        setPassengerData({
-          name: '',
-          email: '',
-          phone: '',
-          gender: '',
-          age: '',
-          nationality: 'Indian',
-          passportNumber: '',
-          emergencyContact: '',
-          specialRequests: ''
-        });
-
-         toast?.success("Your Ticket is Confirmed! Thankyou 😊");
-        setShowBookingForm(false);
-        navigate("/");
-      }
-           
-
-    } catch (error) {
-      console.log("Booking Error:", error.response || error.message)
-      setError(error.response?.data?.message || "Booking failed")
-      setBooking("")
-    }
-  }
+  }, [location.state]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -232,7 +201,119 @@ const Mobilebottom = () => {
       navigate("/login", { replace: true });
     }
   };
+  const [bookingdata, setBookingdata] = useState({
+    email: user?.email || "",
+    phone: user?.phone || "",
+    title: "Mr",
+    firstName: "",
+    lastName: "",
+    dateOfBirth: "",
+    nationality: "Indian",
+    passportNumber: "",
+    passportExpiry: "",
+    seatPreference: "No Preference",
+    mealPreference: "Standard",
+    specialrequest: "",
+    bookedon: new Date().toISOString().split('T')[0]
+  });
+  const formatFlightPrice = (price) => {
+    if (!price) return '0';
+    return new Intl.NumberFormat('en-IN').format(price);
+  };
 
+  const getCityName = (code) => {
+    const cities = [
+      { code: 'DEL', name: 'Delhi' },
+      { code: 'BOM', name: 'Mumbai' },
+      { code: 'BLR', name: 'Bengaluru' },
+      { code: 'HYD', name: 'Hyderabad' },
+      { code: 'CCU', name: 'Kolkata' },
+      { code: 'MAA', name: 'Chennai' },
+      { code: 'AMD', name: 'Ahmedabad' },
+      { code: 'PNQ', name: 'Pune' },
+      { code: 'HBD', name: 'Hydrabad' }
+    ];
+  }
+
+  const handleTicketBooking = async (e) => {
+    e.preventDefault();
+
+    if (!flight) {
+      toast.error("Please select a flight first!");
+      return;
+    }
+
+    if (!bookingdata.email || !bookingdata.phone || !bookingdata.firstName || !bookingdata.lastName || !bookingdata.title) {
+      toast.error("Please fill all required fields!");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("Authorization");
+
+      const bookingPayload = {
+        email: bookingdata.email,
+        phone: bookingdata.phone,
+        title: bookingdata.title,
+        firstName: bookingdata.firstName,
+        lastName: bookingdata.lastName,
+        dateOfBirth: bookingdata.dateOfBirth || null,
+        nationality: bookingdata.nationality || "Indian",
+        passportNumber: bookingdata.passportNumber || "",
+        passportExpiry: bookingdata.passportExpiry || null,
+        seatPreference: bookingdata.seatPreference || "No Preference",
+        mealPreference: bookingdata.mealPreference || "Standard",
+        specialrequest: bookingdata.specialrequest || "",
+
+        // Flight details
+        flightId: flight.id,
+        flightNumber: flight.flightNo,
+        airline: flight.airline,
+        from: flight.from,
+        to: flight.to,
+        departureTime: flight.departure,
+        arrivalTime: flight.arrival,
+        journeyDate: flight.date,
+        flightClass: flight.class,
+        totalPrice: flight.price,
+        duration: flight.duration,
+        bookedon: new Date().toISOString()
+      };
+
+      console.log("Sending booking data:", bookingPayload);
+
+      const res = await axios.post(
+        api.booking.ticketbooking,
+        bookingPayload,
+        {
+          headers: {
+            'Authorization': token,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log("Booking response:", res.data);
+
+      if (res.data.success) {
+        toast.success("Your Ticket is Confirmed, thank you! 😊");
+        localStorage.removeItem("selectedFlight");
+
+        navigate("/profile/travellerdetails", {
+          state: {
+            booking: res.data.booking,
+            flightDetails: flight,
+            email: res.data.booking.email,
+          }
+        });
+      }
+
+    } catch (error) {
+      console.error("Booking error:", error.response?.data || error);
+      toast.error(error?.response?.data?.message || "Booking failed. Please try again.");
+    }
+  }
+  const today = new Date().toISOString().split("T")[0];
 
 
 
@@ -361,105 +442,481 @@ const Mobilebottom = () => {
 
             {/* Booking Form Modal */}
             {showBookingForm && (
-              <div className="fixed inset-0 bg-black/30 backdrop-blur-sm bg-opacity-50 z-50 flex items-center justify-center p-4">
-                <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-                  <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-xl font-bold">Passenger Details</h3>
-                      <button onClick={() => setShowBookingForm(false)} className="text-gray-500 hover:text-gray-700">
-                        ✕
+              <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 md:p-6">
+                <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-6xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden shadow-xl sm:shadow-2xl flex flex-col transform transition-all duration-300 scale-95 sm:scale-100 mx-2 sm:mx-0">
+
+                  {/* Header with Gradient */}
+                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 sm:p-6 md:p-8">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
+                        <div className="bg-white/20 p-2 sm:p-3 rounded-lg sm:rounded-xl backdrop-blur-sm">
+                          <FaPlane className="text-lg sm:text-xl md:text-2xl transform -rotate-45" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate">
+                            Complete Your Flight Booking
+                          </h2>
+                          <p className="text-blue-100 opacity-90 text-xs sm:text-sm md:text-base truncate">
+                            Fill in passenger details to confirm your booking
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setShowBookingForm(false)}
+                        className="p-2 sm:p-3 hover:bg-white/20 rounded-full transition-colors flex-shrink-0 ml-2"
+                      >
+                        <FaTimes className="text-lg sm:text-xl md:text-2xl" />
                       </button>
                     </div>
+                  </div>
 
-                    {/* Passenger Form */}
-                    <form onSubmit={handleBooking} className="space-y-4">
-                      <div>
-                        <label className="block text-gray-700 mb-2">Full Name *</label>
-                        <input
-                          type="text"
-                          name="name"
-                          value={passengerData.name}
-                          onChange={handleInputChange}
-                          className="w-full p-3 border rounded-lg"
-                          placeholder="Enter full name"
-                          required
-                        />
+                  {/* Main Content */}
+                  <div className="flex-1 overflow-y-auto">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 p-3 sm:p-4 md:p-6 lg:p-8">
+
+                      {/* Left Column - Passenger Form */}
+                      <div className="lg:col-span-8 space-y-4 sm:space-y-6 md:space-y-8">
+
+                        {/* Primary Passenger */}
+                        <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 md:p-8">
+                          <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 mb-4 sm:mb-6">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                              <FaUser className="text-blue-600 text-sm sm:text-base md:text-xl" />
+                            </div>
+                            <div>
+                              <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">
+                                Primary Passenger
+                              </h3>
+                              <p className="text-gray-600 text-xs sm:text-sm md:text-base">
+                                Main traveller details
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                            <div className="space-y-1 sm:space-y-2">
+                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
+                                Title
+                              </label>
+                              <select
+                                name="title"
+                                value={bookingdata.title}
+                                onChange={(e) =>
+                                  setBookingdata({ ...bookingdata, title: e.target.value })
+                                }
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                              >
+                                <option>Select</option>
+                                <option>Mr</option>
+                                <option>Mrs</option>
+                                <option>Ms</option>
+                              </select>
+                            </div>
+
+                            <div className="space-y-1 sm:space-y-2">
+                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
+                                First Name *
+                              </label>
+                              <input
+                                type="text"
+                                name="firstName"
+                                value={bookingdata.firstName}
+                                onChange={(e) =>
+                                  setBookingdata({ ...bookingdata, firstName: e.target.value })
+                                }
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="John"
+                              />
+                            </div>
+
+                            <div className="space-y-1 sm:space-y-2">
+                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
+                                Last Name *
+                              </label>
+                              <input
+                                type="text"
+                                name="lastName"
+                                value={bookingdata.lastName}
+                                onChange={(e) =>
+                                  setBookingdata({ ...bookingdata, lastName: e.target.value })
+                                }
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="Doe"
+                              />
+                            </div>
+
+                            <div className="space-y-1 sm:space-y-2">
+                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
+                                Date of Birth
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type="date"
+                                  name="dateOfBirth"
+                                  max={today} // Add max date validation
+                                  value={bookingdata.dateOfBirth}
+                                  onChange={(e) =>
+                                    setBookingdata({ ...bookingdata, dateOfBirth: e.target.value })
+                                  }
+                                  className="w-full px-3 py-2 sm:px-4 sm:py-3 pl-9 sm:pl-12 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                />
+                                <FaCalendarAlt className="absolute left-3 sm:left-4 top-2.5 sm:top-3.5 text-gray-400 text-sm sm:text-base" />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Contact Info */}
+                          <div className="mt-4 sm:mt-6 md:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                            <div className="space-y-1 sm:space-y-2">
+                              <label className="block text-xs sm:text-sm font-semibold text-gray-700 flex items-center">
+                                <FaEnvelope className="mr-1 sm:mr-2 text-blue-600 text-sm sm:text-base" />
+                                Email Address *
+                              </label>
+                              <input
+                                type="email"
+                                name="email"
+                                value={bookingdata.email}
+                                onChange={(e) =>
+                                  setBookingdata({ ...bookingdata, email: e.target.value })
+                                }
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="john@example.com"
+                              />
+                            </div>
+
+                            <div className="space-y-1 sm:space-y-2">
+                              <label className="block text-xs sm:text-sm font-semibold text-gray-700 flex items-center">
+                                <FaPhone className="mr-1 sm:mr-2 text-blue-600 text-sm sm:text-base" />
+                                Phone Number *
+                              </label>
+                              <input
+                                type="tel"
+                                name="phone"
+                                value={bookingdata.phone}
+                                onChange={(e) =>
+                                  setBookingdata({ ...bookingdata, phone: e.target.value })
+                                }
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="+91 98765 43210"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Travel Documents */}
+                        <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 md:p-8">
+                          <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 mb-4 sm:mb-6">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-purple-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                              <FaPassport className="text-purple-600 text-sm sm:text-base md:text-xl" />
+                            </div>
+                            <div>
+                              <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">
+                                Travel Documents
+                              </h3>
+                              <p className="text-gray-600 text-xs sm:text-sm md:text-base">
+                                Passport & identification details
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                            <div className="space-y-1 sm:space-y-2">
+                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
+                                Passport Number
+                              </label>
+                              <input
+                                type="text"
+                                name="passportNumber"
+                                value={bookingdata.passportNumber}
+                                onChange={(e) =>
+                                  setBookingdata({ ...bookingdata, passportNumber: e.target.value })
+                                }
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="A12345678"
+                              />
+                            </div>
+
+                            <div className="space-y-1 sm:space-y-2">
+                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
+                                Passport Expiry
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type="date"
+                                  name="passportExpiry"
+                                  value={bookingdata.passportExpiry}
+                                  onChange={(e) =>
+                                    setBookingdata({ ...bookingdata, passportExpiry: e.target.value })
+                                  }
+                                  className="w-full px-3 py-2 sm:px-4 sm:py-3 pl-9 sm:pl-12 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                />
+                                <FaCalendarAlt className="absolute left-3 sm:left-4 top-2.5 sm:top-3.5 text-gray-400 text-sm sm:text-base" />
+                              </div>
+                            </div>
+
+                            <div className="space-y-1 sm:space-y-2">
+                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
+                                Nationality
+                              </label>
+                              <input
+                                type="text"
+                                name="nationality"
+                                value={bookingdata.nationality}
+                                onChange={(e) =>
+                                  setBookingdata({ ...bookingdata, nationality: e.target.value })
+                                }
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="Indian"
+                              />
+                            </div>
+
+                            <div className="space-y-1 sm:space-y-2">
+                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
+                                Emergency Contact
+                              </label>
+                              <input
+                                type="text"
+                                name="emergencyContact"
+                                value={bookingdata.emergencyContact}
+                                onChange={(e) =>
+                                  setBookingdata({ ...bookingdata, emergencyContact: e.target.value })
+                                }
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="+91 98765 43211"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Travel Preferences */}
+                        <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 md:p-8">
+                          <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
+                            Travel Preferences
+                          </h3>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                            <div className="space-y-1 sm:space-y-2">
+                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
+                                Seat Preference
+                              </label>
+                              <select
+                                name="seatPreference"
+                                value={bookingdata.seatPreference}
+                                onChange={(e) =>
+                                  setBookingdata({ ...bookingdata, seatPreference: e.target.value })
+                                }
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                              >
+                                <option>Select</option>
+                                <option>Window Seat</option>
+                                <option>Aisle Seat</option>
+                                <option>Middle Seat</option>
+                                <option>No Preference</option>
+                              </select>
+                            </div>
+
+                            <div className="space-y-1 sm:space-y-2">
+                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
+                                Meal Preference
+                              </label>
+                              <select
+                                name="mealPreference"
+                                value={bookingdata.mealPreference}
+                                onChange={(e) =>
+                                  setBookingdata({ ...bookingdata, mealPreference: e.target.value })
+                                }
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                              >
+                                <option value="">Select Meal</option>
+                                <option value="Standard">Standard Meal</option>
+                                <option value="Vegetarian">Vegetarian</option>
+                                <option value="Vegan">Vegan</option>
+                                <option value="Gluten Free">Gluten Free</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 sm:mt-6">
+                            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                              Special Requests
+                            </label>
+                            <textarea
+                              name="specialRequest"
+                              value={bookingdata.specialrequest}
+                              onChange={(e) =>
+                                setBookingdata({ ...bookingdata, specialrequest: e.target.value })
+                              }
+                              className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                              rows="2"
+                              placeholder="Wheelchair assistance, dietary restrictions, etc."
+                            />
+                          </div>
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="block text-gray-700 mb-2">Email *</label>
-                        <input
-                          type="email"
-                          name="email"
-                          value={passengerData.email}
-                          onChange={handleInputChange}
-                          className="w-full p-3 border rounded-lg"
-                          placeholder="Enter email"
-                          required
-                        />
-                      </div>
+                      {/* Right Column - Booking Summary */}
+                      <div className="lg:col-span-4 space-y-4 sm:space-y-6">
 
-                      <div>
-                        <label className="block text-gray-700 mb-2">Phone *</label>
-                        <input
-                          type="tel"
-                          name="phone"
-                          value={passengerData.phone}
-                          onChange={handleInputChange}
-                          className="w-full p-3 border rounded-lg"
-                          placeholder="Enter phone number"
-                          required
-                        />
-                      </div>
+                        {/* Flight Summary Card */}
+                        {flight && (
+                          <div className="bg-linear-to-br from-blue-50 to-purple-50 rounded-lg sm:rounded-xl md:rounded-2xl border border-blue-100 p-4 sm:p-6">
+                            <div className="flex items-center justify-between mb-4 sm:mb-6">
+                              <div>
+                                <h3 className="font-bold text-gray-900 text-sm sm:text-base md:text-lg">
+                                  Flight Details
+                                </h3>
+                                <p className="text-gray-600 text-sm">
+                                  {getCityName(flight.from)} → {getCityName(flight.to)}
+                                </p>
+                                <p className="text-gray-600 text-xs sm:text-sm">DEL → BOM</p>
+                              </div>
+                              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <FaPlane className="text-blue-600 text-sm sm:text-base transform -rotate-45" />
+                              </div>
+                            </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-gray-700 mb-2">Gender *</label>
-                          <select
-                            name="gender"
-                            value={passengerData.gender}
-                            onChange={handleInputChange}
-                            className="w-full p-3 border rounded-lg"
-                            required
+
+                            <div className="space-y-2 sm:space-y-3 md:space-y-4">
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 text-xs sm:text-sm">Airline</span>
+                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.airline}</span>
+                              </div>
+
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Flight No.</span>
+                                <span className="font-medium">{flight.flightNo}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 text-xs sm:text-sm">Date</span>
+                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.date}</span>
+
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 text-xs sm:text-sm">Time</span>
+                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.departure} - {flight.arrival}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 text-xs sm:text-sm">Class</span>
+                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.class}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 text-xs sm:text-sm">Passengers</span>
+                                <span className="font-medium text-xs sm:text-sm md:text-base">1 Adult</span>
+                              </div>
+                            </div>
+
+
+                            <div className="border-t border-blue-200 mt-4 sm:mt-6 pt-4 sm:pt-6">
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <div className="text-gray-600 text-xs sm:text-sm">Total Amount</div>
+                                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-600">
+                                    ₹{formatFlightPrice(flight.price)}
+                                  </div>
+                                </div>
+                                <div className="text-green-600 text-xs sm:text-sm font-medium">
+                                  <FaCheckCircle className="inline mr-1 text-xs sm:text-sm" />
+                                  {flight.refundable ? 'Refundable' : 'Non-refundable'}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Price Breakdown */}
+                        <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-100 p-4 sm:p-6">
+                          <h4 className="font-bold text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base md:text-lg">
+                            Price Breakdown
+                          </h4>
+
+                          {flight && (
+                            <div className="space-y-2 sm:space-y-3">
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 text-xs sm:text-sm">Base Fare</span>
+                                <span>₹{formatFlightPrice(flight.price * 0.7)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 text-xs sm:text-sm">Taxes & Fees</span>
+                                <span>₹{formatFlightPrice(flight.price * 0.2)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 text-xs sm:text-sm">Service Charge</span>
+                                <span>₹{formatFlightPrice(flight.price * 0.1)}</span>
+                              </div>
+                              <div className="border-t pt-2 sm:pt-3">
+                                <div className="flex justify-between font-bold text-sm sm:text-base md:text-lg">
+                                  <span>Total Payable</span>
+                                  <span className="text-blue-600">₹{formatFlightPrice(flight.price)}</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Loyalty Points */}
+                        <div className="bg-linear-to-r from-yellow-50 to-orange-50 rounded-lg sm:rounded-xl md:rounded-2xl border border-yellow-100 p-4 sm:p-6">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2 sm:space-x-3">
+                              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-linear-to-r from-yellow-400 to-orange-400 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <FaStar className="text-white text-sm sm:text-base" />
+                              </div>
+                              <div>
+                                <div className="font-bold text-sm sm:text-base">Airtribe Points</div>
+                                <div className="text-gray-600 text-xs sm:text-sm">You'll earn</div>
+                              </div>
+                            </div>
+                            <div className="text-xl sm:text-2xl font-bold text-yellow-600">+489</div>
+                          </div>
+                        </div>
+
+                        {/* Terms & Conditions */}
+                        <div className="bg-gray-50 rounded-lg sm:rounded-xl md:rounded-2xl p-4 sm:p-6">
+                          <div className="flex items-start space-x-2 sm:space-x-3">
+                            <input
+                              type="checkbox"
+                              className="mt-0.5 sm:mt-1 h-4 w-4 sm:h-5 sm:w-5 text-blue-600 rounded"
+                            />
+                            <div className="text-xs sm:text-sm text-gray-700">
+                              <p className="font-medium mb-1">Terms & Conditions</p>
+                              <p>I agree to the Terms of Service, Privacy Policy, and Cancellation Policy.</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="space-y-3 sm:space-y-4">
+                          <Link to="/profile/travellerdetails">
+                            <button
+                              onClick={handleTicketBooking}
+                              className="w-full py-2 sm:py-3 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg sm:rounded-xl font-bold text-sm sm:text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95"
+                            >
+                              <GiConfirmed className="inline mr-2 text-sm sm:text-base" />
+                              Confirm Ticket
+                            </button>
+                          </Link>
+
+                          <button className="w-full mt-2 py-2 sm:py-3 bg-linear-to-r from-green-600 to-emerald-600 text-white rounded-lg sm:rounded-xl font-bold text-sm sm:text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95">
+                            <FaCreditCard className="inline mr-2 text-sm sm:text-base" />
+                            Proceed to Payment
+                          </button>
+
+                          <button
+                            onClick={() => setShowBookingForm(false)}
+                            className="w-full py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base hover:bg-gray-50 transition-colors active:bg-gray-100"
                           >
-                            <option value="">Select</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                          </select>
+                            Cancel Booking
+                          </button>
                         </div>
 
-                        <div>
-                          <label className="block text-gray-700 mb-2">Age *</label>
-                          <input
-                            type="number"
-                            name="age"
-                            value={passengerData.age}
-                            onChange={handleInputChange}
-                            className="w-full p-3 border rounded-lg"
-                            placeholder="Age"
-                            required
-                          />
+                        {/* Security Badge */}
+                        <div className="text-center pt-3 sm:pt-4 border-t">
+                          <div className="inline-flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-600">
+                            <FaShieldAlt className="text-green-600 text-xs sm:text-sm" />
+                            <span>Your payment is secured with 256-bit SSL encryption</span>
+                          </div>
                         </div>
                       </div>
-
-                      <div className="flex gap-4 pt-4">
-                        <button
-                          type="button"
-                          onClick={() => setShowBookingForm(false)}
-                          className="flex-1 py-3 border border-gray-300 rounded-lg text-gray-700"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-
-                          className="flex-1 py-3 bg-blue-600 text-white rounded-lg"
-                        >
-                          Confirm Booking
-                        </button>
-                      </div>
-                    </form>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -646,10 +1103,12 @@ const Mobilebottom = () => {
 
             {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-3 mb-6">
-              <button className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100">
+              <a href="allbookingdetails">
+                <button className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100">
                 {/* <FaHistory className="text-2xl text-blue-600 mb-2" /> */}
                 <span className="text-sm font-medium">Booking History</span>
               </button>
+              </a>
               <button className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100">
                 <FaCalendarCheck className="text-2xl text-green-600 mb-2" />
                 <span className="text-sm font-medium">Check-in</span>
@@ -704,4 +1163,4 @@ const Mobilebottom = () => {
 
 
 
-export default Mobilebottom;
+export default Mobilebottom;  

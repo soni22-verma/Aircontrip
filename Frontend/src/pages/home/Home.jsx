@@ -8,6 +8,7 @@ import Cards3 from "../Cards3";
 import Cards4 from "../Cards4";
 import Banner from "../Banner";
 import Cards5 from "../Cards5";
+import Card6 from "../Card6";
 
 const Home = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -27,6 +28,7 @@ const Home = () => {
         <div className="w-full max-w-[1200px] px-4">
           <Cards />
           <Cards1 />
+          <Card6 />
           <Cards2 />
           <Cards3 />
           <Cards4 />

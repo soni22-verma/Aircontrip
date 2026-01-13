@@ -11,7 +11,6 @@ dotenv.config();
 const app = express();
 connectdb();
 
-// ✅ MUST BE BEFORE ROUTES
 app.use(cors());
 app.use(express.json());
 

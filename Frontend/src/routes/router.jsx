@@ -30,6 +30,7 @@ import Flightdetails from "../pages/Flightdetails"
 import Loyalty from "../pages/Loyalty"
 import Profile from "../components/Navbar/Profile";
 import Travellerdetails from "../components/Navbar/Travellerdetails";
+import AllbookingDetails from "../components/Navbar/AllbookingDetails"
 
 const router = createBrowserRouter([
   {
@@ -161,6 +162,10 @@ const router = createBrowserRouter([
     {
       path:"/profile/travellerdetails",
       element:<Travellerdetails/>
+    },
+    {
+      path:"allbookingdetails",
+      element:<AllbookingDetails/>
     }
 
     ],

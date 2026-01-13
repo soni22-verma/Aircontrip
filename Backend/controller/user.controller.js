@@ -8,8 +8,8 @@ export const handleSignup = async (req, res) => {
   try {
 
 
-    const { name, email, phone, password } = req.body;
-    console.log(req.body)
+    const { name, email, phone, password } = req.body || {};
+    // console.log(req.body,"this is body")
 
     if (!name || !email || !phone || !password) {
       return res.status(400).json({
@@ -17,7 +17,16 @@ export const handleSignup = async (req, res) => {
         success: false,
       });
     }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const isemail = emailRegex.test(email);
 
+    if(!isemail){
+      return res.status(400).json({
+        message:"email is not valid",
+        error:true,
+        success:false
+      })
+    }
 
     const user = await User.findOne({ email })
     if (user?.email) {
@@ -27,8 +36,29 @@ export const handleSignup = async (req, res) => {
         success: false
       })
     }
+   
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const ispassword = passwordRegex.test(password);
 
-    
+     if(!ispassword){
+      return res.status(400).json({
+        message:"password must be one Uppercase,one special cherecters and numbers",
+        error:true,
+        success:false
+      })
+     }
+
+     const phoneRegex = /^(?:\+91|91)?[6-9]\d{9}$/;
+     const isphone = phoneRegex.test(phone)
+     if(!isphone){
+      return res.status(400).json({
+        message:"phone no is not valid",
+        error:true,
+        success:false
+      })
+     }
+
+
 
     const hashpassword = await bcrypt.hash(password, 10);
 
@@ -109,7 +139,7 @@ export const handleLogin = async (req, res) => {
       user,
     });
   } catch (error) {
-    console.log(error, "something went wrong");
+    // console.log(error, "something went wrong");
     res.status(500).json({
       message: "server error",
       success: false,
@@ -153,7 +183,7 @@ export const handleUserData = async (req, res, next) => {
 export const handleUpdatename = async (req, res) => {
   try {
     const { userId, name, phone } = req.body;
-    console.log(userId, " this is user id")
+    // console.log(userId, " this is user id")
 
     if (!userId) {
       return res.status(400).json({
@@ -167,7 +197,7 @@ export const handleUpdatename = async (req, res) => {
       name: name,
       phone: phone
     }, { new: true })
-    console.log(user, "this is user")
+    // console.log(user, "this is user")
 
   } catch (error) {
     console.log(error)
@@ -296,7 +326,7 @@ export const handleDestopProfile = async (req, res) => {
       });
     }
 
-    console.log(req.body, "dgshgjdjgs")
+    // console.log(req.body, "dgshgjdjgs")
 
     if (!userId) {
       return res.status(401).json({
@@ -327,7 +357,7 @@ export const handleDestopProfile = async (req, res) => {
       user,
     });
   } catch (error) {
-    console.log("SERVER ERROR:", error.message);
+    // console.log("SERVER ERROR:", error.message);
     return res.status(500).json({
       message: "server error",
       success: false,
@@ -338,7 +368,7 @@ export const handleDestopProfile = async (req, res) => {
 export const handleEditProfile = async (req, res) => {
   try {
     const { dob, nationality, passportNumber, Address, emergencyno,userId } = req.body;
-    console.log(req.body, "this is user id")
+    // console.log(req.body, "this is user id")
     
     
 
@@ -349,6 +379,18 @@ export const handleEditProfile = async (req, res) => {
         success: false
       })
     }
+
+    const emergencynoRegex = /^(?:\+91|91)?[6-9]\d{9}$/;
+    const isemergencyno = emergencynoRegex.test(isemergencyno)
+    if(!isemergencyno){
+      return res.status(400).json({
+        message:"emergency contect is not valid",
+        error:true,
+        success:false
+      })
+    }
+
+
     const user = await User.findByIdAndUpdate(userId,
       {
         dob,
@@ -359,7 +401,7 @@ export const handleEditProfile = async (req, res) => {
       },
       { new: true} )
 
-    console.log(user, "this is user")
+    // console.log(user, "this is user")
 
     return res.status(200).json({
       message: "updated",
