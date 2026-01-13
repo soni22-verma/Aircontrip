@@ -580,11 +580,11 @@ const HomeMobile = () => {
                   </div>
 
                   {/* Search Flights */}
-                  <a href='flightdetails'>
+                  <Link to='flightdetails'>
                     <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold shadow ">
                     Search flights
                   </button>
-                  </a>
+                  </Link>
 
                   {/* Flight + Hotel */}
                   <button className="w-full border-2 border-blue-600 text-blue-600 py-4 rounded-xl font-semibold hover:bg-blue-50 mt-3">
