@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { AiFillHome } from "react-icons/ai";
 import { RiCustomerServiceFill } from "react-icons/ri";
 import { FaUserLarge, FaPlane, FaCalendarCheck, FaRupeeSign } from "react-icons/fa6";
 import { LuLogOut, LuFileText, LuDownload } from "react-icons/lu";
 import { HiTicket } from "react-icons/hi2";
 import { MdOutlineFlightTakeoff, MdOutlineFlightLand } from "react-icons/md";
-// import { TbSeat } from "react-icons/tb";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Navigate, NavLink, useLocation, useNavigate } from "react-router-dom";
 import api from "../../../services/endpoint";
@@ -21,14 +20,15 @@ const Mobilebottom = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const [showBooking, setShowBooking] = useState(false);
-
   const [showBookingForm, setShowBookingForm] = useState(false);
-  const [bookingTab, setBookingTab] = useState('current'); // 'current', 'upcoming', 'past'
-
-
+  const [bookingTab, setBookingTab] = useState('current');
   const [profilePic, setProfilePic] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const { user, isLoggedIn } = useSelector((state) => state.user);
+  const [loadingFlight, setLoadingFlight] = useState(false);
+  
+  const flightRef = useRef(null);
+
   const [passengerData, setPassengerData] = useState({
     name: '',
     email: '',
@@ -40,10 +40,6 @@ const Mobilebottom = () => {
     emergencyContact: '',
     specialRequests: ''
   });
-
-
-
-
 
   const currentBooking = {
     id: "BK202401021",
@@ -129,22 +125,81 @@ const Mobilebottom = () => {
     ]
   };
 
+  const [flight, setFlight] = useState(null);
 
-  const [flight, setFlight] = useState(null)
+  const getCityName = (code) => {
+    if (!code) return code || 'Unknown';
+    
+    const cities = [
+      { code: 'DEL', name: 'Delhi' },
+      { code: 'BOM', name: 'Mumbai' },
+      { code: 'BLR', name: 'Bengaluru' },
+      { code: 'HYD', name: 'Hyderabad' },
+      { code: 'CCU', name: 'Kolkata' },
+      { code: 'MAA', name: 'Chennai' },
+      { code: 'AMD', name: 'Ahmedabad' },
+      { code: 'PNQ', name: 'Pune' },
+      { code: 'HBD', name: 'Hydrabad' },
+      { code: 'GOI', name: 'Goa' },
+      { code: 'JAI', name: 'Jaipur' },
+      { code: 'LKO', name: 'Lucknow' }
+    ];
+    
+    const codeOnly = code.includes('(') 
+      ? code.split('(')[1]?.replace(')', '').trim() 
+      : code;
+    
+    const city = cities.find(c => c.code === codeOnly);
+    return city ? city.name : code;
+  };
+
+  // Load flight from localStorage
   useEffect(() => {
-    const storedFlight = localStorage.getItem("selectedFlight");
-    if (storedFlight) {
-      try {
-        const flightData = JSON.parse(storedFlight);
-        console.log("Loaded flight from localStorage:", flightData);
-        setFlight(flightData);
-      } catch (error) {
-        console.error("Error parsing flight data:", error);
+    const loadFlightData = () => {
+      const storedFlight = localStorage.getItem("selectedFlight");
+      if (storedFlight) {
+        try {
+          const flightData = JSON.parse(storedFlight);
+          console.log("Loaded flight from localStorage:", flightData);
+          setFlight(flightData);
+          flightRef.current = flightData;
+        } catch (error) {
+          console.error("Error parsing flight data:", error);
+          toast.error("Error loading flight data");
+        }
       }
-    }
+    };
+
+    loadFlightData();
+    
+    // Also listen for storage changes
+    const handleStorageChange = (e) => {
+      if (e.key === "selectedFlight") {
+        loadFlightData();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-
+  // Reload flight when modal opens
+  useEffect(() => {
+    if (showBookingForm) {
+      console.log("Modal opening, reloading flight data...");
+      const storedFlight = localStorage.getItem("selectedFlight");
+      if (storedFlight) {
+        try {
+          const flightData = JSON.parse(storedFlight);
+          console.log("Reloaded flight for modal:", flightData);
+          setFlight(flightData);
+          flightRef.current = flightData;
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+    }
+  }, [showBookingForm]);
 
   const userStats = {
     totalBookings: 12,
@@ -153,15 +208,12 @@ const Mobilebottom = () => {
     memberSince: "Jan 2023"
   };
 
-
   useEffect(() => {
     const savedProfilePic = localStorage.getItem("profilePic");
     if (savedProfilePic) {
       setProfilePic(savedProfilePic);
     }
   }, []);
-
-
 
   useEffect(() => {
     if (location.state?.openProfile) {
@@ -172,10 +224,9 @@ const Mobilebottom = () => {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      dispatch(setUser(JSON.parse(storedUser)));
     }
-  }, []);
-
+  }, [dispatch]);
 
   const handleLogout = async () => {
     const willLogout = await swal({
@@ -195,12 +246,10 @@ const Mobilebottom = () => {
       localStorage.removeItem("profilePic");
       localStorage.removeItem("bookingDetails");
 
-      setUser({ name: "", email: "", phone: "" });
-
-      setProfilePic(null);
       navigate("/login", { replace: true });
     }
   };
+
   const [bookingdata, setBookingdata] = useState({
     email: user?.email || "",
     phone: user?.phone || "",
@@ -216,36 +265,10 @@ const Mobilebottom = () => {
     specialrequest: "",
     bookedon: new Date().toISOString().split('T')[0]
   });
+
   const formatFlightPrice = (price) => {
     if (!price) return '0';
     return new Intl.NumberFormat('en-IN').format(price);
-  };
-
-  const getCityName = (code) => {
-    if (!code) return code || 'Unknown';
-
-    const cities = [
-      { code: 'DEL', name: 'Delhi' },
-      { code: 'BOM', name: 'Mumbai' },
-      { code: 'BLR', name: 'Bengaluru' },
-      { code: 'HYD', name: 'Hyderabad' },
-      { code: 'CCU', name: 'Kolkata' },
-      { code: 'MAA', name: 'Chennai' },
-      { code: 'AMD', name: 'Ahmedabad' },
-      { code: 'PNQ', name: 'Pune' },
-      { code: 'HBD', name: 'Hydrabad' },
-      { code: 'GOI', name: 'Goa' },
-      { code: 'JAI', name: 'Jaipur' },
-      { code: 'LKO', name: 'Lucknow' }
-    ];
-
-    // Agar code full city name hai (like "Delhi (DEL)"), toh split karo
-    const codeOnly = code.includes('(')
-      ? code.split('(')[1]?.replace(')', '').trim()
-      : code;
-
-    const city = cities.find(c => c.code === codeOnly);
-    return city ? city.name : code;
   };
 
   const handleTicketBooking = async (e) => {
@@ -278,7 +301,6 @@ const Mobilebottom = () => {
         mealPreference: bookingdata.mealPreference || "Standard",
         specialrequest: bookingdata.specialrequest || "",
 
-        // Flight details
         flightId: flight.id,
         flightNumber: flight.flightNo,
         airline: flight.airline,
@@ -311,6 +333,8 @@ const Mobilebottom = () => {
       if (res.data.success) {
         toast.success("Your Ticket is Confirmed, thank you! 😊");
         localStorage.removeItem("selectedFlight");
+        setShowBookingForm(false);
+        setIsOpen(false);
 
         navigate("/profile/travellerdetails", {
           state: {
@@ -325,13 +349,67 @@ const Mobilebottom = () => {
       console.error("Booking error:", error.response?.data || error);
       toast.error(error?.response?.data?.message || "Booking failed. Please try again.");
     }
-  }
+  };
+
   const today = new Date().toISOString().split("T")[0];
-
-
 
   const activeClass = "text-blue-600";
   const inactiveClass = "text-gray-900";
+
+  // Function to handle Book New Flight button
+  const handleBookNewFlight = () => {
+    console.log("Book New Flight clicked");
+    
+    // Pehle flight check karo
+    const storedFlight = localStorage.getItem("selectedFlight");
+    
+    if (!storedFlight) {
+      toast.error("Please select a flight first!");
+      // Navigate to flights page
+      setTimeout(() => {
+        navigate('/flightdetails');
+        setIsOpen(false);
+      }, 500);
+      return;
+    }
+    
+    try {
+      const flightData = JSON.parse(storedFlight);
+      console.log("Flight data found:", flightData);
+      
+      // Set flight state
+      setFlight(flightData);
+      flightRef.current = flightData;
+      
+      // Modal kholo
+      setTimeout(() => {
+        setShowBookingForm(true);
+      }, 50);
+      
+    } catch (error) {
+      console.error("Error parsing flight data:", error);
+      toast.error("Error loading flight data. Please select a flight again.");
+    }
+  };
+
+  // Quick Actions data
+  const quickActions = [
+    {
+      title: "Booking History",
+      icon: <HiTicket className="text-2xl text-blue-600 mb-2" />,
+      path: "/allbookingdetails"
+    },
+    {
+      title: "Check-in",
+      icon: <FaCalendarCheck className="text-2xl text-green-600 mb-2" />,
+      path: "/checkin"
+    }
+  ];
+
+  // Handle Link click
+  const handleLinkClick = () => {
+    setIsOpen(false); // Drawer close karo
+  };
 
   return (
     <div className="pt-16 min-h-screen overflow-y-scroll block md:hidden">
@@ -347,7 +425,7 @@ const Mobilebottom = () => {
             <span className="text-sm">Support</span>
           </NavLink>
 
-          <div onClick={() => setIsOpen(true)} className="flex flex-col items-center text-gray-700">
+          <div onClick={() => setIsOpen(true)} className="flex flex-col items-center text-gray-700 cursor-pointer">
             <FaUserLarge size={20} />
             <span className="text-sm">Profile</span>
           </div>
@@ -363,7 +441,7 @@ const Mobilebottom = () => {
               <h2 className="text-2xl font-bold text-gray-800">My Profile</h2>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-full"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 ✕
               </button>
@@ -382,7 +460,6 @@ const Mobilebottom = () => {
                     <FaUserLarge size={32} className="text-white" />
                   </div>
                 )}
-
               </div>
 
               <div className="flex-1">
@@ -405,11 +482,6 @@ const Mobilebottom = () => {
               type="file"
               accept="image/*"
               className="hidden"
-              src={
-                user
-                  ? profilePic || "/default-avatar.png"
-                  : "/default-avatar.png"
-              }
               onChange={(e) => {
                 if (e.target.files && e.target.files[0]) {
                   const file = e.target.files[0];
@@ -446,20 +518,20 @@ const Mobilebottom = () => {
           <div className="flex-1 overflow-y-auto p-4">
             {/* New Booking Button */}
             <button
-              onClick={() => setShowBookingForm(true)}
+              onClick={handleBookNewFlight}
               className="w-full mb-6 bg-linear-to-r from-blue-600 to-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center"
             >
               <FaPlane className="mr-2" />
               Book New Flight
             </button>
 
-            {/* Booking Form Modal */}
-            {showBookingForm && (
-              <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 md:p-6">
+            {/* Booking Form Modal - Show only when flight exists */}
+            {showBookingForm && flight && (
+              <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6">
                 <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-6xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden shadow-xl sm:shadow-2xl flex flex-col transform transition-all duration-300 scale-95 sm:scale-100 mx-2 sm:mx-0">
 
                   {/* Header with Gradient */}
-                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 sm:p-6 md:p-8">
+                  <div className="bg-linear-to-r from-blue-600 to-purple-600 text-white p-4 sm:p-6 md:p-8">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
                         <div className="bg-white/20 p-2 sm:p-3 rounded-lg sm:rounded-xl backdrop-blur-sm">
@@ -519,10 +591,10 @@ const Mobilebottom = () => {
                                 }
                                 className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                               >
-                                <option>Select</option>
-                                <option>Mr</option>
-                                <option>Mrs</option>
-                                <option>Ms</option>
+                                <option value="">Select</option>
+                                <option value="Mr">Mr</option>
+                                <option value="Mrs">Mrs</option>
+                                <option value="Ms">Ms</option>
                               </select>
                             </div>
 
@@ -539,6 +611,7 @@ const Mobilebottom = () => {
                                 }
                                 className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                                 placeholder="John"
+                                required
                               />
                             </div>
 
@@ -555,6 +628,7 @@ const Mobilebottom = () => {
                                 }
                                 className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                                 placeholder="Doe"
+                                required
                               />
                             </div>
 
@@ -566,7 +640,7 @@ const Mobilebottom = () => {
                                 <input
                                   type="date"
                                   name="dateOfBirth"
-                                  max={today} // Add max date validation
+                                  max={today}
                                   value={bookingdata.dateOfBirth}
                                   onChange={(e) =>
                                     setBookingdata({ ...bookingdata, dateOfBirth: e.target.value })
@@ -594,6 +668,7 @@ const Mobilebottom = () => {
                                 }
                                 className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                                 placeholder="john@example.com"
+                                required
                               />
                             </div>
 
@@ -611,6 +686,7 @@ const Mobilebottom = () => {
                                 }
                                 className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                                 placeholder="+91 98765 43210"
+                                required
                               />
                             </div>
                           </div>
@@ -657,6 +733,7 @@ const Mobilebottom = () => {
                                 <input
                                   type="date"
                                   name="passportExpiry"
+                                  min={today}
                                   value={bookingdata.passportExpiry}
                                   onChange={(e) =>
                                     setBookingdata({ ...bookingdata, passportExpiry: e.target.value })
@@ -671,16 +748,25 @@ const Mobilebottom = () => {
                               <label className="block text-xs sm:text-sm font-semibold text-gray-700">
                                 Nationality
                               </label>
-                              <input
-                                type="text"
+                              <select
                                 name="nationality"
                                 value={bookingdata.nationality}
                                 onChange={(e) =>
                                   setBookingdata({ ...bookingdata, nationality: e.target.value })
                                 }
                                 className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                placeholder="Indian"
-                              />
+                              >
+                                <option value="Indian">Indian</option>
+                                <option value="American">American</option>
+                                <option value="British">British</option>
+                                <option value="Canadian">Canadian</option>
+                                <option value="Australian">Australian</option>
+                                <option value="German">German</option>
+                                <option value="French">French</option>
+                                <option value="Japanese">Japanese</option>
+                                <option value="Chinese">Chinese</option>
+                                <option value="Singaporean">Singaporean</option>
+                              </select>
                             </div>
 
                             <div className="space-y-1 sm:space-y-2">
@@ -720,11 +806,11 @@ const Mobilebottom = () => {
                                 }
                                 className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                               >
-                                <option>Select</option>
-                                <option>Window Seat</option>
-                                <option>Aisle Seat</option>
-                                <option>Middle Seat</option>
-                                <option>No Preference</option>
+                                <option value="">Select</option>
+                                <option value="Window Seat">Window Seat</option>
+                                <option value="Aisle Seat">Aisle Seat</option>
+                                <option value="Middle Seat">Middle Seat</option>
+                                <option value="No Preference">No Preference</option>
                               </select>
                             </div>
 
@@ -771,8 +857,7 @@ const Mobilebottom = () => {
                       <div className="lg:col-span-4 space-y-4 sm:space-y-6">
 
                         {/* Flight Summary Card */}
-                        {/* Flight Summary Card */}
-                        {flight && (
+                        {flight ? (
                           <div className="bg-linear-to-br from-blue-50 to-purple-50 rounded-lg sm:rounded-xl md:rounded-2xl border border-blue-100 p-4 sm:p-6">
                             <div className="flex items-center justify-between mb-4 sm:mb-6">
                               <div>
@@ -842,6 +927,15 @@ const Mobilebottom = () => {
                               </div>
                             </div>
                           </div>
+                        ) : (
+                          <div className="bg-gray-50 rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-200 p-4 sm:p-6">
+                            <div className="flex items-center justify-center h-40">
+                              <div className="text-center">
+                                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                                <p className="text-gray-600 text-sm">Loading flight details...</p>
+                              </div>
+                            </div>
+                          </div>
                         )}
 
                         {/* Price Breakdown */}
@@ -906,15 +1000,13 @@ const Mobilebottom = () => {
 
                         {/* Action Buttons */}
                         <div className="space-y-3 sm:space-y-4">
-                          <Link to="/profile/travellerdetails">
-                            <button
-                              onClick={handleTicketBooking}
-                              className="w-full py-2 sm:py-3 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg sm:rounded-xl font-bold text-sm sm:text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95"
-                            >
-                              <GiConfirmed className="inline mr-2 text-sm sm:text-base" />
-                              Confirm Ticket
-                            </button>
-                          </Link>
+                          <button
+                            onClick={handleTicketBooking}
+                            className="w-full py-2 sm:py-3 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg sm:rounded-xl font-bold text-sm sm:text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95"
+                          >
+                            <GiConfirmed className="inline mr-2 text-sm sm:text-base" />
+                            Confirm Ticket
+                          </button>
 
                           <button className="w-full mt-2 py-2 sm:py-3 bg-linear-to-r from-green-600 to-emerald-600 text-white rounded-lg sm:rounded-xl font-bold text-sm sm:text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95">
                             <FaCreditCard className="inline mr-2 text-sm sm:text-base" />
@@ -952,7 +1044,7 @@ const Mobilebottom = () => {
                 </h3>
                 <button
                   onClick={() => setShowBooking(!showBooking)}
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
                 >
                   {showBooking ? "Hide" : "Show"}
                 </button>
@@ -966,7 +1058,7 @@ const Mobilebottom = () => {
                       <button
                         key={tab}
                         onClick={() => setBookingTab(tab)}
-                        className={`flex-1 py-2 text-sm font-medium ${bookingTab === tab ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+                        className={`flex-1 py-2 text-sm font-medium ${bookingTab === tab ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'} transition-colors`}
                       >
                         {tab === 'current' ? 'Current' : tab === 'upcoming' ? 'Upcoming' : 'Past'}
                       </button>
@@ -988,8 +1080,8 @@ const Mobilebottom = () => {
                           <p className="text-sm text-gray-600">{currentBooking.airline}</p>
                         </div>
                         <button
-                          onClick={() => handleDownloadTicket(currentBooking.id)}
-                          className="flex items-center text-blue-600 hover:text-blue-800"
+                          onClick={() => {}}
+                          className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
                         >
                           <LuDownload className="mr-1" />
                           <span className="text-sm">Ticket</span>
@@ -1030,7 +1122,6 @@ const Mobilebottom = () => {
                         <div className="bg-white p-3 rounded-lg">
                           <p className="text-xs text-gray-500">Seat</p>
                           <div className="flex items-center">
-                            {/* <TbSeat className="mr-1" /> */}
                             <p className="font-semibold">{currentBooking.seat}</p>
                           </div>
                         </div>
@@ -1055,15 +1146,16 @@ const Mobilebottom = () => {
                           <p className="text-xl font-bold text-blue-700">{currentBooking.fare}</p>
                         </div>
                         <div className="flex gap-2">
-                          <button
-                            onClick={() => handleViewDetails(currentBooking.id)}
-                            className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50"
+                          <Link
+                            to={`/booking-details/${currentBooking.id}`}
+                            onClick={handleLinkClick}
+                            className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
                           >
                             View Details
-                          </button>
+                          </Link>
                           <button
-                            onClick={() => handleCancelBooking(currentBooking.id)}
-                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                            onClick={() => {}}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                           >
                             Cancel
                           </button>
@@ -1099,16 +1191,17 @@ const Mobilebottom = () => {
                             </div>
                           </div>
                           <div className="flex justify-end gap-2 mt-3">
-                            <button
-                              onClick={() => handleViewDetails(booking.id)}
-                              className="text-sm text-blue-600 hover:text-blue-800"
+                            <Link
+                              to={`/booking-details/${booking.id}`}
+                              onClick={handleLinkClick}
+                              className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
                             >
                               Details
-                            </button>
+                            </Link>
                             {bookingTab === 'upcoming' && (
                               <button
-                                onClick={() => handleCancelBooking(booking.id)}
-                                className="text-sm text-red-600 hover:text-red-800"
+                                onClick={() => {}}
+                                className="text-sm text-red-600 hover:text-red-800 transition-colors"
                               >
                                 Cancel
                               </button>
@@ -1124,16 +1217,17 @@ const Mobilebottom = () => {
 
             {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-3 mb-6">
-              <Link to="allbookingdetails">
-                <button className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100">
-                  {/* <FaHistory className="text-2xl text-blue-600 mb-2" /> */}
-                  <span className="text-sm font-medium">Booking History</span>
-                </button>
-              </Link>
-              <button className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100">
-                <FaCalendarCheck className="text-2xl text-green-600 mb-2" />
-                <span className="text-sm font-medium">Check-in</span>
-              </button>
+              {quickActions.map((action, index) => (
+                <Link
+                  key={index}
+                  to={action.path}
+                  onClick={handleLinkClick}
+                  className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                >
+                  {action.icon}
+                  <span className="text-sm font-medium">{action.title}</span>
+                </Link>
+              ))}
             </div>
 
             {/* User Details */}
@@ -1161,14 +1255,14 @@ const Mobilebottom = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setIsOpen(false)}
-                className="flex-1 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
+                className="flex-1 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Close
               </button>
               {isLoggedIn && (
                 <button
                   onClick={handleLogout}
-                  className="flex-1 py-3 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700"
+                  className="flex-1 py-3 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all"
                 >
                   <LuLogOut size={18} />
                   Logout
@@ -1182,6 +1276,4 @@ const Mobilebottom = () => {
   );
 };
 
-
-
-export default Mobilebottom;  
+export default Mobilebottom;
