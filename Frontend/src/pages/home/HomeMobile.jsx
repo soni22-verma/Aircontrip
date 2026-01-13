@@ -4,7 +4,7 @@ import { MdFlightTakeoff } from "react-icons/md";
 import { LuSquareActivity } from "react-icons/lu";
 import { Calendar, Users, Search, Activity } from 'lucide-react';
 import { Plane, MapPin, User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Plus, Minus } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
