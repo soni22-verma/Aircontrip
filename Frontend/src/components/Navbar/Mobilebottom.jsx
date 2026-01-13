@@ -222,6 +222,8 @@ const Mobilebottom = () => {
   };
 
   const getCityName = (code) => {
+    if (!code) return code || 'Unknown';
+
     const cities = [
       { code: 'DEL', name: 'Delhi' },
       { code: 'BOM', name: 'Mumbai' },
@@ -231,9 +233,20 @@ const Mobilebottom = () => {
       { code: 'MAA', name: 'Chennai' },
       { code: 'AMD', name: 'Ahmedabad' },
       { code: 'PNQ', name: 'Pune' },
-      { code: 'HBD', name: 'Hydrabad' }
+      { code: 'HBD', name: 'Hydrabad' },
+      { code: 'GOI', name: 'Goa' },
+      { code: 'JAI', name: 'Jaipur' },
+      { code: 'LKO', name: 'Lucknow' }
     ];
-  }
+
+    // Agar code full city name hai (like "Delhi (DEL)"), toh split karo
+    const codeOnly = code.includes('(')
+      ? code.split('(')[1]?.replace(')', '').trim()
+      : code;
+
+    const city = cities.find(c => c.code === codeOnly);
+    return city ? city.name : code;
+  };
 
   const handleTicketBooking = async (e) => {
     e.preventDefault();
@@ -758,6 +771,7 @@ const Mobilebottom = () => {
                       <div className="lg:col-span-4 space-y-4 sm:space-y-6">
 
                         {/* Flight Summary Card */}
+                        {/* Flight Summary Card */}
                         {flight && (
                           <div className="bg-linear-to-br from-blue-50 to-purple-50 rounded-lg sm:rounded-xl md:rounded-2xl border border-blue-100 p-4 sm:p-6">
                             <div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -765,16 +779,17 @@ const Mobilebottom = () => {
                                 <h3 className="font-bold text-gray-900 text-sm sm:text-base md:text-lg">
                                   Flight Details
                                 </h3>
-                                <p className="text-gray-600 text-sm">
+                                <p className="text-gray-600 text-sm font-medium">
                                   {getCityName(flight.from)} → {getCityName(flight.to)}
                                 </p>
-                                <p className="text-gray-600 text-xs sm:text-sm">DEL → BOM</p>
+                                <p className="text-gray-600 text-xs sm:text-sm">
+                                  {flight.from} → {flight.to}
+                                </p>
                               </div>
                               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                                 <FaPlane className="text-blue-600 text-sm sm:text-base transform -rotate-45" />
                               </div>
                             </div>
-
 
                             <div className="space-y-2 sm:space-y-3 md:space-y-4">
                               <div className="flex justify-between">
@@ -783,28 +798,34 @@ const Mobilebottom = () => {
                               </div>
 
                               <div className="flex justify-between">
-                                <span className="text-gray-600">Flight No.</span>
-                                <span className="font-medium">{flight.flightNo}</span>
+                                <span className="text-gray-600 text-xs sm:text-sm">Flight No.</span>
+                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.flightNo}</span>
                               </div>
+
                               <div className="flex justify-between">
                                 <span className="text-gray-600 text-xs sm:text-sm">Date</span>
-                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.date}</span>
-
+                                <span className="font-medium text-xs sm:text-sm md:text-base">
+                                  {flight.date || flight.departureDate || 'N/A'}
+                                </span>
                               </div>
+
                               <div className="flex justify-between">
                                 <span className="text-gray-600 text-xs sm:text-sm">Time</span>
-                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.departure} - {flight.arrival}</span>
+                                <span className="font-medium text-xs sm:text-sm md:text-base">
+                                  {flight.departure || flight.departureTime} - {flight.arrival || flight.arrivalTime}
+                                </span>
                               </div>
+
                               <div className="flex justify-between">
                                 <span className="text-gray-600 text-xs sm:text-sm">Class</span>
-                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.class}</span>
+                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.class || 'Economy'}</span>
                               </div>
+
                               <div className="flex justify-between">
-                                <span className="text-gray-600 text-xs sm:text-sm">Passengers</span>
-                                <span className="font-medium text-xs sm:text-sm md:text-base">1 Adult</span>
+                                <span className="text-gray-600 text-xs sm:text-sm">Duration</span>
+                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.duration || 'N/A'}</span>
                               </div>
                             </div>
-
 
                             <div className="border-t border-blue-200 mt-4 sm:mt-6 pt-4 sm:pt-6">
                               <div className="flex justify-between items-center">
@@ -1105,9 +1126,9 @@ const Mobilebottom = () => {
             <div className="grid grid-cols-2 gap-3 mb-6">
               <Link to="allbookingdetails">
                 <button className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100">
-                {/* <FaHistory className="text-2xl text-blue-600 mb-2" /> */}
-                <span className="text-sm font-medium">Booking History</span>
-              </button>
+                  {/* <FaHistory className="text-2xl text-blue-600 mb-2" /> */}
+                  <span className="text-sm font-medium">Booking History</span>
+                </button>
               </Link>
               <button className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100">
                 <FaCalendarCheck className="text-2xl text-green-600 mb-2" />
