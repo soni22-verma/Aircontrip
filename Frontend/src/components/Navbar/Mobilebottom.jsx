@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { AiFillHome } from "react-icons/ai";
 import { RiCustomerServiceFill } from "react-icons/ri";
-import { FaUserLarge, FaPlane, FaCalendarCheck, FaRupeeSign } from "react-icons/fa6";
-import { LuLogOut, LuFileText, LuDownload } from "react-icons/lu";
+import { FaUserLarge, FaPlane, FaCalendarCheck, FaRupeeSign, FaBars } from "react-icons/fa6";
+import { LuLogOut, LuFileText, LuDownload, LuMenu } from "react-icons/lu";
 import { HiTicket } from "react-icons/hi2";
-import { MdOutlineFlightTakeoff, MdOutlineFlightLand } from "react-icons/md";
+import { MdOutlineFlightTakeoff, MdOutlineFlightLand, MdClose } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Navigate, NavLink, useLocation, useNavigate } from "react-router-dom";
 import api from "../../../services/endpoint";
@@ -12,8 +12,9 @@ import axios from "axios";
 import { logoutUser, setUser } from "../../store/userSlice";
 import swal from "sweetalert"
 import { toast } from "react-toastify";
-import { FaCalendarAlt, FaCheckCircle, FaCreditCard, FaEnvelope, FaPassport, FaPhone, FaShieldAlt, FaStar, FaTimes, FaUser } from "react-icons/fa";
+import { FaCalendarAlt, FaCheckCircle, FaCreditCard, FaEnvelope, FaPassport, FaPhone, FaShieldAlt, FaStar, FaTimes, FaUser, FaChevronRight } from "react-icons/fa";
 import { GiConfirmed } from "react-icons/gi";
+import { motion, AnimatePresence, useAnimation } from "framer-motion";
 
 const Mobilebottom = () => {
   const navigate = useNavigate();
@@ -26,8 +27,9 @@ const Mobilebottom = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isLoggedIn } = useSelector((state) => state.user);
   const [loadingFlight, setLoadingFlight] = useState(false);
-  
+  const [drawerAnimating, setDrawerAnimating] = useState(false);
   const flightRef = useRef(null);
+  const controls = useAnimation();
 
   const [passengerData, setPassengerData] = useState({
     name: '',
@@ -139,7 +141,6 @@ const Mobilebottom = () => {
       { code: 'MAA', name: 'Chennai' },
       { code: 'AMD', name: 'Ahmedabad' },
       { code: 'PNQ', name: 'Pune' },
-      { code: 'HBD', name: 'Hydrabad' },
       { code: 'GOI', name: 'Goa' },
       { code: 'JAI', name: 'Jaipur' },
       { code: 'LKO', name: 'Lucknow' }
@@ -151,6 +152,113 @@ const Mobilebottom = () => {
     
     const city = cities.find(c => c.code === codeOnly);
     return city ? city.name : code;
+  };
+
+  // Animation variants
+  const bottomNavVariants = {
+    hidden: { y: 100, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 25,
+        delay: 0.1
+      }
+    }
+  };
+
+  const drawerVariants = {
+    hidden: { x: "-100%", opacity: 0 },
+    visible: { 
+      x: 0, 
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 25
+      }
+    },
+    exit: {
+      x: "-100%",
+      opacity: 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 25
+      }
+    }
+  };
+
+  const modalVariants = {
+    hidden: { 
+      scale: 0.9, 
+      opacity: 0,
+      y: 20
+    },
+    visible: { 
+      scale: 1, 
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 25,
+        mass: 0.8
+      }
+    },
+    exit: {
+      scale: 0.9,
+      opacity: 0,
+      y: 20,
+      transition: {
+        duration: 0.2
+      }
+    }
+  };
+
+  const overlayVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: {
+        duration: 0.3
+      }
+    },
+    exit: {
+      opacity: 0,
+      transition: {
+        duration: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { x: -20, opacity: 0 },
+    visible: (i) => ({
+      x: 0,
+      opacity: 1,
+      transition: {
+        delay: i * 0.05,
+        type: "spring",
+        stiffness: 400,
+        damping: 25
+      }
+    })
+  };
+
+  const cardVariants = {
+    hidden: { scale: 0.95, opacity: 0 },
+    visible: { 
+      scale: 1, 
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 30
+      }
+    }
   };
 
   // Load flight from localStorage
@@ -172,26 +280,32 @@ const Mobilebottom = () => {
 
     loadFlightData();
     
-    // Also listen for storage changes
-    const handleStorageChange = (e) => {
-      if (e.key === "selectedFlight") {
-        loadFlightData();
-      }
-    };
-    
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  // Reload flight when modal opens
-  useEffect(() => {
-    if (showBookingForm) {
-      console.log("Modal opening, reloading flight data...");
+  const handleStorageChange = (e) => {
+    if (e.key === "selectedFlight") {
       const storedFlight = localStorage.getItem("selectedFlight");
       if (storedFlight) {
         try {
           const flightData = JSON.parse(storedFlight);
-          console.log("Reloaded flight for modal:", flightData);
+          setFlight(flightData);
+          flightRef.current = flightData;
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+    }
+  };
+
+  // Reload flight when modal opens
+  useEffect(() => {
+    if (showBookingForm) {
+      const storedFlight = localStorage.getItem("selectedFlight");
+      if (storedFlight) {
+        try {
+          const flightData = JSON.parse(storedFlight);
           setFlight(flightData);
           flightRef.current = flightData;
         } catch (error) {
@@ -315,8 +429,6 @@ const Mobilebottom = () => {
         bookedon: new Date().toISOString()
       };
 
-      console.log("Sending booking data:", bookingPayload);
-
       const res = await axios.post(
         api.booking.ticketbooking,
         bookingPayload,
@@ -327,8 +439,6 @@ const Mobilebottom = () => {
           }
         }
       );
-
-      console.log("Booking response:", res.data);
 
       if (res.data.success) {
         toast.success("Your Ticket is Confirmed, thank you! 😊");
@@ -354,18 +464,14 @@ const Mobilebottom = () => {
   const today = new Date().toISOString().split("T")[0];
 
   const activeClass = "text-blue-600";
-  const inactiveClass = "text-gray-900";
+  const inactiveClass = "text-gray-700";
 
   // Function to handle Book New Flight button
   const handleBookNewFlight = () => {
-    console.log("Book New Flight clicked");
-    
-    // Pehle flight check karo
     const storedFlight = localStorage.getItem("selectedFlight");
     
     if (!storedFlight) {
       toast.error("Please select a flight first!");
-      // Navigate to flights page
       setTimeout(() => {
         navigate('/flightdetails');
         setIsOpen(false);
@@ -375,16 +481,12 @@ const Mobilebottom = () => {
     
     try {
       const flightData = JSON.parse(storedFlight);
-      console.log("Flight data found:", flightData);
-      
-      // Set flight state
       setFlight(flightData);
       flightRef.current = flightData;
       
-      // Modal kholo
       setTimeout(() => {
         setShowBookingForm(true);
-      }, 50);
+      }, 100);
       
     } catch (error) {
       console.error("Error parsing flight data:", error);
@@ -396,882 +498,877 @@ const Mobilebottom = () => {
   const quickActions = [
     {
       title: "Booking History",
-      icon: <HiTicket className="text-2xl text-blue-600 mb-2" />,
+      icon: <HiTicket className="text-2xl text-blue-600" />,
       path: "/allbookingdetails"
     },
     {
       title: "Check-in",
-      icon: <FaCalendarCheck className="text-2xl text-green-600 mb-2" />,
+      icon: <FaCalendarCheck className="text-2xl text-green-600" />,
       path: "/checkin"
+    }
+  ];
+
+  // Menu items for drawer
+  const menuItems = [
+    {
+      title: "My Bookings",
+      icon: <HiTicket className="text-xl" />,
+      action: () => setShowBooking(!showBooking)
+    },
+    {
+      title: "Booking History",
+      icon: <LuFileText className="text-xl" />,
+      path: "/allbookingdetails"
+    },
+    {
+      title: "Check-in",
+      icon: <FaCalendarCheck className="text-xl" />,
+      path: "/checkin"
+    },
+    {
+      title: "Customer Support",
+      icon: <RiCustomerServiceFill className="text-xl" />,
+      path: "/customer"
     }
   ];
 
   // Handle Link click
   const handleLinkClick = () => {
-    setIsOpen(false); // Drawer close karo
+    setIsOpen(false);
+  };
+
+  // Handle drawer toggle with animation
+  const handleDrawerToggle = () => {
+    if (!isOpen) {
+      setIsOpen(true);
+    } else {
+      setDrawerAnimating(true);
+      setTimeout(() => {
+        setIsOpen(false);
+        setDrawerAnimating(false);
+      }, 300);
+    }
   };
 
   return (
     <div className="pt-1 overflow-y-scroll block md:hidden">
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-md md:hidden">
-        <div className="flex justify-around items-center py-2">
-          <NavLink to="/" className={({ isActive }) => `flex flex-col items-center ${isActive ? activeClass : inactiveClass}`}>
-            <AiFillHome size={20} />
-            <span className="text-sm">Home</span>
+      {/* Bottom Navigation Bar */}
+      <motion.div 
+        className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-gray-200/50 shadow-2xl md:hidden"
+        initial="hidden"
+        animate="visible"
+        variants={bottomNavVariants}
+      >
+        <div className="flex justify-around items-center py-3 relative">
+          {/* Floating indicator */}
+          <motion.div 
+            className="absolute top-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+            style={{ width: '33%' }}
+            animate={{ x: location.pathname === '/' ? '0%' : location.pathname === '/customer' ? '100%' : '200%' }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          />
+          
+          <NavLink 
+            to="/" 
+            className={({ isActive }) => `flex flex-col items-center relative py-2 ${isActive ? activeClass : inactiveClass} transition-all duration-300`}
+          >
+            <motion.div
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
+              className="relative"
+            >
+              <AiFillHome size={22} />
+              {location.pathname === '/' && (
+                <motion.div 
+                  className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring" }}
+                />
+              )}
+            </motion.div>
+            <span className="text-xs font-medium mt-1">Home</span>
           </NavLink>
 
-          <NavLink to="/customer" className={({ isActive }) => `flex flex-col items-center ${isActive ? activeClass : inactiveClass}`}>
-            <RiCustomerServiceFill size={20} />
-            <span className="text-sm">Support</span>
+          <NavLink 
+            to="/customer" 
+            className={({ isActive }) => `flex flex-col items-center relative py-2 ${isActive ? activeClass : inactiveClass} transition-all duration-300`}
+          >
+            <motion.div
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
+              className="relative"
+            >
+              <RiCustomerServiceFill size={22} />
+              {location.pathname === '/customer' && (
+                <motion.div 
+                  className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring" }}
+                />
+              )}
+            </motion.div>
+            <span className="text-xs font-medium mt-1">Support</span>
           </NavLink>
 
-          <div onClick={() => setIsOpen(true)} className="flex flex-col items-center text-gray-700 cursor-pointer">
-            <FaUserLarge size={20} />
-            <span className="text-sm">Profile</span>
+          <div 
+            onClick={handleDrawerToggle} 
+            className="flex flex-col items-center relative py-2 text-gray-700 cursor-pointer"
+          >
+            <motion.div
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
+              animate={isOpen ? { rotate: 180 } : { rotate: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="relative"
+            >
+              <FaUserLarge size={22} />
+              {isOpen && (
+                <motion.div 
+                  className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring" }}
+                />
+              )}
+            </motion.div>
+            <span className="text-xs font-medium mt-1">Profile</span>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Profile Drawer */}
-      {isOpen && (
-        <div className="fixed top-0 left-0 h-full w-full md:w-96 bg-white shadow-2xl z-50 flex flex-col overflow-hidden">
-          {/* Header with Profile */}
-          <div className="p-5 bg-linear-to-r from-blue-50 to-indigo-50">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-800">My Profile</h2>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-
-            <label htmlFor="profile-upload" className="cursor-pointer flex items-center space-x-4">
-              <div className="relative">
-                {profilePic ? (
-                  <img
-                    src={profilePic}
-                    alt="Profile"
-                    className="h-20 w-20 rounded-full object-cover border-4 border-white shadow-lg"
-                  />
-                ) : (
-                  <div className="h-20 w-20 rounded-full bg-linear-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                    <FaUserLarge size={32} className="text-white" />
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-1">
-                <p className="text-sm text-gray-500 mb-1">Tap to update photo</p>
-                <h3 className="text-xl font-bold text-gray-800">{user?.name || "Guest User"}</h3>
-                <p className="text-gray-600">{user?.email || "guest@example.com"}</p>
-                <div className="flex items-center mt-2 space-x-3">
-                  <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                    Member Since {userStats?.memberSince}
-                  </span>
-                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                    {userStats?.loyaltyPoints} Points
-                  </span>
-                </div>
-              </div>
-            </label>
-
-            <input
-              id="profile-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  const file = e.target.files[0];
-                  const reader = new FileReader();
-
-                  reader.onload = (event) => {
-                    setProfilePic(event.target.result);
-                    localStorage.setItem("profilePic", event.target.result);
-                  };
-
-                  reader.readAsDataURL(file);
-                }
-              }}
+      {/* Profile Drawer from LEFT side */}
+      <AnimatePresence>
+        {isOpen && !drawerAnimating && (
+          <>
+            {/* Overlay */}
+            <motion.div
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={overlayVariants}
+              onClick={handleDrawerToggle}
             />
-          </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-2 p-4 bg-white border-b">
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <p className="text-2xl font-bold text-blue-700">{userStats.totalBookings}</p>
-              <p className="text-xs text-gray-600">Total Bookings</p>
-            </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <p className="text-2xl font-bold text-green-700">{userStats.totalSpent}</p>
-              <p className="text-xs text-gray-600">Total Spent</p>
-            </div>
-            <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <p className="text-2xl font-bold text-purple-700">{userStats.loyaltyPoints}</p>
-              <p className="text-xs text-gray-600">Loyalty Points</p>
-            </div>
-          </div>
-
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-4">
-            {/* New Booking Button */}
-            <button
-              onClick={handleBookNewFlight}
-              className="w-full mb-6 bg-linear-to-r from-blue-600 to-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center"
+            {/* Drawer - LEFT SIDE */}
+            <motion.div
+              className="fixed top-0 left-0 h-full w-full max-w-sm bg-gradient-to-b from-white via-gray-50 to-blue-50 shadow-2xl z-[101] flex flex-col overflow-hidden"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={drawerVariants}
             >
-              <FaPlane className="mr-2" />
-              Book New Flight
-            </button>
-
-            {/* Booking Form Modal - Show only when flight exists */}
-            {showBookingForm && flight && (
-              <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6">
-                <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-6xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden shadow-xl sm:shadow-2xl flex flex-col transform transition-all duration-300 scale-95 sm:scale-100 mx-2 sm:mx-0">
-
-                  {/* Header with Gradient */}
-                  <div className="bg-linear-to-r from-blue-600 to-purple-600 text-white p-4 sm:p-6 md:p-8">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
-                        <div className="bg-white/20 p-2 sm:p-3 rounded-lg sm:rounded-xl backdrop-blur-sm">
-                          <FaPlane className="text-lg sm:text-xl md:text-2xl transform -rotate-45" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate">
-                            Complete Your Flight Booking
-                          </h2>
-                          <p className="text-blue-100 opacity-90 text-xs sm:text-sm md:text-base truncate">
-                            Fill in passenger details to confirm your booking
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setShowBookingForm(false)}
-                        className="p-2 sm:p-3 hover:bg-white/20 rounded-full transition-colors flex-shrink-0 ml-2"
-                      >
-                        <FaTimes className="text-lg sm:text-xl md:text-2xl" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Main Content */}
-                  <div className="flex-1 overflow-y-auto">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 p-3 sm:p-4 md:p-6 lg:p-8">
-
-                      {/* Left Column - Passenger Form */}
-                      <div className="lg:col-span-8 space-y-4 sm:space-y-6 md:space-y-8">
-
-                        {/* Primary Passenger */}
-                        <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 md:p-8">
-                          <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 mb-4 sm:mb-6">
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
-                              <FaUser className="text-blue-600 text-sm sm:text-base md:text-xl" />
-                            </div>
-                            <div>
-                              <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">
-                                Primary Passenger
-                              </h3>
-                              <p className="text-gray-600 text-xs sm:text-sm md:text-base">
-                                Main traveller details
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-                            <div className="space-y-1 sm:space-y-2">
-                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
-                                Title
-                              </label>
-                              <select
-                                name="title"
-                                value={bookingdata.title}
-                                onChange={(e) =>
-                                  setBookingdata({ ...bookingdata, title: e.target.value })
-                                }
-                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                              >
-                                <option value="">Select</option>
-                                <option value="Mr">Mr</option>
-                                <option value="Mrs">Mrs</option>
-                                <option value="Ms">Ms</option>
-                              </select>
-                            </div>
-
-                            <div className="space-y-1 sm:space-y-2">
-                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
-                                First Name *
-                              </label>
-                              <input
-                                type="text"
-                                name="firstName"
-                                value={bookingdata.firstName}
-                                onChange={(e) =>
-                                  setBookingdata({ ...bookingdata, firstName: e.target.value })
-                                }
-                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                placeholder="John"
-                                required
-                              />
-                            </div>
-
-                            <div className="space-y-1 sm:space-y-2">
-                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
-                                Last Name *
-                              </label>
-                              <input
-                                type="text"
-                                name="lastName"
-                                value={bookingdata.lastName}
-                                onChange={(e) =>
-                                  setBookingdata({ ...bookingdata, lastName: e.target.value })
-                                }
-                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                placeholder="Doe"
-                                required
-                              />
-                            </div>
-
-                            <div className="space-y-1 sm:space-y-2">
-                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
-                                Date of Birth
-                              </label>
-                              <div className="relative">
-                                <input
-                                  type="date"
-                                  name="dateOfBirth"
-                                  max={today}
-                                  value={bookingdata.dateOfBirth}
-                                  onChange={(e) =>
-                                    setBookingdata({ ...bookingdata, dateOfBirth: e.target.value })
-                                  }
-                                  className="w-full px-3 py-2 sm:px-4 sm:py-3 pl-9 sm:pl-12 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                />
-                                <FaCalendarAlt className="absolute left-3 sm:left-4 top-2.5 sm:top-3.5 text-gray-400 text-sm sm:text-base" />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Contact Info */}
-                          <div className="mt-4 sm:mt-6 md:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-                            <div className="space-y-1 sm:space-y-2">
-                              <label className="block text-xs sm:text-sm font-semibold text-gray-700 flex items-center">
-                                <FaEnvelope className="mr-1 sm:mr-2 text-blue-600 text-sm sm:text-base" />
-                                Email Address *
-                              </label>
-                              <input
-                                type="email"
-                                name="email"
-                                value={bookingdata.email}
-                                onChange={(e) =>
-                                  setBookingdata({ ...bookingdata, email: e.target.value })
-                                }
-                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                placeholder="john@example.com"
-                                required
-                              />
-                            </div>
-
-                            <div className="space-y-1 sm:space-y-2">
-                              <label className="block text-xs sm:text-sm font-semibold text-gray-700 flex items-center">
-                                <FaPhone className="mr-1 sm:mr-2 text-blue-600 text-sm sm:text-base" />
-                                Phone Number *
-                              </label>
-                              <input
-                                type="tel"
-                                name="phone"
-                                value={bookingdata.phone}
-                                onChange={(e) =>
-                                  setBookingdata({ ...bookingdata, phone: e.target.value })
-                                }
-                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                placeholder="+91 98765 43210"
-                                required
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Travel Documents */}
-                        <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 md:p-8">
-                          <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 mb-4 sm:mb-6">
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-purple-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
-                              <FaPassport className="text-purple-600 text-sm sm:text-base md:text-xl" />
-                            </div>
-                            <div>
-                              <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">
-                                Travel Documents
-                              </h3>
-                              <p className="text-gray-600 text-xs sm:text-sm md:text-base">
-                                Passport & identification details
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-                            <div className="space-y-1 sm:space-y-2">
-                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
-                                Passport Number
-                              </label>
-                              <input
-                                type="text"
-                                name="passportNumber"
-                                value={bookingdata.passportNumber}
-                                onChange={(e) =>
-                                  setBookingdata({ ...bookingdata, passportNumber: e.target.value })
-                                }
-                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                placeholder="A12345678"
-                              />
-                            </div>
-
-                            <div className="space-y-1 sm:space-y-2">
-                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
-                                Passport Expiry
-                              </label>
-                              <div className="relative">
-                                <input
-                                  type="date"
-                                  name="passportExpiry"
-                                  min={today}
-                                  value={bookingdata.passportExpiry}
-                                  onChange={(e) =>
-                                    setBookingdata({ ...bookingdata, passportExpiry: e.target.value })
-                                  }
-                                  className="w-full px-3 py-2 sm:px-4 sm:py-3 pl-9 sm:pl-12 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                />
-                                <FaCalendarAlt className="absolute left-3 sm:left-4 top-2.5 sm:top-3.5 text-gray-400 text-sm sm:text-base" />
-                              </div>
-                            </div>
-
-                            <div className="space-y-1 sm:space-y-2">
-                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
-                                Nationality
-                              </label>
-                              <select
-                                name="nationality"
-                                value={bookingdata.nationality}
-                                onChange={(e) =>
-                                  setBookingdata({ ...bookingdata, nationality: e.target.value })
-                                }
-                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                              >
-                                <option value="Indian">Indian</option>
-                                <option value="American">American</option>
-                                <option value="British">British</option>
-                                <option value="Canadian">Canadian</option>
-                                <option value="Australian">Australian</option>
-                                <option value="German">German</option>
-                                <option value="French">French</option>
-                                <option value="Japanese">Japanese</option>
-                                <option value="Chinese">Chinese</option>
-                                <option value="Singaporean">Singaporean</option>
-                              </select>
-                            </div>
-
-                            <div className="space-y-1 sm:space-y-2">
-                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
-                                Emergency Contact
-                              </label>
-                              <input
-                                type="text"
-                                name="emergencyContact"
-                                value={bookingdata.emergencyContact}
-                                onChange={(e) =>
-                                  setBookingdata({ ...bookingdata, emergencyContact: e.target.value })
-                                }
-                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                placeholder="+91 98765 43211"
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Travel Preferences */}
-                        <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 md:p-8">
-                          <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
-                            Travel Preferences
-                          </h3>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-                            <div className="space-y-1 sm:space-y-2">
-                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
-                                Seat Preference
-                              </label>
-                              <select
-                                name="seatPreference"
-                                value={bookingdata.seatPreference}
-                                onChange={(e) =>
-                                  setBookingdata({ ...bookingdata, seatPreference: e.target.value })
-                                }
-                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                              >
-                                <option value="">Select</option>
-                                <option value="Window Seat">Window Seat</option>
-                                <option value="Aisle Seat">Aisle Seat</option>
-                                <option value="Middle Seat">Middle Seat</option>
-                                <option value="No Preference">No Preference</option>
-                              </select>
-                            </div>
-
-                            <div className="space-y-1 sm:space-y-2">
-                              <label className="block text-xs sm:text-sm font-semibold text-gray-700">
-                                Meal Preference
-                              </label>
-                              <select
-                                name="mealPreference"
-                                value={bookingdata.mealPreference}
-                                onChange={(e) =>
-                                  setBookingdata({ ...bookingdata, mealPreference: e.target.value })
-                                }
-                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                              >
-                                <option value="">Select Meal</option>
-                                <option value="Standard">Standard Meal</option>
-                                <option value="Vegetarian">Vegetarian</option>
-                                <option value="Vegan">Vegan</option>
-                                <option value="Gluten Free">Gluten Free</option>
-                              </select>
-                            </div>
-                          </div>
-
-                          <div className="mt-4 sm:mt-6">
-                            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-                              Special Requests
-                            </label>
-                            <textarea
-                              name="specialRequest"
-                              value={bookingdata.specialrequest}
-                              onChange={(e) =>
-                                setBookingdata({ ...bookingdata, specialrequest: e.target.value })
-                              }
-                              className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                              rows="2"
-                              placeholder="Wheelchair assistance, dietary restrictions, etc."
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right Column - Booking Summary */}
-                      <div className="lg:col-span-4 space-y-4 sm:space-y-6">
-
-                        {/* Flight Summary Card */}
-                        {flight ? (
-                          <div className="bg-linear-to-br from-blue-50 to-purple-50 rounded-lg sm:rounded-xl md:rounded-2xl border border-blue-100 p-4 sm:p-6">
-                            <div className="flex items-center justify-between mb-4 sm:mb-6">
-                              <div>
-                                <h3 className="font-bold text-gray-900 text-sm sm:text-base md:text-lg">
-                                  Flight Details
-                                </h3>
-                                <p className="text-gray-600 text-sm font-medium">
-                                  {getCityName(flight.from)} → {getCityName(flight.to)}
-                                </p>
-                                <p className="text-gray-600 text-xs sm:text-sm">
-                                  {flight.from} → {flight.to}
-                                </p>
-                              </div>
-                              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <FaPlane className="text-blue-600 text-sm sm:text-base transform -rotate-45" />
-                              </div>
-                            </div>
-
-                            <div className="space-y-2 sm:space-y-3 md:space-y-4">
-                              <div className="flex justify-between">
-                                <span className="text-gray-600 text-xs sm:text-sm">Airline</span>
-                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.airline}</span>
-                              </div>
-
-                              <div className="flex justify-between">
-                                <span className="text-gray-600 text-xs sm:text-sm">Flight No.</span>
-                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.flightNo}</span>
-                              </div>
-
-                              <div className="flex justify-between">
-                                <span className="text-gray-600 text-xs sm:text-sm">Date</span>
-                                <span className="font-medium text-xs sm:text-sm md:text-base">
-                                  {flight.date || flight.departureDate || 'N/A'}
-                                </span>
-                              </div>
-
-                              <div className="flex justify-between">
-                                <span className="text-gray-600 text-xs sm:text-sm">Time</span>
-                                <span className="font-medium text-xs sm:text-sm md:text-base">
-                                  {flight.departure || flight.departureTime} - {flight.arrival || flight.arrivalTime}
-                                </span>
-                              </div>
-
-                              <div className="flex justify-between">
-                                <span className="text-gray-600 text-xs sm:text-sm">Class</span>
-                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.class || 'Economy'}</span>
-                              </div>
-
-                              <div className="flex justify-between">
-                                <span className="text-gray-600 text-xs sm:text-sm">Duration</span>
-                                <span className="font-medium text-xs sm:text-sm md:text-base">{flight.duration || 'N/A'}</span>
-                              </div>
-                            </div>
-
-                            <div className="border-t border-blue-200 mt-4 sm:mt-6 pt-4 sm:pt-6">
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <div className="text-gray-600 text-xs sm:text-sm">Total Amount</div>
-                                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-600">
-                                    ₹{formatFlightPrice(flight.price)}
-                                  </div>
-                                </div>
-                                <div className="text-green-600 text-xs sm:text-sm font-medium">
-                                  <FaCheckCircle className="inline mr-1 text-xs sm:text-sm" />
-                                  {flight.refundable ? 'Refundable' : 'Non-refundable'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="bg-gray-50 rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-200 p-4 sm:p-6">
-                            <div className="flex items-center justify-center h-40">
-                              <div className="text-center">
-                                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                                <p className="text-gray-600 text-sm">Loading flight details...</p>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Price Breakdown */}
-                        <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl border border-gray-100 p-4 sm:p-6">
-                          <h4 className="font-bold text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base md:text-lg">
-                            Price Breakdown
-                          </h4>
-
-                          {flight && (
-                            <div className="space-y-2 sm:space-y-3">
-                              <div className="flex justify-between">
-                                <span className="text-gray-600 text-xs sm:text-sm">Base Fare</span>
-                                <span>₹{formatFlightPrice(flight.price * 0.7)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-600 text-xs sm:text-sm">Taxes & Fees</span>
-                                <span>₹{formatFlightPrice(flight.price * 0.2)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-600 text-xs sm:text-sm">Service Charge</span>
-                                <span>₹{formatFlightPrice(flight.price * 0.1)}</span>
-                              </div>
-                              <div className="border-t pt-2 sm:pt-3">
-                                <div className="flex justify-between font-bold text-sm sm:text-base md:text-lg">
-                                  <span>Total Payable</span>
-                                  <span className="text-blue-600">₹{formatFlightPrice(flight.price)}</span>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Loyalty Points */}
-                        <div className="bg-linear-to-r from-yellow-50 to-orange-50 rounded-lg sm:rounded-xl md:rounded-2xl border border-yellow-100 p-4 sm:p-6">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2 sm:space-x-3">
-                              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-linear-to-r from-yellow-400 to-orange-400 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <FaStar className="text-white text-sm sm:text-base" />
-                              </div>
-                              <div>
-                                <div className="font-bold text-sm sm:text-base">Airtribe Points</div>
-                                <div className="text-gray-600 text-xs sm:text-sm">You'll earn</div>
-                              </div>
-                            </div>
-                            <div className="text-xl sm:text-2xl font-bold text-yellow-600">+489</div>
-                          </div>
-                        </div>
-
-                        {/* Terms & Conditions */}
-                        <div className="bg-gray-50 rounded-lg sm:rounded-xl md:rounded-2xl p-4 sm:p-6">
-                          <div className="flex items-start space-x-2 sm:space-x-3">
-                            <input
-                              type="checkbox"
-                              className="mt-0.5 sm:mt-1 h-4 w-4 sm:h-5 sm:w-5 text-blue-600 rounded"
-                            />
-                            <div className="text-xs sm:text-sm text-gray-700">
-                              <p className="font-medium mb-1">Terms & Conditions</p>
-                              <p>I agree to the Terms of Service, Privacy Policy, and Cancellation Policy.</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="space-y-3 sm:space-y-4">
-                          <button
-                            onClick={handleTicketBooking}
-                            className="w-full py-2 sm:py-3 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg sm:rounded-xl font-bold text-sm sm:text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95"
-                          >
-                            <GiConfirmed className="inline mr-2 text-sm sm:text-base" />
-                            Confirm Ticket
-                          </button>
-
-                          <button className="w-full mt-2 py-2 sm:py-3 bg-linear-to-r from-green-600 to-emerald-600 text-white rounded-lg sm:rounded-xl font-bold text-sm sm:text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95">
-                            <FaCreditCard className="inline mr-2 text-sm sm:text-base" />
-                            Proceed to Payment
-                          </button>
-
-                          <button
-                            onClick={() => setShowBookingForm(false)}
-                            className="w-full py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base hover:bg-gray-50 transition-colors active:bg-gray-100"
-                          >
-                            Cancel Booking
-                          </button>
-                        </div>
-
-                        {/* Security Badge */}
-                        <div className="text-center pt-3 sm:pt-4 border-t">
-                          <div className="inline-flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-600">
-                            <FaShieldAlt className="text-green-600 text-xs sm:text-sm" />
-                            <span>Your payment is secured with 256-bit SSL encryption</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              {/* Header with Profile */}
+              <div className="p-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
+                {/* Animated background elements */}
+                <motion.div 
+                  className="absolute -top-20 -left-20 w-40 h-40 bg-white/10 rounded-full"
+                  animate={{ 
+                    x: [0, 100, 0],
+                    y: [0, 50, 0],
+                    rotate: [0, 360, 0]
+                  }}
+                  transition={{ duration: 20, repeat: Infinity }}
+                />
+                
+                <div className="flex items-center justify-between mb-6 relative z-10">
+                  <motion.h2 
+                    className="text-2xl font-bold text-white"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    My Profile
+                  </motion.h2>
+                  <motion.button
+                    onClick={handleDrawerToggle}
+                    className="p-2 hover:bg-white/20 rounded-full transition-colors backdrop-blur-sm"
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <MdClose className="text-white text-xl" />
+                  </motion.button>
                 </div>
-              </div>
-            )}
 
-            {/* My Bookings Section */}
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-gray-800 flex items-center">
-                  <HiTicket className="mr-2 text-blue-600" />
-                  My Bookings
-                </h3>
-                <button
-                  onClick={() => setShowBooking(!showBooking)}
-                  className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                <motion.label 
+                  htmlFor="profile-upload" 
+                  className="cursor-pointer flex items-center space-x-4 relative z-10"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
                 >
-                  {showBooking ? "Hide" : "Show"}
-                </button>
+                  <div className="relative">
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="relative"
+                    >
+                      {profilePic ? (
+                        <motion.img
+                          src={profilePic}
+                          alt="Profile"
+                          className="h-20 w-20 rounded-full object-cover border-4 border-white shadow-2xl"
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ type: "spring", delay: 0.3 }}
+                        />
+                      ) : (
+                        <motion.div 
+                          className="h-20 w-20 rounded-full bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-xl flex items-center justify-center border-4 border-white/30 shadow-2xl"
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ type: "spring", delay: 0.3 }}
+                        >
+                          <FaUserLarge size={32} className="text-white" />
+                        </motion.div>
+                      )}
+                      <motion.div 
+                        className="absolute -bottom-2 -right-2 bg-white rounded-full p-2 shadow-lg cursor-pointer"
+                        whileHover={{ scale: 1.2, rotate: 360 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <FaUser className="text-blue-600 text-xs" />
+                      </motion.div>
+                    </motion.div>
+                  </div>
+
+                  <div className="flex-1">
+                    <p className="text-sm text-white/80 mb-1">Tap to update photo</p>
+                    <motion.h3 
+                      className="text-xl font-bold text-white truncate"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.4 }}
+                    >
+                      {user?.name || "Guest User"}
+                    </motion.h3>
+                    <motion.p 
+                      className="text-white/90 text-sm truncate"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                    >
+                      {user?.email || "guest@example.com"}
+                    </motion.p>
+                    <motion.div 
+                      className="flex items-center mt-2 space-x-2"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      <span className="bg-white/20 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full">
+                        Member Since {userStats?.memberSince}
+                      </span>
+                    </motion.div>
+                  </div>
+                </motion.label>
+
+                <input
+                  id="profile-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      const file = e.target.files[0];
+                      const reader = new FileReader();
+
+                      reader.onload = (event) => {
+                        setProfilePic(event.target.result);
+                        localStorage.setItem("profilePic", event.target.result);
+                      };
+
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
               </div>
 
-              {showBooking && (
-                <div className="space-y-4">
-                  {/* Booking Tabs */}
-                  <div className="flex border-b">
-                    {['current', 'upcoming', 'past'].map((tab) => (
-                      <button
-                        key={tab}
-                        onClick={() => setBookingTab(tab)}
-                        className={`flex-1 py-2 text-sm font-medium ${bookingTab === tab ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'} transition-colors`}
+              {/* Quick Stats */}
+              <motion.div 
+                className="grid grid-cols-3 gap-3 p-4 bg-white/90 backdrop-blur-sm border-b border-gray-200"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.7 }}
+              >
+                {[
+                  { value: userStats.totalBookings, label: "Bookings", color: "from-blue-400 to-blue-600", icon: <HiTicket className="text-white" /> },
+                  { value: userStats.totalSpent, label: "Spent", color: "from-green-400 to-green-600", icon: <FaRupeeSign className="text-white" /> },
+                  { value: userStats.loyaltyPoints, label: "Points", color: "from-purple-400 to-purple-600", icon: <FaStar className="text-white" /> }
+                ].map((stat, index) => (
+                  <motion.div 
+                    key={index}
+                    custom={index}
+                    variants={itemVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="text-center p-3 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer border border-gray-100"
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <div className={`bg-gradient-to-br ${stat.color} w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2`}>
+                      <div className="text-lg">
+                        {stat.icon}
+                      </div>
+                    </div>
+                    <p className="text-lg font-bold text-gray-800">{stat.value}</p>
+                    <p className="text-xs text-gray-600 font-medium">{stat.label}</p>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              {/* New Booking Button */}
+              <motion.div
+                className="px-4 pt-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+              >
+                <motion.button
+                  onClick={handleBookNewFlight}
+                  className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center relative overflow-hidden group"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                    animate={{ x: ["100%", "-100%"] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                  />
+                  <FaPlane className="mr-3 text-lg relative z-10" />
+                  <span className="relative z-10">Book New Flight</span>
+                  <motion.div 
+                    className="ml-2 relative z-10"
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ repeat: Infinity, duration: 1 }}
+                  >
+                    ✈️
+                  </motion.div>
+                </motion.button>
+              </motion.div>
+
+              {/* Menu Items */}
+              <div className="flex-1 overflow-y-auto p-4">
+                <div className="space-y-2 mb-6">
+                  {menuItems.map((item, index) => (
+                    <motion.div
+                      key={index}
+                      custom={index}
+                      variants={itemVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      {item.path ? (
+                        <Link
+                          to={item.path}
+                          onClick={handleLinkClick}
+                          className="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 group border border-gray-100"
+                        >
+                          <div className="flex items-center">
+                            <div className="mr-4 text-gray-600 group-hover:text-blue-600 transition-colors">
+                              {item.icon}
+                            </div>
+                            <span className="font-medium text-gray-700 group-hover:text-gray-900">{item.title}</span>
+                          </div>
+                          <FaChevronRight className="text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={item.action}
+                          className="w-full flex items-center justify-between p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 group border border-gray-100"
+                        >
+                          <div className="flex items-center">
+                            <div className="mr-4 text-gray-600 group-hover:text-blue-600 transition-colors">
+                              {item.icon}
+                            </div>
+                            <span className="font-medium text-gray-700 group-hover:text-gray-900">{item.title}</span>
+                          </div>
+                          <FaChevronRight className={`text-gray-400 transition-all ${showBooking ? 'rotate-90' : ''}`} />
+                        </button>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* My Bookings Section */}
+                <AnimatePresence>
+                  {showBooking && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden mb-6"
+                    >
+                      {/* Booking Tabs */}
+                      <div className="flex border-b border-gray-200 mb-4">
+                        {['current', 'upcoming', 'past'].map((tab, index) => (
+                          <motion.button
+                            key={tab}
+                            onClick={() => setBookingTab(tab)}
+                            className={`flex-1 py-3 text-sm font-medium relative ${bookingTab === tab ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'} transition-colors`}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                          >
+                            {tab === 'current' ? 'Current' : tab === 'upcoming' ? 'Upcoming' : 'Past'}
+                            {bookingTab === tab && (
+                              <motion.div 
+                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"
+                                layoutId="activeTab"
+                              />
+                            )}
+                          </motion.button>
+                        ))}
+                      </div>
+
+                      {/* Booking Content */}
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={bookingTab}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 20 }}
+                          transition={{ duration: 0.2 }}
+                          className="space-y-3"
+                        >
+                          {bookingData[bookingTab].map((booking, index) => (
+                            <motion.div
+                              key={booking.id}
+                              variants={cardVariants}
+                              initial="hidden"
+                              animate="visible"
+                              transition={{ delay: index * 0.1 }}
+                              className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <div className="flex items-center mb-2">
+                                    <FaPlane className="text-blue-500 mr-2" />
+                                    <span className="font-bold text-gray-800">{booking.flightNo}</span>
+                                    <span className={`ml-2 text-xs px-2 py-1 rounded-full ${booking.status === 'Confirmed' ? 'bg-green-100 text-green-800' : booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}>
+                                      {booking.status}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center text-sm text-gray-600 mb-1">
+                                    <span>{getCityName(booking.from)}</span>
+                                    <FaPlane className="mx-2 text-xs" />
+                                    <span>{getCityName(booking.to)}</span>
+                                  </div>
+                                  <p className="text-xs text-gray-500">{booking.date} {booking.time && `• ${booking.time}`}</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="font-bold text-blue-700 text-lg">{booking.fare}</p>
+                                  <Link
+                                    to={`/booking-details/${booking.id}`}
+                                    onClick={handleLinkClick}
+                                    className="text-xs text-blue-600 hover:text-blue-800 transition-colors mt-1 inline-block"
+                                  >
+                                    View Details
+                                  </Link>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </motion.div>
+                      </AnimatePresence>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* User Details */}
+                <motion.div 
+                  className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-gray-100"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.1 }}
+                >
+                  <h4 className="font-bold text-gray-800 mb-4 flex items-center">
+                    <FaUser className="mr-3 text-blue-500" />
+                    Account Details
+                  </h4>
+                  <div className="space-y-3">
+                    {[
+                      { label: "Name", value: user?.name || "Not set" },
+                      { label: "Email", value: user?.email || "Not set" },
+                      { label: "Phone", value: user?.phone || "Not set" }
+                    ].map((detail, index) => (
+                      <motion.div 
+                        key={index}
+                        className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg transition-colors"
+                        whileHover={{ x: 5 }}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 1.2 + index * 0.1 }}
                       >
-                        {tab === 'current' ? 'Current' : tab === 'upcoming' ? 'Upcoming' : 'Past'}
-                      </button>
+                        <span className="text-gray-600 text-sm">{detail.label}</span>
+                        <span className="font-semibold text-gray-800 text-sm">{detail.value}</span>
+                      </motion.div>
                     ))}
                   </div>
+                </motion.div>
+              </div>
 
-                  {/* Current Booking Details */}
-                  {bookingTab === 'current' && (
-                    <div className="bg-linear-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <div className="flex items-center mb-1">
-                            <FaPlane className="text-blue-600 mr-2" />
-                            <span className="font-bold">{currentBooking.flightNo}</span>
-                            <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                              {currentBooking.status}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600">{currentBooking.airline}</p>
-                        </div>
-                        <button
-                          onClick={() => {}}
-                          className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-                        >
-                          <LuDownload className="mr-1" />
-                          <span className="text-sm">Ticket</span>
-                        </button>
+              {/* Footer Actions */}
+              <motion.div 
+                className="border-t border-gray-200 p-4 bg-white/90 backdrop-blur-sm"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.3 }}
+              >
+                <div className="flex gap-3">
+                  <motion.button
+                    onClick={handleDrawerToggle}
+                    className="flex-1 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <MdClose className="text-lg" />
+                    Close
+                  </motion.button>
+                  {isLoggedIn && (
+                    <motion.button
+                      onClick={handleLogout}
+                      className="flex-1 py-3 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all relative overflow-hidden group"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <motion.div 
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                        animate={{ x: ["100%", "-100%"] }}
+                        transition={{ repeat: Infinity, duration: 1.5 }}
+                      />
+                      <LuLogOut size={18} className="relative z-10" />
+                      <span className="relative z-10">Logout</span>
+                    </motion.button>
+                  )}
+                </div>
+              </motion.div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Booking Form Modal */}
+      <AnimatePresence>
+        {showBookingForm && flight && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black/70 backdrop-blur-md z-[200]"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={overlayVariants}
+              onClick={() => setShowBookingForm(false)}
+            />
+
+            <motion.div
+              className="fixed inset-0 z-[201] flex items-center justify-center p-4"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={modalVariants}
+            >
+              <div className="bg-gradient-to-b from-white to-gray-50 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200">
+                {/* Modal Header */}
+                <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                        <FaPlane className="text-2xl text-white transform -rotate-45" />
                       </div>
-
-                      {/* Flight Route */}
-                      <div className="flex items-center justify-between my-4">
-                        <div className="text-center">
-                          <MdOutlineFlightTakeoff className="text-2xl text-blue-600 mx-auto mb-1" />
-                          <p className="font-bold">{currentBooking.from}</p>
-                          <p className="text-xs text-gray-600">Departure</p>
-                        </div>
-                        <div className="flex-1 px-4 text-center">
-                          <div className="relative">
-                            <div className="h-1 bg-blue-300 rounded-full"></div>
-                            <FaPlane className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-blue-600" />
-                          </div>
-                          <p className="text-xs text-gray-600 mt-1">{currentBooking.duration}</p>
-                        </div>
-                        <div className="text-center">
-                          <MdOutlineFlightLand className="text-2xl text-green-600 mx-auto mb-1" />
-                          <p className="font-bold">{currentBooking.to}</p>
-                          <p className="text-xs text-gray-600">Arrival</p>
-                        </div>
-                      </div>
-
-                      {/* Flight Details */}
-                      <div className="grid grid-cols-2 gap-3 mb-4">
-                        <div className="bg-white p-3 rounded-lg">
-                          <p className="text-xs text-gray-500">Date</p>
-                          <p className="font-semibold">{currentBooking.date}</p>
-                        </div>
-                        <div className="bg-white p-3 rounded-lg">
-                          <p className="text-xs text-gray-500">Time</p>
-                          <p className="font-semibold">{currentBooking.time}</p>
-                        </div>
-                        <div className="bg-white p-3 rounded-lg">
-                          <p className="text-xs text-gray-500">Seat</p>
-                          <div className="flex items-center">
-                            <p className="font-semibold">{currentBooking.seat}</p>
-                          </div>
-                        </div>
-                        <div className="bg-white p-3 rounded-lg">
-                          <p className="text-xs text-gray-500">Class</p>
-                          <p className="font-semibold">{currentBooking.class}</p>
-                        </div>
-                      </div>
-
-                      {/* Additional Info */}
-                      <div className="bg-white rounded-lg p-3 mb-4">
-                        <div className="flex justify-between text-sm">
-                          <span>Gate: <span className="font-semibold">{currentBooking.gate}</span></span>
-                          <span>Terminal: <span className="font-semibold">{currentBooking.terminal}</span></span>
-                          <span>Boarding: <span className="font-semibold">{currentBooking.boardingTime}</span></span>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between items-center pt-3 border-t">
-                        <div>
-                          <p className="text-xs text-gray-500">Total Fare</p>
-                          <p className="text-xl font-bold text-blue-700">{currentBooking.fare}</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Link
-                            to={`/booking-details/${currentBooking.id}`}
-                            onClick={handleLinkClick}
-                            className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
-                          >
-                            View Details
-                          </Link>
-                          <button
-                            onClick={() => {}}
-                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                          >
-                            Cancel
-                          </button>
-                        </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-white">Complete Your Booking</h2>
+                        <p className="text-blue-100">Fill passenger details to confirm your flight</p>
                       </div>
                     </div>
-                  )}
+                    <motion.button
+                      onClick={() => setShowBookingForm(false)}
+                      className="p-3 hover:bg-white/20 rounded-full transition-colors"
+                      whileHover={{ scale: 1.1, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <FaTimes className="text-white text-xl" />
+                    </motion.button>
+                  </div>
+                </div>
 
-                  {/* Booking List for Upcoming/Past */}
-                  {(bookingTab === 'upcoming' || bookingTab === 'past') && (
-                    <div className="space-y-3">
-                      {bookingData[bookingTab].map((booking) => (
-                        <div key={booking.id} className="bg-white border rounded-xl p-4 hover:shadow-md transition-shadow">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <div className="flex items-center mb-2">
-                                <FaPlane className="text-blue-500 mr-2" />
-                                <span className="font-bold">{booking.flightNo}</span>
-                                <span className={`ml-2 text-xs px-2 py-1 rounded-full ${booking.status === 'Confirmed' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                                  {booking.status}
-                                </span>
-                              </div>
-                              <div className="flex items-center text-sm text-gray-600">
-                                <span>{booking.from}</span>
-                                <FaPlane className="mx-2 text-xs" />
-                                <span>{booking.to}</span>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-bold text-blue-700">{booking.fare}</p>
-                              <p className="text-xs text-gray-500">{booking.date}</p>
-                              {booking.time && <p className="text-xs text-gray-500">{booking.time}</p>}
-                            </div>
+                {/* Modal Content */}
+                <div className="p-6 overflow-y-auto max-h-[70vh]">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left Column - Passenger Form */}
+                    <div className="lg:col-span-2 space-y-6">
+                      {/* Passenger Details Card */}
+                      <motion.div 
+                        className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 }}
+                      >
+                        <div className="flex items-center space-x-3 mb-6">
+                          <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                            <FaUser className="text-blue-600 text-xl" />
                           </div>
-                          <div className="flex justify-end gap-2 mt-3">
-                            <Link
-                              to={`/booking-details/${booking.id}`}
-                              onClick={handleLinkClick}
-                              className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                          <div>
+                            <h3 className="text-xl font-bold text-gray-900">Passenger Details</h3>
+                            <p className="text-gray-600">Primary traveller information</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Title *</label>
+                            <select
+                              value={bookingdata.title}
+                              onChange={(e) => setBookingdata({ ...bookingdata, title: e.target.value })}
+                              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             >
-                              Details
-                            </Link>
-                            {bookingTab === 'upcoming' && (
-                              <button
-                                onClick={() => {}}
-                                className="text-sm text-red-600 hover:text-red-800 transition-colors"
-                              >
-                                Cancel
-                              </button>
-                            )}
+                              <option value="Mr">Mr</option>
+                              <option value="Mrs">Mrs</option>
+                              <option value="Ms">Ms</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">First Name *</label>
+                            <input
+                              type="text"
+                              value={bookingdata.firstName}
+                              onChange={(e) => setBookingdata({ ...bookingdata, firstName: e.target.value })}
+                              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                              placeholder="Enter first name"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Last Name *</label>
+                            <input
+                              type="text"
+                              value={bookingdata.lastName}
+                              onChange={(e) => setBookingdata({ ...bookingdata, lastName: e.target.value })}
+                              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                              placeholder="Enter last name"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Date of Birth</label>
+                            <div className="relative">
+                              <input
+                                type="date"
+                                max={today}
+                                value={bookingdata.dateOfBirth}
+                                onChange={(e) => setBookingdata({ ...bookingdata, dateOfBirth: e.target.value })}
+                                className="w-full px-4 py-3 pl-12 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                              />
+                              <FaCalendarAlt className="absolute left-4 top-4 text-gray-400" />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+                            <div className="relative">
+                              <input
+                                type="email"
+                                value={bookingdata.email}
+                                onChange={(e) => setBookingdata({ ...bookingdata, email: e.target.value })}
+                                className="w-full px-4 py-3 pl-12 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="john@example.com"
+                              />
+                              <FaEnvelope className="absolute left-4 top-4 text-gray-400" />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Phone *</label>
+                            <div className="relative">
+                              <input
+                                type="tel"
+                                value={bookingdata.phone}
+                                onChange={(e) => setBookingdata({ ...bookingdata, phone: e.target.value })}
+                                className="w-full px-4 py-3 pl-12 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="+91 98765 43210"
+                              />
+                              <FaPhone className="absolute left-4 top-4 text-gray-400" />
+                            </div>
                           </div>
                         </div>
-                      ))}
+                      </motion.div>
+
+                      {/* Travel Documents Card */}
+                      <motion.div 
+                        className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        <div className="flex items-center space-x-3 mb-6">
+                          <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                            <FaPassport className="text-purple-600 text-xl" />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-gray-900">Travel Documents</h3>
+                            <p className="text-gray-600">Passport & identification</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Nationality</label>
+                            <select
+                              value={bookingdata.nationality}
+                              onChange={(e) => setBookingdata({ ...bookingdata, nationality: e.target.value })}
+                              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            >
+                              <option value="Indian">Indian</option>
+                              <option value="American">American</option>
+                              <option value="British">British</option>
+                              <option value="Canadian">Canadian</option>
+                              <option value="Australian">Australian</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Passport Number</label>
+                            <input
+                              type="text"
+                              value={bookingdata.passportNumber}
+                              onChange={(e) => setBookingdata({ ...bookingdata, passportNumber: e.target.value })}
+                              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                              placeholder="A12345678"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Passport Expiry</label>
+                            <div className="relative">
+                              <input
+                                type="date"
+                                min={today}
+                                value={bookingdata.passportExpiry}
+                                onChange={(e) => setBookingdata({ ...bookingdata, passportExpiry: e.target.value })}
+                                className="w-full px-4 py-3 pl-12 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                              />
+                              <FaCalendarAlt className="absolute left-4 top-4 text-gray-400" />
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
                     </div>
-                  )}
-                </div>
-              )}
-            </div>
 
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {quickActions.map((action, index) => (
-                <Link
-                  key={index}
-                  to={action.path}
-                  onClick={handleLinkClick}
-                  className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
-                >
-                  {action.icon}
-                  <span className="text-sm font-medium">{action.title}</span>
-                </Link>
-              ))}
-            </div>
+                    {/* Right Column - Flight Summary */}
+                    <div className="space-y-6">
+                      {/* Flight Summary Card */}
+                      <motion.div 
+                        className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-blue-100"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        <div className="flex items-center justify-between mb-6">
+                          <div>
+                            <h3 className="font-bold text-gray-900 text-xl">Flight Summary</h3>
+                            <p className="text-gray-600">
+                              {getCityName(flight.from)} → {getCityName(flight.to)}
+                            </p>
+                          </div>
+                          <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                            <FaPlane className="text-blue-600 text-xl transform -rotate-45" />
+                          </div>
+                        </div>
 
-            {/* User Details */}
-            <div className="bg-gray-50 rounded-xl p-4 mb-6">
-              <h4 className="font-bold text-gray-800 mb-3">Account Details</h4>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Name</span>
-                  <span className="font-semibold">{user?.name || "Not set"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Email</span>
-                  <span className="font-semibold">{user?.email || "Not set"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Phone</span>
-                  <span className="font-semibold">{user?.phone || "Not set"}</span>
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600">Airline</span>
+                            <span className="font-semibold">{flight.airline}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600">Flight No.</span>
+                            <span className="font-semibold">{flight.flightNo}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600">Date</span>
+                            <span className="font-semibold">{flight.date || 'N/A'}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600">Time</span>
+                            <span className="font-semibold">{flight.departure} - {flight.arrival}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600">Class</span>
+                            <span className="font-semibold">{flight.class || 'Economy'}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600">Duration</span>
+                            <span className="font-semibold">{flight.duration || 'N/A'}</span>
+                          </div>
+                        </div>
+
+                        <div className="border-t border-blue-200 mt-6 pt-6">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <div className="text-gray-600">Total Amount</div>
+                              <div className="text-3xl font-bold text-blue-600">
+                                ₹{formatFlightPrice(flight.price)}
+                              </div>
+                            </div>
+                            <div className="text-green-600 font-semibold">
+                              <FaCheckCircle className="inline mr-1" />
+                              Refundable
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      {/* Action Buttons */}
+                      <motion.div 
+                        className="space-y-4"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                      >
+                        <motion.button
+                          onClick={handleTicketBooking}
+                          className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <GiConfirmed className="mr-3 text-xl" />
+                          Confirm Booking
+                        </motion.button>
+
+                        <button
+                          onClick={() => setShowBookingForm(false)}
+                          className="w-full py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </motion.div>
+
+                      {/* Security Badge */}
+                      <motion.div 
+                        className="text-center pt-4 border-t border-gray-200"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                      >
+                        <div className="inline-flex items-center space-x-2 text-sm text-gray-600">
+                          <FaShieldAlt className="text-green-600" />
+                          <span>Secure 256-bit SSL encryption</span>
+                        </div>
+                      </motion.div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Footer Actions */}
-          <div className="border-t p-4 bg-white">
-            <div className="flex gap-3">
-              <button
-                onClick={() => setIsOpen(false)}
-                className="flex-1 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                Close
-              </button>
-              {isLoggedIn && (
-                <button
-                  onClick={handleLogout}
-                  className="flex-1 py-3 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all"
-                >
-                  <LuLogOut size={18} />
-                  Logout
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

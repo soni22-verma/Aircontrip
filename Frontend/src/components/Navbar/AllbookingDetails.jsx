@@ -1,6 +1,13 @@
 import axios from 'axios';
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Plane, Hotel, Bus, Train, Calendar, Clock, 
+  MapPin, User, CreditCard, CheckCircle, XCircle,
+  AlertCircle, TrendingUp, Filter, Menu, X,
+  Download, Edit2, Star, ArrowLeft, ChevronRight
+} from 'lucide-react';
 import api from '../../../services/endpoint';
 
 const AllBookings = () => {
@@ -13,6 +20,7 @@ const AllBookings = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [showFilters, setShowFilters] = useState(false);
     const [showBookingList, setShowBookingList] = useState(true);
+    const [hoveredBooking, setHoveredBooking] = useState(null);
 
     // Detect screen size changes
     useEffect(() => {
@@ -28,7 +36,7 @@ const AllBookings = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Function to get unique bookings based on a unique identifier
+    // Function to get unique bookings
     const getUniqueBookings = (bookings) => {
         if (!bookings || !Array.isArray(bookings)) return [];
         
@@ -132,34 +140,64 @@ const AllBookings = () => {
         };
     }, [booking]);
 
-    // Get status color
-    const getStatusColor = (status) => {
+    // Get status color and icon
+    const getStatusConfig = (status) => {
         switch (status) {
-            case 'confirmed': return 'bg-green-100 text-green-800';
-            case 'pending': return 'bg-yellow-100 text-yellow-800';
-            case 'completed': return 'bg-blue-100 text-blue-800';
-            case 'cancelled': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
+            case 'confirmed':
+                return {
+                    color: 'bg-gradient-to-r from-green-500 to-emerald-600',
+                    text: 'Confirmed',
+                    icon: <CheckCircle className="w-4 h-4" />,
+                    bg: 'bg-green-50',
+                    textColor: 'text-green-800'
+                };
+            case 'pending':
+                return {
+                    color: 'bg-gradient-to-r from-yellow-500 to-orange-500',
+                    text: 'Pending',
+                    icon: <Clock className="w-4 h-4" />,
+                    bg: 'bg-yellow-50',
+                    textColor: 'text-yellow-800'
+                };
+            case 'completed':
+                return {
+                    color: 'bg-gradient-to-r from-blue-500 to-indigo-600',
+                    text: 'Completed',
+                    icon: <CheckCircle className="w-4 h-4" />,
+                    bg: 'bg-blue-50',
+                    textColor: 'text-blue-800'
+                };
+            case 'cancelled':
+                return {
+                    color: 'bg-gradient-to-r from-red-500 to-rose-600',
+                    text: 'Cancelled',
+                    icon: <XCircle className="w-4 h-4" />,
+                    bg: 'bg-red-50',
+                    textColor: 'text-red-800'
+                };
+            default:
+                return {
+                    color: 'bg-gradient-to-r from-gray-500 to-gray-600',
+                    text: 'Unknown',
+                    icon: <AlertCircle className="w-4 h-4" />,
+                    bg: 'bg-gray-50',
+                    textColor: 'text-gray-800'
+                };
         }
     };
 
     // Get type icon
     const getTypeIcon = (item) => {
         if (item.airline || item.flightNumber) {
-            return '✈️';
+            return <Plane className="w-5 h-5" />;
+        } else if (item.hotelName) {
+            return <Hotel className="w-5 h-5" />;
+        } else if (item.busName) {
+            return <Bus className="w-5 h-5" />;
+        } else if (item.trainName) {
+            return <Train className="w-5 h-5" />;
         }
-        return '🎫';
-    };
-
-    // Get status text
-    const getStatusText = (status) => {
-        switch (status) {
-            case 'confirmed': return 'Confirmed';
-            case 'pending': return 'Pending';
-            case 'completed': return 'Completed';
-            case 'cancelled': return 'Cancelled';
-            default: return status?.charAt(0).toUpperCase() + status?.slice(1) || 'Unknown';
-        }
+        return <CreditCard className="w-5 h-5" />;
     };
 
     // Format date
@@ -186,517 +224,737 @@ const AllBookings = () => {
 
     // Get booking type
     const getBookingType = (item) => {
-        if (item.airline) return 'flight';
-        if (item.hotelName) return 'hotel';
-        if (item.busName) return 'bus';
-        if (item.trainName) return 'train';
-        return 'other';
+        if (item.airline) return 'Flight';
+        if (item.hotelName) return 'Hotel';
+        if (item.busName) return 'Bus';
+        if (item.trainName) return 'Train';
+        return 'Other';
+    };
+
+    // Animation variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                duration: 0.5
+            }
+        }
+    };
+
+    const cardVariants = {
+        hidden: { scale: 0.9, opacity: 0 },
+        visible: {
+            scale: 1,
+            opacity: 1,
+            transition: {
+                duration: 0.3
+            }
+        },
+        hover: {
+            y: -5,
+            scale: 1.02,
+            transition: {
+                duration: 0.2
+            }
+        }
+    };
+
+    const filterVariants = {
+        hidden: { x: -20, opacity: 0 },
+        visible: {
+            x: 0,
+            opacity: 1,
+            transition: {
+                duration: 0.3
+            }
+        }
+    };
+
+    const loadingVariants = {
+        animate: {
+            rotate: 360,
+            transition: {
+                duration: 1,
+                repeat: Infinity,
+                ease: "linear"
+            }
+        }
     };
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-3 sm:p-4 md:p-6 mt-16 sm:mt-20 flex items-center justify-center">
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 md:p-6 mt-20 flex items-center justify-center"
+            >
                 <div className="text-center">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3 sm:mb-4"></div>
-                    <p className="text-sm sm:text-base text-gray-600">Loading your bookings...</p>
+                    <motion.div
+                        variants={loadingVariants}
+                        animate="animate"
+                        className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-6"
+                    />
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-lg font-medium text-gray-700"
+                    >
+                        Loading your bookings...
+                    </motion.p>
                 </div>
-            </div>
+            </motion.div>
         );
     }
 
     if (booking.length === 0) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-3 sm:p-4 md:p-6 mt-16 sm:mt-20">
-                <div className="max-w-7xl mx-auto">
-                    <div className="bg-white rounded-lg sm:rounded-xl shadow-md p-6 sm:p-8 text-center">
-                        <div className="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">📋</div>
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2">No Bookings Found</h2>
-                        <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">You haven't made any bookings yet.</p>
-                        <button
-                            onClick={() => navigate('/flightdetails')}
-                            className="bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm sm:text-base"
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 md:p-6 mt-20"
+            >
+                <div className="max-w-4xl mx-auto">
+                    <motion.div 
+                        initial={{ y: 50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                        className="bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-xl p-8 md:p-12 text-center border border-blue-100"
+                    >
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                            className="text-6xl md:text-7xl mb-6"
                         >
-                            + Make Your First Booking
-                        </button>
-                    </div>
+                            📋
+                        </motion.div>
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                            No Bookings Found
+                        </h2>
+                        <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                            Start your journey by making your first booking
+                        </p>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => navigate('/flightdetails')}
+                            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
+                        >
+                            Make Your First Booking
+                        </motion.button>
+                    </motion.div>
                 </div>
-            </div>
+            </motion.div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-3 sm:p-4 md:p-6 mt-20 sm:mt-20">
+        <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 md:p-6 mt-20"
+        >
             <div className="max-w-7xl mx-auto">
-
                 {/* Mobile Header Controls */}
                 {isMobile && (
-                    <div className="flex gap-2 mb-4 sticky top-16 z-10 bg-white p-2 rounded-lg shadow-sm">
-                        <button
+                    <motion.div 
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        className="flex gap-2 mb-4 sticky top-16 z-10 bg-white/80 backdrop-blur-sm p-2 rounded-xl shadow-lg"
+                    >
+                        <motion.button
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => setShowFilters(!showFilters)}
-                            className="flex-1 bg-blue-100 text-blue-600 py-2 rounded-lg font-medium text-sm"
+                            className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2"
                         >
-                            {showFilters ? 'Hide Filters ✕' : 'Show Filters ☰'}
-                        </button>
-                        <button
+                            <Filter className="w-4 h-4" />
+                            {showFilters ? 'Hide Filters' : 'Show Filters'}
+                        </motion.button>
+                        <motion.button
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => setShowBookingList(!showBookingList)}
-                            className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg font-medium text-sm"
+                            className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
                         >
                             {showBookingList ? 'Hide List' : 'Show List'}
-                        </button>
-                    </div>
+                        </motion.button>
+                    </motion.div>
                 )}
 
                 {/* Header */}
-                <div className="mb-6 sm:mb-8">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <motion.div 
+                    variants={itemVariants}
+                    className="mb-8"
+                >
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                         <div>
-                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">📋 All Bookings</h1>
-                            <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">View and manage all your bookings</p>
+                            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
+                                All Bookings
+                            </h1>
+                            <p className="text-gray-600">
+                                View and manage all your travel arrangements
+                            </p>
                         </div>
-                        <button
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => navigate('/flightdetails')}
-                            className="w-full sm:w-auto bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm sm:text-base"
+                            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 w-full md:w-auto"
                         >
                             + New Booking
-                        </button>
+                        </motion.button>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Stats Cards - Responsive */}
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                {/* Stats Cards */}
+                <motion.div 
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+                >
                     {[
-                        { label: 'Total Bookings', value: stats.totalBookings, icon: '🎫', color: 'blue' },
-                        { label: 'Total Spent', value: `₹${stats.totalSpent.toLocaleString()}`, icon: '💰', color: 'green' },
-                        { label: 'Upcoming', value: stats.upcomingBookings, icon: '📅', color: 'yellow' },
-                        { label: 'Completed', value: stats.completedBookings, icon: '✅', color: 'purple' }
+                        { 
+                            label: 'Total Bookings', 
+                            value: stats.totalBookings, 
+                            icon: '🎫', 
+                            color: 'from-blue-500 to-cyan-500',
+                            gradient: 'bg-gradient-to-br'
+                        },
+                        { 
+                            label: 'Total Spent', 
+                            value: `₹${stats.totalSpent.toLocaleString()}`, 
+                            icon: '💰', 
+                            color: 'from-green-500 to-emerald-600',
+                            gradient: 'bg-gradient-to-br'
+                        },
+                        { 
+                            label: 'Upcoming', 
+                            value: stats.upcomingBookings, 
+                            icon: <Calendar className="w-6 h-6" />, 
+                            color: 'from-orange-500 to-amber-500',
+                            gradient: 'bg-gradient-to-br'
+                        },
+                        { 
+                            label: 'Completed', 
+                            value: stats.completedBookings, 
+                            icon: <CheckCircle className="w-6 h-6" />, 
+                            color: 'from-purple-500 to-violet-600',
+                            gradient: 'bg-gradient-to-br'
+                        }
                     ].map((stat, index) => (
-                        <div key={index} className="bg-white rounded-lg sm:rounded-xl shadow p-3 sm:p-4 md:p-6">
-                            <div className="flex items-center">
-                                <div className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-${stat.color}-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 md:mr-4`}>
-                                    <span className="text-lg sm:text-xl md:text-2xl">{stat.icon}</span>
-                                </div>
+                        <motion.div
+                            key={index}
+                            variants={itemVariants}
+                            whileHover={{ y: -5 }}
+                            className={`${stat.gradient} ${stat.color} rounded-2xl shadow-lg p-6 text-white`}
+                        >
+                            <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-xs sm:text-sm text-gray-600">{stat.label}</p>
-                                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">{stat.value}</p>
+                                    <p className="text-sm opacity-90">{stat.label}</p>
+                                    <p className="text-2xl font-bold mt-2">{stat.value}</p>
+                                </div>
+                                <div className="text-3xl">
+                                    {stat.icon}
                                 </div>
                             </div>
-                        </div>
+                            <motion.div 
+                                className="h-1 bg-white/30 rounded-full mt-4"
+                                initial={{ width: 0 }}
+                                animate={{ width: '100%' }}
+                                transition={{ delay: index * 0.1 + 0.5, duration: 0.5 }}
+                            />
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
 
-                <div className={`flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-6 ${isMobile ? (showFilters || showBookingList ? 'flex-col' : 'flex-col-reverse') : ''}`}>
+                <div className={`flex flex-col lg:grid lg:grid-cols-3 gap-6 ${isMobile ? (showFilters || showBookingList ? 'flex-col' : 'flex-col-reverse') : ''}`}>
                     {/* Left Column - Filters and List */}
                     <div className={`lg:col-span-1 ${isMobile && !showFilters && !showBookingList ? 'hidden' : ''} ${isMobile && showFilters ? 'order-1' : ''}`}>
-                        {/* Filters - Show on mobile when toggled or always on desktop */}
-                        {(isMobile ? showFilters : true) && (
-                            <div className="bg-white rounded-lg sm:rounded-xl shadow-md p-4 sm:p-5 mb-4 sm:mb-6">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-base sm:text-lg font-semibold text-gray-800">Filters</h2>
-                                    {isMobile && (
-                                        <button
-                                            onClick={() => setShowFilters(false)}
-                                            className="text-gray-500 hover:text-gray-700"
-                                        >
-                                            ✕
-                                        </button>
-                                    )}
-                                </div>
-
-                                {/* Status Filter */}
-                                <div className="mb-4 sm:mb-6">
-                                    <h3 className="text-xs sm:text-sm font-medium text-gray-700 mb-2">Status</h3>
-                                    <div className="flex flex-wrap gap-1 sm:gap-2">
-                                        {['all', 'confirmed', 'pending', 'completed', 'cancelled'].map(status => (
+                        <AnimatePresence>
+                            {/* Filters */}
+                            {(isMobile ? showFilters : true) && (
+                                <motion.div
+                                    variants={filterVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                    exit="hidden"
+                                    className="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-gray-100"
+                                >
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                            <Filter className="w-5 h-5" />
+                                            Filters
+                                        </h2>
+                                        {isMobile && (
                                             <button
-                                                key={status}
-                                                onClick={() => setActiveFilter(status)}
-                                                className={`px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium capitalize ${activeFilter === status
-                                                    ? 'bg-blue-600 text-white'
-                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                    }`}
+                                                onClick={() => setShowFilters(false)}
+                                                className="text-gray-500 hover:text-gray-700"
                                             >
-                                                {status === 'all' ? 'All' : getStatusText(status)}
+                                                <X className="w-5 h-5" />
                                             </button>
-                                        ))}
+                                        )}
                                     </div>
-                                </div>
 
-                                {/* Type Filter */}
-                                <div>
-                                    <h3 className="text-xs sm:text-sm font-medium text-gray-700 mb-2">Type</h3>
-                                    <div className="flex flex-wrap gap-1 sm:gap-2">
-                                        {['all', 'flight', 'hotel', 'bus', 'train'].map(type => (
-                                            <button
-                                                key={type}
-                                                onClick={() => setActiveType(type)}
-                                                className={`px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium capitalize ${activeType === type
-                                                    ? 'bg-blue-600 text-white'
-                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                    }`}
-                                            >
-                                                {type === 'all' ? 'All' : 
-                                                 type === 'flight' ? '✈️ Flight' : 
-                                                 type === 'hotel' ? '🏨 Hotel' : 
-                                                 type === 'bus' ? '🚌 Bus' : '🚆 Train'}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Bookings List - Show on mobile when toggled or always on desktop */}
-                        {(isMobile ? showBookingList : true) && (
-                            <div className="bg-white rounded-lg sm:rounded-xl shadow-md p-4 sm:p-5">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-base sm:text-lg font-semibold text-gray-800">
-                                        Bookings <span className="text-gray-500">({filteredBookings.length})</span>
-                                    </h2>
-                                    {isMobile && (
-                                        <button
-                                            onClick={() => setShowBookingList(false)}
-                                            className="text-gray-500 hover:text-gray-700"
-                                        >
-                                            ✕
-                                        </button>
-                                    )}
-                                </div>
-
-                                <div className="space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto pr-2">
-                                    {filteredBookings.map((item, index) => (
-                                        <div
-                                            key={`${item._id || item.bookingId || index}_${item.createdAt}`}
-                                            className={`p-3 sm:p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md ${selectedBooking?._id === item._id
-                                                ? "border-blue-500 bg-blue-50"
-                                                : "border-gray-200 hover:border-gray-300"
-                                                }`}
-                                            onClick={() => {
-                                                setSelectedBooking(item);
-                                                if (isMobile) setShowBookingList(false);
-                                            }}
-                                        >
-                                            {/* Top Section */}
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div className="flex items-center min-w-0">
-                                                    <span className="text-lg sm:text-xl mr-2">{getTypeIcon(item)}</span>
-                                                    <div className="min-w-0">
-                                                        <h3 className="font-medium text-gray-800 truncate text-sm sm:text-base">
-                                                            {item?.firstName} {item?.lastName}
-                                                        </h3>
-                                                        <p className="text-xs text-gray-500 truncate">
-                                                            {item.airline ? `${item.airline} ${item.flightNumber}` : 
-                                                             item.hotelName ? `${item.hotelName}` :
-                                                             item.busName ? `${item.busName}` :
-                                                             item.trainName ? `${item.trainName}` : 'Booking'}
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                <span
-                                                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)} flex-shrink-0 ml-2`}
+                                    {/* Status Filter */}
+                                    <div className="mb-6">
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                            <CheckCircle className="w-4 h-4" />
+                                            Status
+                                        </h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {['all', 'confirmed', 'pending', 'completed', 'cancelled'].map(status => (
+                                                <motion.button
+                                                    key={status}
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    onClick={() => setActiveFilter(status)}
+                                                    className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all ${activeFilter === status
+                                                        ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md'
+                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                        }`}
                                                 >
-                                                    {isMobile ? getStatusText(item.status).charAt(0) : getStatusText(item.status)}
-                                                </span>
-                                            </div>
-
-                                            {/* Route/Details */}
-                                            <div className="mb-2 sm:mb-3">
-                                                <p className="text-xs sm:text-sm text-gray-800 truncate">
-                                                    {item.from} → {item.to}
-                                                </p>
-                                                <p className="text-xs text-gray-500 mt-1">
-                                                    📅 {formatDate(item.journeyDate || item.date || item.createdAt)}
-                                                </p>
-                                            </div>
-
-                                            {/* Bottom */}
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-sm font-medium text-gray-700">
-                                                    ₹{item.totalPrice || item.amount || 0}
-                                                </span>
-                                                <span className="text-xs text-gray-500 truncate ml-2">
-                                                    {formatDate(item.createdAt || item.bookingDate)}
-                                                </span>
-                                            </div>
+                                                    {status === 'all' ? 'All' : getStatusConfig(status).text}
+                                                </motion.button>
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                                    </div>
+
+                                    {/* Type Filter */}
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                            <CreditCard className="w-4 h-4" />
+                                            Type
+                                        </h3>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {['all', 'flight', 'hotel', 'bus', 'train'].map(type => (
+                                                <motion.button
+                                                    key={type}
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    onClick={() => setActiveType(type)}
+                                                    className={`p-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-all ${activeType === type
+                                                        ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md'
+                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                        }`}
+                                                >
+                                                    {type === 'all' ? '🌍 All' : 
+                                                     type === 'flight' ? '✈️ Flight' : 
+                                                     type === 'hotel' ? '🏨 Hotel' : 
+                                                     type === 'bus' ? '🚌 Bus' : '🚆 Train'}
+                                                </motion.button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {/* Bookings List */}
+                            {(isMobile ? showBookingList : true) && (
+                                <motion.div
+                                    variants={filterVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                    exit="hidden"
+                                    className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100"
+                                >
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h2 className="text-xl font-bold text-gray-800">
+                                            Bookings <span className="text-gray-500">({filteredBookings.length})</span>
+                                        </h2>
+                                        {isMobile && (
+                                            <button
+                                                onClick={() => setShowBookingList(false)}
+                                                className="text-gray-500 hover:text-gray-700"
+                                            >
+                                                <X className="w-5 h-5" />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                                        {filteredBookings.map((item, index) => {
+                                            const statusConfig = getStatusConfig(item.status);
+                                            return (
+                                                <motion.div
+                                                    key={`${item._id || item.bookingId || index}`}
+                                                    variants={cardVariants}
+                                                    initial="hidden"
+                                                    animate="visible"
+                                                    whileHover="hover"
+                                                    onMouseEnter={() => setHoveredBooking(item._id)}
+                                                    onMouseLeave={() => setHoveredBooking(null)}
+                                                    className={`relative p-5 rounded-xl border-2 cursor-pointer transition-all overflow-hidden ${selectedBooking?._id === item._id
+                                                        ? "border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50"
+                                                        : "border-gray-200 hover:border-blue-300"
+                                                        }`}
+                                                    onClick={() => {
+                                                        setSelectedBooking(item);
+                                                        if (isMobile) setShowBookingList(false);
+                                                    }}
+                                                >
+                                                    {/* Background Animation */}
+                                                    <motion.div
+                                                        className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5"
+                                                        initial={{ x: '-100%' }}
+                                                        animate={{ 
+                                                            x: hoveredBooking === item._id ? '0%' : '-100%',
+                                                            transition: { duration: 0.3 }
+                                                        }}
+                                                    />
+
+                                                    <div className="relative">
+                                                        {/* Top Section */}
+                                                        <div className="flex justify-between items-start mb-4">
+                                                            <div className="flex items-center min-w-0">
+                                                                <div className={`p-2 rounded-lg ${selectedBooking?._id === item._id ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                                                                    {getTypeIcon(item)}
+                                                                </div>
+                                                                <div className="ml-3 min-w-0">
+                                                                    <h3 className="font-bold text-gray-900 truncate">
+                                                                        {item?.firstName} {item?.lastName}
+                                                                    </h3>
+                                                                    <p className="text-sm text-gray-600 truncate">
+                                                                        {item.airline || item.hotelName || item.busName || item.trainName || 'Booking'}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+
+                                                            <motion.div
+                                                                whileHover={{ scale: 1.1 }}
+                                                                className={`px-3 py-1 rounded-full flex items-center gap-1 ${statusConfig.bg} ${statusConfig.textColor}`}
+                                                            >
+                                                                {statusConfig.icon}
+                                                                <span className="text-xs font-semibold">
+                                                                    {isMobile ? statusConfig.text.charAt(0) : statusConfig.text}
+                                                                </span>
+                                                            </motion.div>
+                                                        </div>
+
+                                                        {/* Route/Details */}
+                                                        <div className="mb-4">
+                                                            <div className="flex items-center text-gray-700 mb-2">
+                                                                <MapPin className="w-4 h-4 mr-2" />
+                                                                <span className="text-sm">
+                                                                    {item.from} → {item.to}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center text-gray-600">
+                                                                <Calendar className="w-4 h-4 mr-2" />
+                                                                <span className="text-xs">
+                                                                    {formatDate(item.journeyDate || item.date || item.createdAt)}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Bottom */}
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="text-lg font-bold text-gray-900">
+                                                                ₹{item.totalPrice || item.amount || 0}
+                                                            </span>
+                                                            <motion.div
+                                                                animate={{ 
+                                                                    x: hoveredBooking === item._id ? 5 : 0,
+                                                                    transition: { duration: 0.2 }
+                                                                }}
+                                                            >
+                                                                <ChevronRight className="w-5 h-5 text-gray-400" />
+                                                            </motion.div>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            );
+                                        })}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
 
                     {/* Right Column - Booking Details */}
                     <div className="lg:col-span-2">
-                        {selectedBooking ? (
-                            <div className="bg-white rounded-lg sm:rounded-xl shadow-md p-4 sm:p-6">
-                                {/* Mobile back button */}
-                                {isMobile && (showFilters || showBookingList) && (
-                                    <button
-                                        onClick={() => {
-                                            setShowFilters(false);
-                                            setShowBookingList(false);
-                                        }}
-                                        className="mb-4 text-blue-600 hover:text-blue-800 flex items-center text-sm"
-                                    >
-                                        ← Back to Details
-                                    </button>
-                                )}
-
-                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6">
-                                    <div className="min-w-0">
-                                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 truncate">Booking Details</h2>
-                                        <p className="text-xs sm:text-sm text-gray-600 truncate">
-                                            ID: {selectedBooking._id || generateBookingId(selectedBooking, booking.indexOf(selectedBooking))}
-                                        </p>
-                                    </div>
-                                    <div className="text-right min-w-0">
-                                        <span className={`px-3 sm:px-4 py-1 sm:py-2 rounded-full font-medium text-sm sm:text-base ${getStatusColor(selectedBooking.status)}`}>
-                                            {getStatusText(selectedBooking.status)}
-                                        </span>
-                                        <p className="text-xs text-gray-600 mt-1">
-                                            Booked: {formatDate(selectedBooking.bookedon)}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Booking Summary Card */}
-                                <div
-                                    className={`rounded-lg sm:rounded-xl p-4 sm:p-6 mb-6 ${selectedBooking.status === "confirmed"
-                                        ? "bg-green-50 border border-green-200"
-                                        : selectedBooking.status === "completed"
-                                        ? "bg-blue-50 border border-blue-200"
-                                        : "bg-gray-50 border border-gray-200"
-                                        }`}
+                        <AnimatePresence mode="wait">
+                            {selectedBooking ? (
+                                <motion.div
+                                    key={selectedBooking._id}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100"
                                 >
-                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6">
-                                        <div className="flex items-center min-w-0">
-                                            <span className="text-2xl sm:text-3xl md:text-4xl mr-3 sm:mr-4">{getTypeIcon(selectedBooking)}</span>
-                                            <div className="min-w-0">
-                                                <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 truncate capitalize">
-                                                    {getBookingType(selectedBooking)} Booking
-                                                </h3>
-                                                <p className="text-sm sm:text-base text-gray-600 truncate">
-                                                    {selectedBooking.from} → {selectedBooking.to}
+                                    {/* Mobile back button */}
+                                    {isMobile && (showFilters || showBookingList) && (
+                                        <motion.button
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            onClick={() => {
+                                                setShowFilters(false);
+                                                setShowBookingList(false);
+                                            }}
+                                            className="mb-6 text-blue-600 hover:text-blue-800 flex items-center gap-2 text-sm font-medium"
+                                        >
+                                            <ArrowLeft className="w-4 h-4" />
+                                            Back to Details
+                                        </motion.button>
+                                    )}
+
+                                    {/* Header */}
+                                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+                                        <div className="min-w-0">
+                                            <h2 className="text-3xl font-bold text-gray-900 mb-2">Booking Details</h2>
+                                            <div className="flex items-center gap-3">
+                                                <div className={`px-4 py-2 rounded-full font-semibold flex items-center gap-2 ${getStatusConfig(selectedBooking.status).bg} ${getStatusConfig(selectedBooking.status).textColor}`}>
+                                                    {getStatusConfig(selectedBooking.status).icon}
+                                                    {getStatusConfig(selectedBooking.status).text}
+                                                </div>
+                                                <p className="text-sm text-gray-600">
+                                                    ID: {selectedBooking._id?.substring(0, 8).toUpperCase()}
                                                 </p>
                                             </div>
                                         </div>
-
-                                        <div className="text-right min-w-0">
-                                            <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
-                                                ₹{selectedBooking.totalPrice}
-                                            </p>
-                                            <p className="text-sm text-gray-600">Total Amount</p>
-                                        </div>
                                     </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                                        <div>
-                                            <p className="text-xs sm:text-sm text-gray-600">Passenger Name</p>
-                                            <p className="text-base sm:text-lg font-semibold text-gray-800 truncate">
-                                                {selectedBooking.firstName} {selectedBooking.lastName}
-                                            </p>
+                                    {/* Booking Summary Card */}
+                                    <motion.div
+                                        initial={{ scale: 0.95 }}
+                                        animate={{ scale: 1 }}
+                                        className={`rounded-xl p-6 mb-8 bg-gradient-to-r ${selectedBooking.status === "confirmed" ? "from-green-50 to-emerald-50" : selectedBooking.status === "completed" ? "from-blue-50 to-indigo-50" : "from-gray-50 to-gray-100"} border-2 ${selectedBooking.status === "confirmed" ? "border-green-200" : selectedBooking.status === "completed" ? "border-blue-200" : "border-gray-200"}`}
+                                    >
+                                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6">
+                                            <div className="flex items-center">
+                                                <div className="p-4 rounded-xl bg-white shadow-md mr-4">
+                                                    {getTypeIcon(selectedBooking)}
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-2xl font-bold text-gray-900">
+                                                        {getBookingType(selectedBooking)} Booking
+                                                    </h3>
+                                                    <p className="text-gray-600">
+                                                        {selectedBooking.from} → {selectedBooking.to}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <motion.div
+                                                whileHover={{ scale: 1.05 }}
+                                                className="text-right bg-white rounded-xl p-4 shadow-md"
+                                            >
+                                                <p className="text-3xl font-bold text-gray-900">
+                                                    ₹{selectedBooking.totalPrice}
+                                                </p>
+                                                <p className="text-sm text-gray-600">Total Amount</p>
+                                            </motion.div>
                                         </div>
 
-                                        <div>
-                                            <p className="text-xs sm:text-sm text-gray-600">Journey Date</p>
-                                            <p className="text-base sm:text-lg font-semibold text-gray-800">
-                                                {formatDate(selectedBooking.journeyDate || selectedBooking.date)}
-                                            </p>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="bg-white rounded-xl p-4 shadow-sm">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <User className="w-4 h-4 text-gray-500" />
+                                                    <p className="text-sm text-gray-600">Passenger Name</p>
+                                                </div>
+                                                <p className="text-lg font-semibold text-gray-900">
+                                                    {selectedBooking.firstName} {selectedBooking.lastName}
+                                                </p>
+                                            </div>
+
+                                            <div className="bg-white rounded-xl p-4 shadow-sm">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <Calendar className="w-4 h-4 text-gray-500" />
+                                                    <p className="text-sm text-gray-600">Journey Date</p>
+                                                </div>
+                                                <p className="text-lg font-semibold text-gray-900">
+                                                    {formatDate(selectedBooking.journeyDate || selectedBooking.date)}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
+                                    </motion.div>
 
-                                {/* Detailed Information */}
-                                <div className="mb-6">
-                                    <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">
-                                        Booking Details
-                                    </h3>
+                                    {/* Detailed Information */}
+                                    <div className="mb-8">
+                                        <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                                            <CreditCard className="w-5 h-5" />
+                                            Booking Information
+                                        </h3>
 
-                                    <div className="bg-gray-50 rounded-lg sm:rounded-xl p-4 sm:p-6">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             {/* Flight specific details */}
                                             {selectedBooking.airline && (
                                                 <>
-                                                    <div>
-                                                        <p className="text-xs sm:text-sm text-gray-600">Airline</p>
-                                                        <p className="text-sm sm:text-base font-medium text-gray-800 truncate">
-                                                            {selectedBooking.airline}
-                                                        </p>
+                                                    <div className="bg-gray-50 rounded-xl p-4">
+                                                        <p className="text-sm text-gray-600 mb-1">Airline</p>
+                                                        <p className="font-medium text-gray-900">{selectedBooking.airline}</p>
                                                     </div>
 
-                                                    <div>
-                                                        <p className="text-xs sm:text-sm text-gray-600">Flight Number</p>
-                                                        <p className="text-sm sm:text-base font-medium text-gray-800">
-                                                            {selectedBooking.flightNumber}
-                                                        </p>
+                                                    <div className="bg-gray-50 rounded-xl p-4">
+                                                        <p className="text-sm text-gray-600 mb-1">Flight Number</p>
+                                                        <p className="font-medium text-gray-900">{selectedBooking.flightNumber}</p>
                                                     </div>
-
-                                                    {selectedBooking.seatPreference && (
-                                                        <div>
-                                                            <p className="text-xs sm:text-sm text-gray-600">Seat Preference</p>
-                                                            <p className="text-sm sm:text-base font-medium text-gray-800">
-                                                                {selectedBooking.seatPreference}
-                                                            </p>
-                                                        </div>
-                                                    )}
-
-                                                    {selectedBooking.mealPreference && (
-                                                        <div>
-                                                            <p className="text-xs sm:text-sm text-gray-600">Meal Preference</p>
-                                                            <p className="text-sm sm:text-base font-medium text-gray-800">
-                                                                {selectedBooking.mealPreference}
-                                                            </p>
-                                                        </div>
-                                                    )}
                                                 </>
                                             )}
 
                                             {/* Common details */}
-                                            <div>
-                                                <p className="text-xs sm:text-sm text-gray-600">Booking Status</p>
-                                                <p className={`text-sm sm:text-base font-medium capitalize ${getStatusColor(selectedBooking.status)} inline-block px-2 py-1 rounded-full`}>
-                                                    {selectedBooking.status}
-                                                </p>
-                                            </div>
-
-                                            <div>
-                                                <p className="text-xs sm:text-sm text-gray-600">Booked On</p>
-                                                <p className="text-sm sm:text-base font-medium text-gray-800">
-                                                    {selectedBooking.bookedon}
-                                                </p>
+                                            <div className="bg-gray-50 rounded-xl p-4">
+                                                <p className="text-sm text-gray-600 mb-1">Booking Date</p>
+                                                <p className="font-medium text-gray-900">{formatDate(selectedBooking.bookedon)}</p>
                                             </div>
 
                                             {selectedBooking.email && (
-                                                <div>
-                                                    <p className="text-xs sm:text-sm text-gray-600">Email</p>
-                                                    <p className="text-sm sm:text-base font-medium text-gray-800 truncate">
-                                                        {selectedBooking.email}
-                                                    </p>
-                                                </div>
-                                            )}
-
-                                            {selectedBooking.phone && (
-                                                <div>
-                                                    <p className="text-xs sm:text-sm text-gray-600">Phone</p>
-                                                    <p className="text-sm sm:text-base font-medium text-gray-800">
-                                                        {selectedBooking.phone}
-                                                    </p>
+                                                <div className="bg-gray-50 rounded-xl p-4">
+                                                    <p className="text-sm text-gray-600 mb-1">Email</p>
+                                                    <p className="font-medium text-gray-900 truncate">{selectedBooking.email}</p>
                                                 </div>
                                             )}
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* Actions - Responsive */}
-                                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
-                                    <button className="flex-1 bg-blue-600 text-white py-2 sm:py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm sm:text-base flex items-center justify-center">
-                                        <span className="mr-2">📄</span>
-                                        Download Ticket
-                                    </button>
+                                    {/* Actions */}
+                                    <div className="flex flex-col md:flex-row gap-4 mb-8">
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                                        >
+                                            <Download className="w-5 h-5" />
+                                            Download Ticket
+                                        </motion.button>
 
-                                    {selectedBooking.status === 'confirmed' || selectedBooking.status === 'pending' ? (
-                                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
-                                            <button className="flex-1 border border-yellow-600 text-yellow-600 py-2 sm:py-3 rounded-lg font-medium hover:bg-yellow-50 transition-colors text-sm sm:text-base">
-                                                ✏️ Modify
-                                            </button>
-                                            <button className="flex-1 border border-red-600 text-red-600 py-2 sm:py-3 rounded-lg font-medium hover:bg-red-50 transition-colors text-sm sm:text-base">
-                                                ❌ Cancel
-                                            </button>
-                                        </div>
-                                    ) : selectedBooking.status === 'completed' ? (
-                                        <button className="flex-1 border border-green-600 text-green-600 py-2 sm:py-3 rounded-lg font-medium hover:bg-green-50 transition-colors text-sm sm:text-base">
-                                            ⭐ Rate Experience
-                                        </button>
-                                    ) : selectedBooking.status === 'cancelled' ? (
-                                        <button className="flex-1 border border-gray-600 text-gray-600 py-2 sm:py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm sm:text-base">
-                                            📋 View Refund Status
-                                        </button>
-                                    ) : null}
-                                </div>
-
-                                {/* Timeline - Responsive */}
-                                <div className="mt-6">
-                                    <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Booking Timeline</h3>
-                                    <div className="relative pl-6 sm:pl-8">
-                                        <div className="absolute left-0 top-0 bottom-0 w-0.5 sm:w-0.5 bg-blue-200"></div>
-
-                                        <div className="relative mb-6 sm:mb-8">
-                                            <div className="absolute -left-4 sm:-left-9 w-4 h-4 sm:w-6 sm:h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                                                <div className="w-1 h-1 sm:w-2 sm:h-2 bg-white rounded-full"></div>
+                                        {selectedBooking.status === 'confirmed' || selectedBooking.status === 'pending' ? (
+                                            <div className="flex flex-col md:flex-row gap-4 w-full">
+                                                <motion.button
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    className="flex-1 border-2 border-yellow-500 text-yellow-600 py-3 rounded-xl font-semibold hover:bg-yellow-50 transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    <Edit2 className="w-5 h-5" />
+                                                    Modify
+                                                </motion.button>
+                                                <motion.button
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    className="flex-1 border-2 border-red-500 text-red-600 py-3 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    <XCircle className="w-5 h-5" />
+                                                    Cancel
+                                                </motion.button>
                                             </div>
-                                            <div className="pl-2 sm:pl-4">
-                                                <p className="text-sm sm:text-base font-medium text-gray-800">Booking Created</p>
-                                                <p className="text-xs text-gray-600">
-                                                    {formatDate(selectedBooking.createdAt)}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        {selectedBooking.status === 'confirmed' && (
-                                            <div className="relative mb-6 sm:mb-8">
-                                                <div className="absolute -left-4 sm:-left-9 w-4 h-4 sm:w-6 sm:h-6 bg-green-600 rounded-full flex items-center justify-center">
-                                                    <div className="w-1 h-1 sm:w-2 sm:h-2 bg-white rounded-full"></div>
-                                                </div>
-                                                <div className="pl-2 sm:pl-4">
-                                                    <p className="text-sm sm:text-base font-medium text-gray-800">Booking Confirmed</p>
-                                                    <p className="text-xs text-gray-600">
-                                                        Shortly after booking
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {selectedBooking.status === 'completed' && (
-                                            <div className="relative mb-6 sm:mb-8">
-                                                <div className="absolute -left-4 sm:-left-9 w-4 h-4 sm:w-6 sm:h-6 bg-purple-600 rounded-full flex items-center justify-center">
-                                                    <div className="w-1 h-1 sm:w-2 sm:h-2 bg-white rounded-full"></div>
-                                                </div>
-                                                <div className="pl-2 sm:pl-4">
-                                                    <p className="text-sm sm:text-base font-medium text-gray-800">Journey Completed</p>
-                                                    <p className="text-xs text-gray-600">
-                                                        After travel date
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {selectedBooking.status === 'cancelled' && (
-                                            <div className="relative">
-                                                <div className="absolute -left-4 sm:-left-9 w-4 h-4 sm:w-6 sm:h-6 bg-red-600 rounded-full flex items-center justify-center">
-                                                    <div className="w-1 h-1 sm:w-2 sm:h-2 bg-white rounded-full"></div>
-                                                </div>
-                                                <div className="pl-2 sm:pl-4">
-                                                    <p className="text-sm sm:text-base font-medium text-gray-800">Booking Cancelled</p>
-                                                    <p className="text-xs text-gray-600">
-                                                        After cancellation
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
+                                        ) : selectedBooking.status === 'completed' ? (
+                                            <motion.button
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                className="flex-1 border-2 border-green-500 text-green-600 py-3 rounded-xl font-semibold hover:bg-green-50 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <Star className="w-5 h-5" />
+                                                Rate Experience
+                                            </motion.button>
+                                        ) : null}
                                     </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-lg sm:rounded-xl shadow-md p-6 sm:p-8 text-center">
-                                <div className="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">📋</div>
-                                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2">Select a Booking</h2>
-                                <p className="text-sm sm:text-base text-gray-600 mb-4">
-                                    {isMobile ? 'Tap on a booking from the list' : 'Click on a booking from the list'} to view details
-                                </p>
-                                {isMobile && (
-                                    <button
-                                        onClick={() => setShowBookingList(true)}
-                                        className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm"
+
+                                    {/* Timeline */}
+                                    <div className="mt-8">
+                                        <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                                            <TrendingUp className="w-5 h-5" />
+                                            Booking Timeline
+                                        </h3>
+                                        <div className="relative pl-8">
+                                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-indigo-500 rounded-full"></div>
+
+                                            {[
+                                                {
+                                                    status: 'created',
+                                                    title: 'Booking Created',
+                                                    date: formatDate(selectedBooking.createdAt),
+                                                    color: 'from-blue-500 to-cyan-500'
+                                                },
+                                                ...(selectedBooking.status === 'confirmed' || selectedBooking.status === 'completed' ? [{
+                                                    status: 'confirmed',
+                                                    title: 'Booking Confirmed',
+                                                    date: formatDate(selectedBooking.bookedon),
+                                                    color: 'from-green-500 to-emerald-500'
+                                                }] : []),
+                                                ...(selectedBooking.status === 'completed' ? [{
+                                                    status: 'completed',
+                                                    title: 'Journey Completed',
+                                                    date: formatDate(selectedBooking.journeyDate),
+                                                    color: 'from-purple-500 to-violet-500'
+                                                }] : []),
+                                                ...(selectedBooking.status === 'cancelled' ? [{
+                                                    status: 'cancelled',
+                                                    title: 'Booking Cancelled',
+                                                    date: formatDate(selectedBooking.updatedAt),
+                                                    color: 'from-red-500 to-rose-500'
+                                                }] : [])
+                                            ].map((step, index) => (
+                                                <motion.div
+                                                    key={step.status}
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ delay: index * 0.1 }}
+                                                    className="relative mb-8 last:mb-0"
+                                                >
+                                                    <div className={`absolute -left-10 w-6 h-6 rounded-full bg-gradient-to-r ${step.color} shadow-md flex items-center justify-center`}>
+                                                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                                                    </div>
+                                                    <div className="pl-4">
+                                                        <p className="font-semibold text-gray-900">{step.title}</p>
+                                                        <p className="text-sm text-gray-600">{step.date}</p>
+                                                    </div>
+                                                </motion.div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="empty"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-xl p-8 md:p-12 text-center border border-blue-100"
+                                >
+                                    <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                                        className="text-6xl mb-6"
                                     >
-                                        Show Booking List
-                                    </button>
-                                )}
-                            </div>
-                        )}
+                                        📋
+                                    </motion.div>
+                                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                                        Select a Booking
+                                    </h2>
+                                    <p className="text-gray-600 mb-8">
+                                        {isMobile ? 'Tap' : 'Click'} on a booking from the list to view details
+                                    </p>
+                                    {isMobile && (
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => setShowBookingList(true)}
+                                            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
+                                        >
+                                            Show Booking List
+                                        </motion.button>
+                                    )}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

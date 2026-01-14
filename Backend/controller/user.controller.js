@@ -367,8 +367,8 @@ export const handleDestopProfile = async (req, res) => {
 
 export const handleEditProfile = async (req, res) => {
   try {
-    const { dob, nationality, passportNumber, Address, emergencyno,userId } = req.body;
-    // console.log(req.body, "this is user id")
+    const { dob, nationality, passportNumber, address, emergencyno,userId } = req.body.data;
+    console.log(req.body, "this is user id")
     
     
 
@@ -381,7 +381,7 @@ export const handleEditProfile = async (req, res) => {
     }
 
     const emergencynoRegex = /^(?:\+91|91)?[6-9]\d{9}$/;
-    const isemergencyno = emergencynoRegex.test(isemergencyno)
+    const isemergencyno = emergencynoRegex.test(emergencyno)
     if(!isemergencyno){
       return res.status(400).json({
         message:"emergency contect is not valid",
@@ -396,12 +396,12 @@ export const handleEditProfile = async (req, res) => {
         dob,
         nationality,
         passportNumber,
-        Address,
+        address,
         emergencyno,
       },
       { new: true} )
 
-    // console.log(user, "this is user")
+    console.log(user, "this is user of update")
 
     return res.status(200).json({
       message: "updated",

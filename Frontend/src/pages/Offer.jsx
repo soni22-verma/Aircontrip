@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Plane, 
   Search, 
@@ -16,22 +16,48 @@ import {
   MapPin,
   ChevronDown,
   AlertCircle,
-  X
+  X,
+  Sparkles,
+  Zap,
+  Gift,
+  TrendingUp,
+  Copy,
+  ChevronLeft,
+  ChevronRight,
+  Crown,
+  ShieldCheck,
+  Globe,
+  Headphones,
+  Award,
+  Tag as TagIcon,
+  ArrowUpRight,
+  Check,
+  ExternalLink,
+  HelpCircle
 } from 'lucide-react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 
 const AircontripOffersPage = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedOffer, setSelectedOffer] = useState('') ;
+  const [selectedOffer, setSelectedOffer] = useState('');
+  const [copiedCode, setCopiedCode] = useState('');
+  const [activeFAQ, setActiveFAQ] = useState(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const filtersRef = useRef();
+  const heroRef = useRef();
+  const heroInView = useInView(heroRef, { once: true });
 
   // Filters for offers
   const filters = [
-    { id: 'all', label: 'All Offers', count: 24 },
-    { id: 'flights', label: 'Flights', count: 12 },
-    { id: 'hotels', label: 'Hotels', count: 6 },
-    { id: 'packages', label: 'Packages', count: 4 },
-    { id: 'exclusive', label: 'Exclusive', count: 8 },
-    { id: 'expiring', label: 'Expiring Soon', count: 3 },
+    { id: 'all', label: 'All Offers', count: 24, icon: Gift, color: 'from-purple-500 to-pink-500' },
+    { id: 'flights', label: 'Flights', count: 12, icon: Plane, color: 'from-blue-500 to-cyan-500' },
+    { id: 'hotels', label: 'Hotels', count: 6, icon: Shield, color: 'from-green-500 to-emerald-500' },
+    { id: 'packages', label: 'Packages', count: 4, icon: Ticket, color: 'from-orange-500 to-amber-500' },
+    { id: 'exclusive', label: 'Exclusive', count: 8, icon: Crown, color: 'from-yellow-500 to-orange-500' },
+    { id: 'expiring', label: 'Expiring Soon', count: 3, icon: Clock, color: 'from-red-500 to-pink-500' },
   ];
 
   // Featured offers
@@ -44,10 +70,11 @@ const AircontripOffersPage = () => {
       code: 'WEEKEND40',
       validUntil: '2025-12-31',
       type: 'package',
-      icon: <Ticket className="w-8 h-8" />,
+      icon: Ticket,
       color: 'from-purple-500 to-pink-500',
       bgColor: 'bg-purple-50',
-      highlight: true
+      highlight: true,
+      popular: true
     },
     {
       id: 'feat-2',
@@ -57,10 +84,11 @@ const AircontripOffersPage = () => {
       code: 'EARLYBIRD',
       validUntil: '2025-12-25',
       type: 'flights',
-      icon: <Plane className="w-8 h-8" />,
+      icon: Plane,
       color: 'from-blue-500 to-cyan-500',
       bgColor: 'bg-blue-50',
-      highlight: true
+      highlight: true,
+      popular: true
     },
     {
       id: 'feat-3',
@@ -70,10 +98,25 @@ const AircontripOffersPage = () => {
       code: 'STAY35',
       validUntil: '2025-12-28',
       type: 'hotels',
-      icon: <Tag className="w-8 h-8" />,
+      icon: Tag,
       color: 'from-green-500 to-emerald-500',
       bgColor: 'bg-green-50',
-      highlight: true
+      highlight: true,
+      popular: true
+    },
+    {
+      id: 'feat-4',
+      title: 'International Escape',
+      description: '30% off on all international flights to Europe and USA',
+      discount: '30% OFF',
+      code: 'INTER30',
+      validUntil: '2025-12-20',
+      type: 'flights',
+      icon: Globe,
+      color: 'from-indigo-500 to-purple-500',
+      bgColor: 'bg-indigo-50',
+      highlight: true,
+      popular: false
     },
   ];
 
@@ -87,7 +130,7 @@ const AircontripOffersPage = () => {
       code: 'STUDENT25',
       validUntil: '2025-12-31',
       type: 'flights',
-      icon: <Percent className="w-6 h-6" />,
+      icon: Percent,
       color: 'from-orange-500 to-yellow-500',
       bgColor: 'bg-orange-50',
       conditions: 'Valid student ID required'
@@ -100,7 +143,7 @@ const AircontripOffersPage = () => {
       code: 'FAMILY30',
       validUntil: '2025-12-20',
       type: 'package',
-      icon: <Users className="w-6 h-6" />,
+      icon: Users,
       color: 'from-pink-500 to-rose-500',
       bgColor: 'bg-pink-50',
       conditions: 'Minimum 4 travelers'
@@ -113,7 +156,7 @@ const AircontripOffersPage = () => {
       code: 'BUSINESSUP',
       validUntil: '2025-12-15',
       type: 'exclusive',
-      icon: <Star className="w-6 h-6" />,
+      icon: Star,
       color: 'from-indigo-500 to-purple-500',
       bgColor: 'bg-indigo-50',
       conditions: 'On flights above ₹50,000'
@@ -126,7 +169,7 @@ const AircontripOffersPage = () => {
       code: 'LOYAL20',
       validUntil: '2025-12-22',
       type: 'hotels',
-      icon: <Shield className="w-6 h-6" />,
+      icon: Shield,
       color: 'from-teal-500 to-cyan-500',
       bgColor: 'bg-teal-50',
       conditions: 'For returning customers only'
@@ -139,7 +182,7 @@ const AircontripOffersPage = () => {
       code: 'LASTMIN',
       validUntil: '2025-12-10',
       type: 'expiring',
-      icon: <Clock className="w-6 h-6" />,
+      icon: Clock,
       color: 'from-red-500 to-orange-500',
       bgColor: 'bg-red-50',
       conditions: 'Limited seats available'
@@ -152,10 +195,49 @@ const AircontripOffersPage = () => {
       code: 'GOASPECIAL',
       validUntil: '2025-12-30',
       type: 'package',
-      icon: <MapPin className="w-6 h-6" />,
+      icon: MapPin,
       color: 'from-blue-600 to-indigo-600',
       bgColor: 'bg-blue-50',
       conditions: 'Valid for Goa bookings only'
+    },
+    {
+      id: 'offer-7',
+      title: 'Honeymoon Package',
+      description: 'Romantic getaway with premium amenities',
+      discount: '₹12,000 OFF',
+      code: 'HONEYMOON',
+      validUntil: '2025-12-25',
+      type: 'package',
+      icon: Star,
+      color: 'from-pink-500 to-rose-500',
+      bgColor: 'bg-pink-50',
+      conditions: 'Valid certificate required'
+    },
+    {
+      id: 'offer-8',
+      title: 'Weekday Special',
+      description: '15% off on all weekday flights',
+      discount: '15% OFF',
+      code: 'WEEKDAY15',
+      validUntil: '2025-12-18',
+      type: 'flights',
+      icon: Calendar,
+      color: 'from-gray-600 to-gray-800',
+      bgColor: 'bg-gray-50',
+      conditions: 'Monday to Thursday only'
+    },
+    {
+      id: 'offer-9',
+      title: 'Group Booking Offer',
+      description: 'Special discounts for groups of 10+ people',
+      discount: '40% OFF',
+      code: 'GROUP40',
+      validUntil: '2025-12-31',
+      type: 'exclusive',
+      icon: Users,
+      color: 'from-green-500 to-teal-500',
+      bgColor: 'bg-green-50',
+      conditions: 'Minimum 10 travelers'
     },
   ];
 
@@ -166,333 +248,569 @@ const AircontripOffersPage = () => {
     ? allOffers 
     : allOffers.filter(offer => offer.type === selectedFilter);
 
+  const faqs = [
+    {
+      id: 1,
+      question: "Can I combine multiple offers?",
+      answer: "Only one offer can be applied per booking. However, some offers may include combined benefits like hotel + flight packages."
+    },
+    {
+      id: 2,
+      question: "How long are the offers valid?",
+      answer: "Each offer has its own validity period mentioned on the card. Please check before applying as they cannot be extended."
+    },
+    {
+      id: 3,
+      question: "Are there any blackout dates?",
+      answer: "Some offers may have blackout dates during peak seasons or holidays. Check offer details for specific restrictions."
+    },
+    {
+      id: 4,
+      question: "Can I use offers on existing bookings?",
+      answer: "Offers can only be applied at the time of new bookings. They cannot be applied retroactively."
+    },
+    {
+      id: 5,
+      question: "Are these offers transferable?",
+      answer: "No, all offers are non-transferable and can only be used by the account holder."
+    },
+  ];
+
   const handleCopyCode = (code) => {
     navigator.clipboard.writeText(code);
-    alert(`Coupon code "${code}" copied to clipboard!`);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(''), 2000);
   };
 
   const handleApplyOffer = (offerId) => {
     setSelectedOffer(offerId);
-    // In a real app, you would redirect to booking page or show modal
-    setTimeout(() => setSelectedOffer(null), 2000);
+    setTimeout(() => setSelectedOffer(null), 3000);
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Auto-slide featured offers
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % featuredOffers.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100
+      }
+    }
+  };
+
+  const cardHoverVariants = {
+    hover: {
+      y: -10,
+      scale: 1.02,
+      transition: {
+        duration: 0.3
+      }
+    }
+  };
+
+  const slideVariants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 1000 : -1000,
+      opacity: 0
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5
+      }
+    },
+    exit: (direction) => ({
+      x: direction < 0 ? 1000 : -1000,
+      opacity: 0,
+      transition: {
+        duration: 0.5
+      }
+    })
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-gray-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <div className="flex items-center space-x-2">
-                <Plane className="w-8 h-8 text-blue-600" />
-                <span className="text-2xl font-bold text-blue-600">Aircontrip</span>
-              </div>
-              <nav className="hidden md:ml-10 md:flex md:space-x-8">
-                <a href="#" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                  Flights
-                </a>
-                <a href="#" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                  Hotels
-                </a>
-                <a href="#" className="text-blue-600 border-b-2 border-blue-600 px-3 py-2 text-sm font-medium">
-                  Offers
-                </a>
-                <a href="#" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                  My Bookings
-                </a>
-              </nav>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button className="hidden md:inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100">
-                Sign In
-              </button>
-              <button className="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700">
-                Book Now
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Banner */}
-      <div className="relative bg-red-200">
-        <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="relative max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Exclusive Travel Offers
-            </h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8">
-              Unlock amazing discounts on flights, hotels, and vacation packages. 
-              Your next adventure is more affordable than ever!
-            </p>
-            
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1">
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search offers by destination, code, or type..."
-                      className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-                <button className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-linear-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600">
-                  <Search className="w-5 h-5 mr-2" />
-                  Search Offers
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-blue-50/30 mt-5">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-orange-100 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse delay-500"></div>
       </div>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filters */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-800">Browse Offers</h2>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Filter className="w-4 h-4" />
-              <span>Filter by:</span>
-            </div>
-          </div>
+    
+
+      {/* Hero Banner */}
+      <motion.div 
+        ref={heroRef}
+        initial={{ opacity: 0, y: 50 }}
+        animate={heroInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8 }}
+        className="relative min-h-[80vh] flex items-center overflow-hidden"
+      >
+        {/* Animated Background */}
+        <div className="absolute inset-0 bg-linear-to-br from-blue-600 via-purple-600 to-pink-600">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1920')] opacity-10 bg-cover bg-center"></div>
+          <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent"></div>
           
-          <div className="flex flex-wrap gap-2">
-            {filters.map((filter) => (
-              <button
-                key={filter.id}
-                onClick={() => setSelectedFilter(filter.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  selectedFilter === filter.id
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-                }`}
-              >
-                {filter.label}
-                <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
-                  selectedFilter === filter.id
-                    ? 'bg-blue-500'
-                    : 'bg-gray-100'
-                }`}>
-                  {filter.count}
-                </span>
-              </button>
-            ))}
-          </div>
+          {/* Floating Elements */}
+          <motion.div 
+            animate={{ y: [0, -20, 0] }}
+            transition={{ repeat: Infinity, duration: 3 }}
+            className="absolute top-1/4 left-10 w-6 h-6 bg-white/20 rounded-full"
+          />
+          <motion.div 
+            animate={{ y: [0, 20, 0] }}
+            transition={{ repeat: Infinity, duration: 4, delay: 0.5 }}
+            className="absolute top-1/3 right-20 w-8 h-8 bg-white/10 rounded-full"
+          />
+          <motion.div 
+            animate={{ y: [0, -30, 0] }}
+            transition={{ repeat: Infinity, duration: 5, delay: 1 }}
+            className="absolute bottom-1/4 left-1/3 w-10 h-10 bg-white/15 rounded-full"
+          />
         </div>
 
-        {/* Featured Offers */}
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-gray-800">Featured Offers</h3>
-            <div className="flex items-center text-blue-600 hover:text-blue-700 cursor-pointer">
-              <span className="font-medium">View all</span>
-              <ArrowRight className="w-5 h-5 ml-1" />
+        <div className="relative max-w-7xl mx-auto px-4 py-24 text-center">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={heroInView ? { scale: 1 } : {}}
+            transition={{ delay: 0.2, type: "spring" }}
+            className="inline-block mb-6"
+          >
+            <div className="relative">
+              <div className="absolute -inset-1 bg-linear-to-r from-yellow-400 to-orange-400 rounded-full blur opacity-30"></div>
+              <div className="relative px-8 py-3 bg-linear-to-r from-yellow-400 to-orange-400 rounded-full backdrop-blur-sm">
+                <span className="text-white font-bold text-sm flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  LIMITED TIME OFFERS
+                </span>
+              </div>
             </div>
-          </div>
+          </motion.div>
           
-          <div className="grid md:grid-cols-3 gap-6">
-            {featuredOffers.map((offer) => (
-              <div 
-                key={offer.id}
-                className={`relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 ${offer.bgColor}`}
-              >
-                {/* Badge */}
-                <div className="absolute top-4 left-4 z-10">
-                  <span className="px-3 py-1 text-xs font-bold text-white bg-linear-to-r ${offer.color} rounded-full">
-                    FEATURED
-                  </span>
-                </div>
-                
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`p-3 rounded-xl bg-linear-to-br ${offer.color} text-white`}>
-                      {offer.icon}
-                    </div>
-                    <div className="text-right">
-                      <div className="text-3xl font-bold text-gray-800">{offer.discount}</div>
-                      <div className="text-sm text-gray-600">Discount</div>
-                    </div>
-                  </div>
-                  
-                  <h4 className="text-xl font-bold text-gray-800 mb-2">{offer.title}</h4>
-                  <p className="text-gray-600 mb-6">{offer.description}</p>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
-                      <div className="font-mono font-bold text-gray-800">{offer.code}</div>
-                      <button
-                        onClick={() => handleCopyCode(offer.code)}
-                        className="text-blue-600 hover:text-blue-700 font-medium text-sm"
-                      >
-                        Copy Code
-                      </button>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-gray-600">
-                        <Calendar className="w-4 h-4 mr-1" />
-                        Valid until {new Date(offer.validUntil).toLocaleDateString()}
-                      </div>
-                      <button
-                        onClick={() => handleApplyOffer(offer.id)}
-                        className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-linear-to-r ${offer.color} hover:opacity-90"
-                      >
-                        {selectedOffer === offer.id ? 'Applied!' : 'Apply Offer'}
-                        {selectedOffer !== offer.id && <ArrowRight className="w-4 h-4 ml-2" />}
-                      </button>
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={heroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.3 }}
+            className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight"
+          >
+            Travel More,
+            <span className="block bg-linear-to-r from-yellow-300 via-pink-300 to-purple-300 bg-clip-text text-transparent">
+              Pay Less
+            </span>
+          </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            animate={heroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.4 }}
+            className="text-xl text-blue-100 max-w-3xl mx-auto mb-10 leading-relaxed"
+          >
+            Unlock amazing discounts on flights, hotels, and vacation packages. 
+            Your next adventure is more affordable than ever!
+          </motion.p>
+
+          {/* Search Bar */}
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            animate={heroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.5 }}
+            className="max-w-2xl mx-auto"
+          >
+            <div className="relative">
+              <div className="absolute -inset-0.5 bg-linear-to-r from-blue-400 to-purple-400 rounded-2xl blur opacity-30"></div>
+              <div className="relative bg-white/20 backdrop-blur-sm rounded-2xl p-2 border border-white/30">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search offers by destination, code, or type..."
+                        className="w-full pl-12 pr-4 py-4 bg-white rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
                     </div>
                   </div>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-xl text-white bg-linear-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <Search className="w-5 h-5 mr-3" />
+                    Search Offers
+                  </motion.button>
                 </div>
               </div>
+            </div>
+          </motion.div>
+
+          {/* Scroll Indicator */}
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5 }}
+            className="absolute bottom-10 left-1/2 -translate-x-1/2"
+          >
+            <ChevronDown className="w-8 h-8 text-white/60" />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Filters Section */}
+        <motion.section
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="mb-16"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+              <Filter className="w-8 h-8 text-blue-500" />
+              Browse Offers
+            </h2>
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center text-blue-600 hover:text-blue-700 cursor-pointer font-medium"
+            >
+              <span>View all offers</span>
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </motion.div>
+          </div>
+          
+          <div ref={filtersRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {filters.map((filter, index) => (
+              <motion.button
+                key={filter.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setSelectedFilter(filter.id)}
+                className={`relative p-4 rounded-2xl transition-all duration-300 ${
+                  selectedFilter === filter.id
+                    ? `bg-linear-to-r ${filter.color} text-white shadow-xl`
+                    : 'bg-white text-gray-700 hover:bg-gray-50 shadow-lg border border-gray-100'
+                }`}
+              >
+                <div className="flex flex-col items-center gap-3">
+                  <filter.icon className="w-6 h-6" />
+                  <span className="font-semibold text-sm">{filter.label}</span>
+                  <span className={`px-3 py-1 rounded-full text-xs ${
+                    selectedFilter === filter.id
+                      ? 'bg-white/20'
+                      : 'bg-gray-100'
+                  }`}>
+                    {filter.count}
+                  </span>
+                </div>
+              </motion.button>
             ))}
           </div>
-        </section>
+        </motion.section>
+
+      
 
         {/* All Offers Grid */}
-        <section>
-          <h3 className="text-2xl font-bold text-gray-800 mb-6">All Available Offers</h3>
+        <motion.section
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          <h3 className="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+            <Gift className="w-8 h-8 text-blue-500" />
+            All Available Offers
+            <span className="text-lg font-normal text-gray-600 ml-2">
+              ({filteredOffers.length} offers found)
+            </span>
+          </h3>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredOffers.map((offer) => (
-              <div 
+            {filteredOffers.map((offer, index) => (
+              <motion.div
                 key={offer.id}
-                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100"
+                variants={itemVariants}
+                whileHover="hover"
+                variants={cardHoverVariants}
+                className="relative group"
               >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`p-3 rounded-lg ${offer.bgColor}`}>
-                      <div className={`text-white ${offer.color.replace('from-', 'text-').replace('to-', '')}`}>
-                        {offer.icon}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`text-2xl font-bold bg-linear-to-r ${offer.color} bg-clip-text text-transparent`}>
-                        {offer.discount}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">USE CODE</div>
-                    </div>
-                  </div>
-                  
-                  <h4 className="text-lg font-bold text-gray-800 mb-2">{offer.title}</h4>
-                  <p className="text-gray-600 text-sm mb-4">{offer.description}</p>
-                  
-                  {offer.conditions && (
-                    <div className="flex items-start text-sm text-gray-500 mb-4">
-                      <AlertCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
-                      <span>{offer.conditions}</span>
+                <div className="absolute -inset-0.5 bg-linear-to-r opacity-0 group-hover:opacity-70 blur transition duration-500 rounded-2xl"></div>
+                <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100">
+                  {/* Offer Badge */}
+                  {offer.popular && (
+                    <div className="absolute top-4 right-4 z-10">
+                      <span className="px-3 py-1 text-xs font-bold text-white bg-linear-to-r from-yellow-400 to-orange-400 rounded-full shadow-lg">
+                        POPULAR
+                      </span>
                     </div>
                   )}
                   
-                  <div className="pt-4 border-t border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Calendar className="w-4 h-4 mr-1" />
-                        {new Date(offer.validUntil).toLocaleDateString()}
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-6">
+                      <div className={`p-4 rounded-xl bg-linear-to-r ${offer.color} shadow-lg`}>
+                        <offer.icon className="w-8 h-8 text-white" />
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleCopyCode(offer.code)}
-                          className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-                        >
-                          {offer.code}
-                        </button>
-                        <button
-                          onClick={() => handleApplyOffer(offer.id)}
-                          className={`px-4 py-1 text-sm font-medium rounded-lg text-white bg-linear-to-r ${offer.color} hover:opacity-90`}
-                        >
-                          Apply
-                        </button>
+                      <div className="text-right">
+                        <div className={`text-3xl font-bold bg-linear-to-r ${offer.color} bg-clip-text text-transparent`}>
+                          {offer.discount}
+                        </div>
+                        <div className="text-sm text-gray-500">USE CODE</div>
+                      </div>
+                    </div>
+                    
+                    <h4 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors">
+                      {offer.title}
+                    </h4>
+                    <p className="text-gray-600 mb-4">{offer.description}</p>
+                    
+                    {offer.conditions && (
+                      <div className="flex items-start text-sm text-gray-500 mb-6">
+                        <AlertCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span>{offer.conditions}</span>
+                      </div>
+                    )}
+                    
+                    <div className="pt-6 border-t border-gray-100">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Calendar className="w-4 h-4 mr-2" />
+                          <span>{new Date(offer.validUntil).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleCopyCode(offer.code)}
+                            className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 flex items-center gap-2"
+                          >
+                            {copiedCode === offer.code ? <Check className="w-4 h-4" /> : offer.code}
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleApplyOffer(offer.id)}
+                            className={`px-6 py-2 text-sm font-bold rounded-lg text-white bg-linear-to-r ${offer.color} shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2`}
+                          >
+                            {selectedOffer === offer.id ? 'Applied' : 'Apply'}
+                            {selectedOffer !== offer.id && <ArrowUpRight className="w-4 h-4" />}
+                          </motion.button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </section>
+        </motion.section>
 
         {/* How It Works Section */}
-        <section className="mt-16 bg-linear-to-r from-blue-50 to-indigo-50 rounded-2xl p-8">
-          <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">How to Use Aircontrip Offers</h3>
+        <motion.section
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="mt-24 bg-linear-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 rounded-3xl p-12 backdrop-blur-sm"
+        >
+          <h3 className="text-3xl font-bold text-gray-800 mb-12 text-center">
+            How to Use Aircontrip Offers
+          </h3>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                  1
+            {[
+              { num: 1, title: "Find Your Offer", desc: "Browse through exclusive offers and select one that suits your travel plans", icon: Search },
+              { num: 2, title: "Copy Coupon Code", desc: "Click 'Copy Code' to save the coupon code to your clipboard", icon: Copy },
+              { num: 3, title: "Apply & Book", desc: "Use the code during checkout on Aircontrip to avail your discount", icon: CheckCircle }
+            ].map((step, idx) => (
+              <motion.div
+                key={step.num}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.2 }}
+                viewport={{ once: true }}
+                className="text-center relative"
+              >
+                <div className="relative inline-block mb-6">
+                  <div className="absolute -inset-1 bg-linear-to-r from-blue-500 to-purple-500 rounded-full blur opacity-30"></div>
+                  <div className="relative w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-xl">
+                    <div className="w-16 h-16 bg-linear-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-2xl">
+                      {step.num}
+                    </div>
+                  </div>
+                  <div className="absolute -right-2 -top-2 p-2 bg-linear-to-r from-yellow-400 to-orange-400 rounded-full">
+                    <step.icon className="w-6 h-6 text-white" />
+                  </div>
                 </div>
-              </div>
-              <h4 className="font-bold text-gray-800 mb-2">Find Your Offer</h4>
-              <p className="text-gray-600 text-sm">
-                Browse through our exclusive offers and select the one that best suits your travel plans
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                  2
-                </div>
-              </div>
-              <h4 className="font-bold text-gray-800 mb-2">Copy Coupon Code</h4>
-              <p className="text-gray-600 text-sm">
-                Click on the "Copy Code" button to save the coupon code to your clipboard
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                  3
-                </div>
-              </div>
-              <h4 className="font-bold text-gray-800 mb-2">Apply & Book</h4>
-              <p className="text-gray-600 text-sm">
-                Use the code during checkout on Aircontrip to avail your discount
-              </p>
-            </div>
+                <h4 className="text-xl font-bold text-gray-800 mb-3">{step.title}</h4>
+                <p className="text-gray-600">{step.desc}</p>
+              </motion.div>
+            ))}
           </div>
-        </section>
+        </motion.section>
 
         {/* FAQ Section */}
-        <section className="mt-16">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6">Frequently Asked Questions</h3>
+        <motion.section
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="mt-24"
+        >
+          <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center flex items-center justify-center gap-3">
+            <HelpCircle className="w-8 h-8 text-blue-500" />
+            Frequently Asked Questions
+          </h3>
           
-          <div className="space-y-4">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h4 className="font-bold text-gray-800 mb-2">Can I combine multiple offers?</h4>
-              <p className="text-gray-600">
-                Only one offer can be applied per booking. However, some offers may include combined benefits.
-              </p>
-            </div>
+          <div className="max-w-4xl mx-auto space-y-4">
+            {faqs.map((faq, index) => (
+              <motion.div
+                key={faq.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="mb-4"
+              >
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  onClick={() => setActiveFAQ(activeFAQ === faq.id ? null : faq.id)}
+                  className="w-full text-left p-6 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex justify-between items-center group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-linear-to-r from-blue-100 to-blue-50 rounded-lg flex items-center justify-center">
+                      <HelpCircle className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <span className="text-lg font-semibold text-gray-800">{faq.question}</span>
+                  </div>
+                  <motion.div
+                    animate={{ rotate: activeFAQ === faq.id ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="w-8 h-8 bg-linear-to-r from-blue-50 to-blue-100 rounded-full flex items-center justify-center"
+                  >
+                    <ChevronDown className="w-5 h-5 text-blue-500" />
+                  </motion.div>
+                </motion.button>
+                <AnimatePresence>
+                  {activeFAQ === faq.id && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-6 bg-gray-50/50 rounded-b-2xl">
+                        <p className="text-gray-600">{faq.answer}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* CTA Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="mt-24 relative"
+        >
+          <div className="absolute -inset-1 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur opacity-20"></div>
+          <div className="relative bg-linear-to-r from-blue-600 to-purple-600 rounded-3xl p-12 text-center overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full translate-y-32 -translate-x-32"></div>
             
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h4 className="font-bold text-gray-800 mb-2">How long are the offers valid?</h4>
-              <p className="text-gray-600">
-                Each offer has its own validity period mentioned on the card. Please check before applying.
+            <div className="relative">
+              <Sparkles className="w-16 h-16 text-yellow-300 mx-auto mb-6" />
+              <h3 className="text-4xl font-bold text-white mb-6">
+                Ready to Travel with Amazing Offers?
+              </h3>
+              <p className="text-blue-100 text-xl mb-10 max-w-2xl mx-auto">
+                Don't miss out on these exclusive deals. Start planning your next adventure today!
               </p>
-            </div>
-            
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h4 className="font-bold text-gray-800 mb-2">Are there any blackout dates?</h4>
-              <p className="text-gray-600">
-                Some offers may have blackout dates during peak seasons or holidays. Check offer details for specific restrictions.
-              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-4 bg-white text-blue-600 font-bold rounded-xl shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center gap-3"
+                >
+                  <Plane className="w-6 h-6" />
+                  Explore All Destinations
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-4 bg-linear-to-r from-yellow-400 to-orange-400 text-white font-bold rounded-xl shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center gap-3"
+                >
+                  <TagIcon className="w-6 h-6" />
+                  View More Offers
+                </motion.button>
+              </div>
             </div>
           </div>
-        </section>
+        </motion.section>
       </main>
 
       
+
+      {/* Floating Offer Notification */}
+      <AnimatePresence>
+        {selectedOffer && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            className="fixed bottom-6 right-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-xl shadow-2xl z-50 max-w-sm"
+          >
+            <div className="flex items-center gap-3">
+              <CheckCircle className="w-8 h-8" />
+              <div>
+                <p className="font-bold">Offer Applied Successfully!</p>
+                <p className="text-sm opacity-90">The offer has been applied to your booking</p>
+              </div>
+              <button onClick={() => setSelectedOffer(null)} className="ml-4">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
